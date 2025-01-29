@@ -8,30 +8,26 @@
 
 
 ## 3. Requirements Specification
-### **3.1. Use-Case Diagram**
+### **3.1. Use-Case Diagram** - C
 - : Authentication With Google or Facebook; -A
 
 - : Create, Delete, Edit and Export journal entries and analytics. -N
 
-- : Ability to set realistic journaling habits and provide reminders.
-
-- : Voice input functionality for people with disabilities or if User prefer this. -C
+- : Mood Tracking + Past Statistics - C
 
 - : Adding photos and videos of events to the entries. -A
 
-- : Symptom Tracking for physical and mental health to share with healthcare providers. -A
-
-- : Play music (stress relief, frequency music, copyright free though) in the background according to user's current mood -C
-
 - : Privacy, Manage how data is stored; Ability to delete user data;  -N
 
-- : Reporting Bugs or Issues To Admin; -N
+- : Payment - K
 
-- : Suggest activities according to user's mood; -C
+- : Manage Profile - N
+    > Ability to set realistic journaling habits and provide reminders. - : Ability to set realistic journaling habits and provide reminders. 
 
-### **3.2. Actors Description**
+
+### **3.2. Actors Description** - A
 1. **Users**: 
-2. **Admin**: ...
+2. **Paid Users**: Access to upload images/videos
 
 
 ### **3.3. Functional Requirements**
@@ -110,6 +106,44 @@
                     - 2a2. ...
 
         2. ...
+
+2. **Create, Delete, Edit and Export journal entries and Analytics**
+    - **Overview**:
+    1. Calander View Front End With (Color Coded/Indicator To Display Journaled Day);
+    2. Click On Specific Day ~ FrontEnd Button 4 Buttons (Create, Edit, Export, Delete);
+
+    - **Detailed Flow for Each Independent Scenario**:
+    1. **Create**
+        - **Description**: Create a Journal Entry
+        - **Primary actor(s)**: User
+        - **Main success scenario**: 
+        1. A User can click on a create button to create a new journal entry.
+        2. A Chat Box Will Open Where the User will be greeted with a chat bot ~ Guide through a structured Routine For Journling;
+        - **Failure scenario(s)**:
+        1. Chatbot structure responses doesnt analyze user promt well.
+        2. 
+    
+    2. **Delete**
+        - **Description**: Edit A Journal Entry
+        - **Primary actor(s)**:  User
+        - **Main success scenario**: A User can click on a Edit button to create a new journal entry.
+        - **Failure scenario(s)**: 
+
+
+    3. **Export**
+        - **Description**: Export A Journal Entry
+        - **Primary actor(s)**:  User
+        - **Main success scenario**:
+        - **Failure scenario(s)**:
+
+
+    4. **Edit**
+        - **Description**: Delete A Journal Entry
+        - **Primary actor(s)**:  User
+        - **Main success scenario**:
+        - **Failure scenario(s)**:
+
+
 4. **Speech To Text** 
     - **Overview**:
         1. Set Language: The actor selects a Language for Voice Input
@@ -149,8 +183,7 @@
                 - 4a. Speech Recognition Failure
                     - 2a1. An error message is displayed for speech recognition failure, and suggest alternative input methods
                     - 2a2. System prompts the user to check the voice input language setting.
-    
-4. **Play Mood Music in the Background** 
+5. **Play Mood Music in the Background** 
     - **Overview**:
         1. Select and Play Music: The system selects and plays appropriate music based on detected mood from Mood Tracking functionality.
         2. User Control Over Music: The user can play, pause, or change the background music.
@@ -189,7 +222,7 @@
                 - 3a. Music player fails to respond
                     - 3a1. An error message is displayed
                     - 3a2. System suggests the user to restart the app.
-5. **Acitivity Suggestions** 
+6. **Acitivity Suggestions** 
     - **Overview**:
         1. : The system shows some suggested activities based on detected mood from Mood Tracking functionality.
         
@@ -252,9 +285,12 @@
     - **Purpose**: ...
     - **Reason**: ...
 2. ...
+- docker
+- mongodb
+- aws ec2
+- Kubernetes
 
-
-### **4.5. Dependencies Diagram**
+### **4.5. Dependencies Diagram** 
 
 
 ### **4.6. Functional Requirements Sequence Diagram**
@@ -267,7 +303,14 @@
 1. [**[WRITE_NAME_HERE]**](#nfr1)
     - **Validation**: ...
 2. ...
-
+- Privacy: stored entries will be encrypted and stored in our database 
+    > text, videos, images should be encrypted using CBC
+- Performance:
+    > operations for managing journal entries should be completed within 2 seconds when the server is available
+    > sentiment analysis should take within 20 seconds
+    > LLM responses should be fetched within ? seconds
+- Usability:
+    > operations for users managing journal entries should take less than 3 clicks
 
 ### **4.8. Main Project Complexity Design**
 **[WRITE_NAME_HERE]**
@@ -281,7 +324,7 @@
         ```
         
         ```
-
+- chatbot - N
 
 ## 5. Contributions
 - ...
