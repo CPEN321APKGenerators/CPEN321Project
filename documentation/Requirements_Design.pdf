@@ -1,0 +1,38 @@
+MileStone #1
+
+The design specification consists of:
+● A list of main components, databases, and external modules whose APIs you plan to use in
+your project’s back-end (aim for 3-4 components, not counting databases and external
+modules). Explain in 1-2 sentences the purpose of each element and the rationale for
+defining/selecting this element (vs. alternative options you considered).
+● For each component, a list of its interfaces:
+○ Each interface must have a meaningful name, parameters, and return value, as well as
+a short description of its purpose (1-2 sentences).
+o You should use Java-style method signatures to describe interactions between your
+back-end components (unless you plan to implement them as microservices) and
+HTTP/REST-style interfaces between your back-end components and external
+modules.
+● Frameworks you plan to use (cloud provider, etc.) and the reasons for choosing these
+frameworks.
+● A diagram showing dependencies between components, as well as dependencies between
+components and databases/external modules.
+○ “Boxes” in the diagram correspond to components and “links” show call dependencies.
+Links must be directional, i.e., A→B means that component A calls B via at least one
+interface defined in B. A←→B means that A calls B via at least one interface defined in
+B, and B calls A via at least one interface defined in A.
+○ Note: This is a free-form diagram rather than a class diagram.
+○ You do not need to specify the front-end design for this milestone. Yet, you must add
+“front-end” to your diagram as one “box”, to help visualize calls from the front-end to the
+back-end.
+● For each functional requirement, show a sequence diagram that describes how internal and
+external components (represented as lifelines) and their interfaces (represented as messages)
+will be used to realize the requirement. The sequence diagram should only use components
+and interfaces defined above.
+● For each non-functional requirement, describe in 1-2 sentences the planned implementation
+that will ensure the requirement is realized.
+● Describe your design for the main project “complexity”. E.g., for your complex algorithm,
+specify its inputs, outputs, main computational logic (as pseudo-code), and state why it is
+complex.
+● For the contribution of each team member, describe the work done by each team member
+towards the completion of this document (1-2 sentences per member) and time spent by each team
+member towards completion of this milestone (in hours).
