@@ -22,7 +22,7 @@
 - : Payment - K
 
 - : Manage Profile - N
-    > Ability to set realistic journaling habits and provide reminders. - : Ability to set realistic journaling habits and provide reminders. 
+    > Ability to set realistic journaling habits and provide reminders. 
 
 
 ### **3.2. Actors Description** - A
@@ -107,42 +107,91 @@
 
         2. ...
 
-2. **Create, Delete, Edit and Export journal entries and Analytics**
+1. **Create, Delete, Edit and Export Journal Entries**
     - **Overview**:
-    1. Calander View Front End With (Color Coded/Indicator To Display Journaled Day);
-    2. Click On Specific Day ~ FrontEnd Button 4 Buttons (Create, Edit, Export, Delete);
+    1. Calander View On the Front End: A Calander with indicator to mark days that contain journal entries and days without.
+    2. Click On Specific Day: If day Has been journaled, 3 buttons appear Edit, Export, Delete. If day hasnt been journaled, create button appears.
 
     - **Detailed Flow for Each Independent Scenario**:
     1. **Create**
         - **Description**: Create a Journal Entry
         - **Primary actor(s)**: User
         - **Main success scenario**: 
-        1. A User can click on a create button to create a new journal entry.
-        2. A Chat Box Will Open Where the User will be greeted with a chat bot ~ Guide through a structured Routine For Journling;
+        1. The user clicks on the Create button for the specified day.
+        2. A chatview box opens with a chatbot welcoming the user by name.
+        3. The chatbot ensures a structured and meaningful entry and the user input responses are saved on the backend.
         - **Failure scenario(s)**:
-        1. Chatbot structure responses doesnt analyze user promt well.
-        2. 
+        1. The chatbot does not interpret user prompts correctly.
+        2. The user does not complete the journal entry.
+        3. There is an error on the backend/database and the entry isnt saved.
     
-    2. **Delete**
-        - **Description**: Edit A Journal Entry
+    2. **Edit**
+        - **Description**: Edit an existing journal entry.
         - **Primary actor(s)**:  User
-        - **Main success scenario**: A User can click on a Edit button to create a new journal entry.
+        - **Main success scenario**: 
+        1. The user selects a date that already has a journal entry and click the edit button.
+        2. The chatbox loads the previous journal entry.
+        3. The user has the ability to modify the text.
+        4. The updated entry is saved.
         - **Failure scenario(s)**: 
-
+        1. The chatbox fails to load the previous entry.
+        2. The entry fails to update/save due to a backend error.
 
     3. **Export**
-        - **Description**: Export A Journal Entry
+        - **Description**: Export A Journal Entry as PDF or CSV file.
         - **Primary actor(s)**:  User
         - **Main success scenario**:
+        1. The user selects a date that already has a journal entry and click the export button.
+        2. The chatbot asks for the preferred export format PDF or CSV.
+        3. The user selects a format.
+        4. The user selected file format is generated and the user downloads it.
         - **Failure scenario(s)**:
+        1. The file does not generate correctly.
+        2. The exported text is incomplete or incorrectly formatted.
+        3. The user experiences a download failure due to network or browser issues.
 
-
-    4. **Edit**
-        - **Description**: Delete A Journal Entry
+    4. **Delete**
+        - **Description**: Delete a journal entry.
         - **Primary actor(s)**:  User
         - **Main success scenario**:
+        1. The user selects a date with an existing journal entry.
+        2. The Delete button is clicked.
+        3. The chatbot confirms if a user would like to proceed?
+        4. The user confirms, and the entry is permanently removed from the db.
+        5. The calendar view updates to remove the journaled indicator.
         - **Failure scenario(s)**:
+        1. The journal entry is accidentally deleted without a way to restore it.
+        2. The backend fails to delete the entry.
+        3. The calendar view does not update correctly.
 
+
+2. **Sentiment Analysis & Analytics**
+    - **Overview**:
+    1. Journal Entries stored on the db are analyzed the text and a sentiment score is generated.
+
+    - **Detailed Flow for Each Independent Scenario**:
+    1. **Compute Sentiment Score (Backend)**
+        - **Description**: Sentiment Analysis and Generate Score.
+        - **Primary actor(s)**: ML Model or API (depending on complexity)
+        - **Main success scenario**: 
+        1. When a user creates or edits a journal entry, the system automatically analyzes the sentiment of the text.
+        2. The sentiment score is stored in the database alongside the journal entry.
+
+        - **Failure scenario(s)**:
+        1. ML Model or API fails to interpret user input accurately.
+        2. The sentiment score is not saved correctly in the database.
+
+    2. **Display Sentiment Trends in Analytics**
+        - **Description**: Display an overview of the user’s mood over a period of time.
+        - **Primary actor(s)**:  User
+        - **Main success scenario**: 
+        1. The user clicks on the Analytics button on top of the calander.
+        2. visual graphs of sentiment trends over a period of time is then displayed.
+        3. User is able to chose Monthly/weekly, Pie Chart, Frequently used words in entries, etc..
+        - **Failure scenario(s)**: 
+        1. Sentinment data is missing, incorrect, or not updated in real-time.
+        2. Charts are not rendering correctly.
+        3. Insufficient Data to render charts.
 
 4. **Speech To Text** 
     - **Overview**:
