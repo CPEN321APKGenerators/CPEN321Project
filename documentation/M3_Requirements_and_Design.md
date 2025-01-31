@@ -396,20 +396,94 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 - Usability:
     > operations for users managing journal entries should take less than 3 clicks
 
+
 ### **4.8. Main Project Complexity Design**
 **[WRITE_NAME_HERE]**
-- **Description**: ...
-- **Why complex?**: ...
-- **Design**:
-    - **Input**: ...
-    - **Output**: ...
-    - **Main computational logic**: ...
-    - **Pseudo-code**: ...
-        ```
-        
-        ```
-- chatbot - N
+- **Description**: 
+        Based On a custom trained chatbot that is designed to guide users through structured journal entries by dynamically adjusting its questions based on user responses. 
+        It ensures that entries are meaningful, complete, and well-organized by leveraging Rasa NLU for intent classification and dialogue management.
+        The chatbot must also integrate with sentiment analysis and the backend database to store journal entries.
+- **Why complex?**: 
+        Requires custom NLP training to recognize user intent accurately.
+        Must handle custom dialogue management, adapting dynamically to different user responses.
+        Needs context retention, meaning it must remember user input across multiple conversation turns.
+        Requires error handling and fallback mechanisms to manage incomplete or unclear entries.
+        Must integrate with sentiment analysis models to analyze the emotional tone of journal entries.
+        Requires secure and efficient storage integration with the backend for saving journal entries.
 
+- **Design**:
+    - **Input**: 
+        User’s journal entry responses (text or speech-to-text), 
+    - **Output**: 
+        A structured journal entry stored in the database.
+        A sentiment score attached to the journal entry for analytics.
+    - **Main computational logic**:
+        Intent Classification: Determine user response category emotion, intent.
+        Dialogue Management: Adjust responses and next questions dynamically in real time.
+        Context Retention: Maintain conversational context and Memory across user interactions.
+        Sentiment Analysis: Compute sentiment scores after post entry/completion.
+        Backend Storage: Save structured journal entries to the database along with sentiment score.
+    - **Pseudo-code**: 
+        ```python
+        def startEntry():
+            # Initialize Journaling Session
+            sessionData = {
+                "mood": None,
+                "sleep": None,
+                "exercise": None,
+                "stress": None,
+                "goal": None
+                "sentiment_score": None
+            }
+
+            # Step 1: Greeting
+            chatbot.say("Hi! How are you doing today, ready for your daily journaling?")
+            response = user_input()
+
+            if intent(response) in ["goodbye"]:
+                chatbot.say("See you tomorrow! Bye!")
+                return
+
+            # Step 2: Ask about Mood
+            chatbot.ask("How is your mood today? Yesterday you weren't all that feeling great.")
+            sessionData["mood"] = user_input()
+
+            # Step 3: Ask about sleep
+            chatbot.ask("How much sleep did you get last night?")
+            sessionData["sleep"] = user_input()
+
+            # Step 4: Ask about exercise
+            chatbot.ask("Did you get in exercise for the day?")
+            sessionData["exercise"] = user_input()
+
+            # Step 5: Ask about stress level
+            chatbot.ask("Is your stress level low, medium, or high?")
+            sessionData["stress"] = user_input()
+
+            # Step 6: Ask about user's goals for the day
+            chatbot.ask("What do you want to accomplish today?")
+            sessionData["goal"] = user_input()
+
+            # Step 7: Provide a summary
+            chatbot.say(f"Here's your daily journaling log:\n"
+                        f"- Mood: {sessionData['mood']}\n"
+                        f"- Sleep: {sessionData['sleep']} hours\n"
+                        f"- Exercise: {sessionData['exercise']}hours \n"
+                        f"- Stress: {sessionData['stress']}\n"
+                        f"- Goal: {sessionData['goal']}")
+
+            entry = {
+                "user_name": user_name,
+                "date": get_current_date(),
+                "mood": sessionData["mood"],
+                "sleep": sessionData["sleep"],
+                "exercise": sessionData["exercise"],
+                "stress": sessionData["stress"],
+                "goal": sessionData["goal"],
+                "sentiment_score": sentiment_score
+            }
+            saveToDB(entry)
+        
 ## 5. Contributions
 - ...
 - ...
