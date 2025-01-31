@@ -308,7 +308,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 - paidStatus: Boolean
                 - reminderSetting: {Weekday: Time to remind}
 2. **Manage Journaling (Journal Entries management)**
-    - **Purpose**: Handles user authentication (via Google/Facebook), and profile management.
+    - **Purpose**: Handles the management (CURD) of the Journal. Also handles the addition of media to the journal
     - **Interfaces**: 
         1. POST /api/journal
             - **Purpose**: Create a journal entry
@@ -326,13 +326,21 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Purpose**: Retrieve a journal entry
             - **Request Parameters**: date
             - **Response Body**: status code: 200
+        5. POST /api/journal/media
+            - **Purpose**: Adding photos and videos to the existing or new journal entries
+            - **Request Body**: date, media
+            - **Response Body**: The image selected by the user.
+        5. DELETE /api/journal/media
+            - **Purpose**: Removing photos and videos to the existing or new journal entries
+            - **Request Body**: date, media
+            - **Response Body**: The image selected by the user.
 3. **Analysis & Sentiment Tracking**
     - **Purpose**: Handles user authentication (via Google/Facebook), and profile management.
     - **Interfaces**: 
         1. GET /api/analytics/getTrend
             - **Purpose**: ...
             - **Request Parameters**: (optional) period: ENUM (WEEK, MONTH, YEAR). get the sentiment trend within a period.
-            - **Response Body**: the analysis results over the specified period
+            - **Response Body**: Boolean. True if the user inputted a valid credential, otherwise False.
 
 
 ### **4.2. Databases**
@@ -342,8 +350,13 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 
 ### **4.3. External Modules**
-1. **[WRITE_NAME_HERE]** 
-    - **Purpose**: ...
+1. **Google Authenticator** 
+    - **Purpose**: Handles the authentication of an user
+    - **Interfaces**: 
+        1. GET /api/authenticate
+            - **Purpose**: To authenticate a user with a valid credential
+            - **Request Parameters**: Credential (Google email and password)
+            - **Response Body**: the analysis results over the specified period
 2. ...
 
 
@@ -367,7 +380,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**Authentication**](#fr1)\
-[SEQUENCE_DIAGRAM_HERE]
+![alt text](images/Authenticate.jpg)
 2. Create
 ![alt text](images/create.png)
 3. Edit
@@ -382,6 +395,10 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 ![alt text](images/payment.png)
 8. Set reminder
 ![alt text](images/reminder.png)
+8. Remove Media
+![alt text](images/Remove_media.jpg)
+8. Add Media
+![alt text](images/Add_media.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
 1. [**[WRITE_NAME_HERE]**](#nfr1)
