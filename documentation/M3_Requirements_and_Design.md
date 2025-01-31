@@ -294,6 +294,68 @@
                     - 3a1. An error message is displayed telling user the error, and potential solutions
                     - 2a2. System prompts the user to try again.
 
+7. **Authentication with Google** 
+    - **Overview**:
+        1. Authenticate User: The User authenticates and creates an account
+    
+    - **Detailed Flow for Each Independent Scenario**: 
+        1. **Authenticate User**:
+            - **Description**: The actor authenticates using their google account
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. User presses "Sign-in" button
+                2. User is prompted to type in the google account information (Email followed by password)
+                3. User is authenticated
+            - **Failure scenario(s)**:
+                - 2a. User types in wrong information
+                    - 2a1. The system displays an error message telling the user of the error and potential solution.
+                    - 2a2. The authentication pop up prompts the user to try again
+    
+8. **Adding Photos and Videos to the Journal Entry** 
+    - **Overview**:
+        1. Adding Photos and videos from the entry: Users can attach media files to the journal entries
+        2. Removing Photos and video from the entry: Users can remove attached media files from a journal entry
+    
+    - **Detailed Flow for Each Independent Scenario**: 
+        1. **Adding Photos and videos from the entry**:
+            - **Description**: The user should be able to attach photos or videos to their journal entry from their phone storage or directly by using the devices's camera
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. The user selects a journal entry
+                2. The user clicks on the "Attachment icon" button
+                3. The system prompts user to select media from device or capture a new photo using the device's camera
+                4. The user selects one of the following option
+                5. The media is uploaded
+            - **Failure scenario(s)**:
+                - 4a. User selects an unsupported file format
+                    - 3a1. An error message is displayed: "Unsupported file format: Please select a following file format"
+                    - 3a2. The user is prompted to try again with a valid file format
+                - 4b. The device doesn't have enough storage
+                    - 3b1. The user clicks on to capture a new media
+                    - 3b2. An error message is displayed: "The storage is full, please free up space"
+                - 5a. The media is not successfully uploaded
+                    - 5a1. An error is displayed: "The media was not successfully uploaded. Try again"
+                    - 5a2. The user is prompted to try again 
+
+        2. **Removing Photos and video from the entry**:
+            - **Description**: The user should be able to remove previously attached media from their journal entries.
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. The user selects a journal entry containing attached media
+                2. The user selects the media they want remove
+                3. System displays a pop-up: "Are you sure you want to remove this media?"
+                4. The user confirms their choice
+                5. The system removes the media from the journal entry
+            - **Failure scenario(s)**:
+                - 2a. Media is already deleted or missing
+                    - 5a1. The system displays an error: "File not found"
+                    - 5a2. The user is prompted to check the presence of media in the journal entry
+                - 4a. User mistakenly deleted the media and would like to recover it
+                    - 4a1. The system provides an Undo option for 20 seconds after it is deleted  
+                    - 4a2. If the user does not undo, the media is removed from the journal
+                - 5a. The media is not successfully deleted
+                    - 5a1. An error is displayed: "The media was not successfully deleted. Try again"
+                    - 5a2. The user is prompted to try again
 ### **3.4. Screen Mockups**
 
 
