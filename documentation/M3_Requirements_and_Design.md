@@ -95,19 +95,13 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Description**: User should be able to use third-party payment option to upgrade privelleges of their account to enable adding photos and videos to journal entries.
             - **Primary actor(s)**: User
             - **Main success scenario**:
-                1. User goes through third-party payment system and the payment is approved by their financial institution and their account has its privelleges elevated.
+                1. User goes through third-party payment system, the payment is approved by their financial institution and the user is notified their account has its privelleges elevated. It will also mention the perks that come with it and a short set of instructions like "In journal entry click on '+'-> Photo/Video".
             - **Failure scenario(s)**:
-                - 1a. ...
-                    - 1a1. ...
-                    - 1a2. ...
-                - 1b. ...
-                    - 1b1. ...
-                    - 1b2. ...
-                - 2a. ...
-                    - 2a1. ...
-                    - 2a2. ...
+                - 1a. User account already upgraded
+                    - 1a1. Clicking on the UI button will result in a notification that they already have an upgraded account. It will also mention the perks that come with it and a short set of instructions like "In journal entry click on '+'-> Photo/Video".
+                - 1b. There is an error with the third-party payment and it returns as not completed.
+                    - 1b1. The user is notified of the transaction failure and the type high-level error if that is returned.
 
-        2. ...
 
 1. **Create, Delete, Edit and Export Journal Entries**
     - **Overview**:
@@ -285,10 +279,20 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 ### **3.5. Non-Functional Requirements**
 <a name="nfr1"></a>
 
-1. **[WRITE_NAME_HERE]**
-    - **Description**: ...
-    - **Justification**: ...
-2. ...
+1. **Entry Encryption**
+    - **Description**: User entries will be stored in an external database encrypted with CBC protocol
+    - **Justification**: Encrypting user data as an extra layer of security will make more people willing to choose our application to save all of their sensitive personal information. Protecting this information is also extremely important from a privacy/ethics point of view, along with for the safety of users as well.
+2. **Response Times**
+    - **Description**: 
+        - Operations for managing journal entries should be completed within 2 seconds when the server is available.
+        - Sentiment analysis should take within 20 seconds.
+        - LLM responses should be fetched within 5 seconds.
+    - **Justification**: Fast response times are crucial for a smooth user experience. Waiting a maximum of 5 seconds for a prompt for writing sounds reasonable along with max 20 seconds for analysis to be done after an entry is created as it will already take some time for the user to navigate to the menu if they wanted to see progress tracking of the app. For operations involving journal entries, people will probably want something a bit more responsive since they might want to look through multiple past journal entries for example.
+
+3. **Usability**
+    - **Description**: 
+        - Operations for users managing journal entries should take less than 3 clicks.
+    - **Justification**: Minimizing the number of clicks required to perform operations makes it so that the user can get to adding or viewing journal entries quickly so that people who are more impulsive for entries are more likely to remain consistent with journaling.
 
 
 ## 4. Designs Specification
@@ -408,7 +412,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 - Performance:
     > operations for managing journal entries should be completed within 2 seconds when the server is available
     > sentiment analysis should take within 20 seconds
-    > LLM responses should be fetched within ? seconds
+    > LLM responses should be fetched within 5 seconds
 - Usability:
     > operations for users managing journal entries should take less than 3 clicks
 
