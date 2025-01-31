@@ -218,7 +218,6 @@
                 - 3a. Activity description fails to load
                     - 3a1. An error message is displayed telling user the error, and potential solutions
                     - 2a2. System prompts the user to try again.
-
 7. **Authentication with Google** 
     - **Overview**:
         1. Authenticate User: The User authenticates and creates an account
