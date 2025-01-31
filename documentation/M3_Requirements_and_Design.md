@@ -25,9 +25,9 @@
     > Ability to set realistic journaling habits and provide reminders. 
 
 
-### **3.2. Actors Description** - A
-1. **Users**: 
-2. **Paid Users**: Access to upload images/videos
+### **3.2. Actors Description**
+1. **Users**: The primary actor of the application. Users can authenticate, manage entries, perform sentiment analysis, update their profile, and make payments.
+2. **Paid Users**: It is a secondary actor and upgraded version of the User actor. It inherits all User functionalities and additionally allows media uploads in journal entries.
 
 
 ### **3.3. Functional Requirements**
