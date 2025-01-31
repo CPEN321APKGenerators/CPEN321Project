@@ -388,7 +388,7 @@
         Sentiment Analysis: Compute sentiment scores after post entry/completion.
         Backend Storage: Save structured journal entries to the database along with sentiment score.
     - **Pseudo-code**: 
-    
+        ```python
         def startEntry():
             # Initialize Journaling Session
             sessionData = {
