@@ -344,8 +344,8 @@
 ![alt text](images/analyze.png)
 7. Payment
 ![alt text](images/payment.png)
-8. Manage Profile
-
+8. Set reminder
+![alt text](images/reminder.png)
 
 ### **4.7. Non-Functional Requirements Design**
 1. [**[WRITE_NAME_HERE]**](#nfr1)
