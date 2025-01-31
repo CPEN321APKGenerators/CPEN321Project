@@ -4,109 +4,26 @@
 <!-- Leave blank for M3 -->
 
 ## 2. Project Description
-Journal - Therapy with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides interactive conversations, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
+Journal - Therapy with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
 
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram** 
 ![alt text](images/Screenshot%202025-01-30%20at%203.03.35 PM.png)
-(feel free to change it in google drive)
-
-- : Authentication With Google or Facebook; -A
-
-- : Create, Delete, Edit and Export journal entries and analytics. -N
-
-- : Mood Tracking + Past Statistics - C
-
-- : Adding photos and videos of events to the entries. -A
-
-- : Privacy, Manage how data is stored; Ability to delete user data;  -N
-
-- : Payment - K
-
-- : Manage Profile - N
-    > Ability to set realistic journaling habits and provide reminders. 
-
+(TO CHANGE)
 
 ### **3.2. Actors Description**
-1. **Users**: The primary actor of the application. Users can authenticate, manage entries, perform sentiment analysis, update their profile, and make payments.
-2. **Paid Users**: It is a secondary actor and upgraded version of the User actor. It inherits all User functionalities and additionally allows media uploads in journal entries.
+1. **Users**: The primary actor of the application. "Users" can authenticate, manage entries, perform sentiment analysis, update their profile, and make payments.
+2. **Paid Users**: It is a secondary actor and upgraded version of the "User" actor. It inherits all User functionalities except the payment use case and additionally allows media uploads in journal entries.
 
 
 ### **3.3. Functional Requirements**
 <a name="fr1"></a>
 
-1. **[WRITE_FUNCTIONAL_REQUIREMENT_1_NAME_HERE]** 
-    - **Overview**:
-        1. [WRITE_FUNCTIONAL_REQUIREMENT_1_1_NAME_HERE]
-        2. ...
-    
-    - **Detailed Flow for Each Independent Scenario**: 
-        1. **[WRITE_FUNCTIONAL_REQUIREMENT_1_1_NAME_HERE]**:
-            - **Description**: ...
-            - **Primary actor(s)**: ... 
-            - **Main success scenario**:
-                1. ...
-                2. ...
-            - **Failure scenario(s)**:
-                - 1a. ...
-                    - 1a1. ...
-                    - 1a2. ...
-                - 1b. ...
-                    - 1b1. ...
-                    - 1b2. ...
-                - 2a. ...
-                    - 2a1. ...
-                    - 2a2. ...
-
-        2. ...
-    
-2. **[WRITE_FUNCTIONAL_REQUIREMENT_1_NAME_HERE]** 
-    - **Overview**:
-        1. [WRITE_FUNCTIONAL_REQUIREMENT_1_1_NAME_HERE]
-        2. ...
-    
-    - **Detailed Flow for Each Independent Scenario**: 
-        1. **[WRITE_FUNCTIONAL_REQUIREMENT_1_1_NAME_HERE]**:
-            - **Description**: ...
-            - **Primary actor(s)**: ... 
-            - **Main success scenario**:
-                1. ...
-                2. ...
-            - **Failure scenario(s)**:
-                - 1a. ...
-                    - 1a1. ...
-                    - 1a2. ...
-                - 1b. ...
-                    - 1b1. ...
-                    - 1b2. ...
-                - 2a. ...
-                    - 2a1. ...
-                    - 2a2. ...
-
-        2. ...
-3. **Upgrade Account** 
-    - **Overview**:
-        1. Upgrade Account
-        2. Use Third-party Payment Method
-    
-    - **Detailed Flow for Each Independent Scenario**: 
-        1. **[WRITE_FUNCTIONAL_REQUIREMENT_1_1_NAME_HERE]**:
-            - **Description**: User should be able to use third-party payment option to upgrade privelleges of their account to enable adding photos and videos to journal entries.
-            - **Primary actor(s)**: User
-            - **Main success scenario**:
-                1. User goes through third-party payment system, the payment is approved by their financial institution and the user is notified their account has its privelleges elevated. It will also mention the perks that come with it and a short set of instructions like "In journal entry click on '+'-> Photo/Video".
-            - **Failure scenario(s)**:
-                - 1a. User account already upgraded
-                    - 1a1. Clicking on the UI button will result in a notification that they already have an upgraded account. It will also mention the perks that come with it and a short set of instructions like "In journal entry click on '+'-> Photo/Video".
-                - 1b. There is an error with the third-party payment and it returns as not completed.
-                    - 1b1. The user is notified of the transaction failure and the type high-level error if that is returned.
-
-
 1. **Create, Delete, Edit and Export Journal Entries**
     - **Overview**:
-    1. Calander View On the Front End: A Calander with indicator to mark days that contain journal entries and days without.
-    2. Click On Specific Day: If day Has been journaled, 3 buttons appear Edit, Export, Delete. If day hasnt been journaled, create button appears.
+    1. Calender View On the Front End: A Calendar with indicator to mark days that contain journal entries and days without.
+    2. Click On Specific Day: If day has been journaled, 3 buttons appear Edit, Export, Delete. If day has not been journaled, Create button appears.
 
     - **Detailed Flow for Each Independent Scenario**:
     1. **Create**
@@ -116,22 +33,23 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         1. The user clicks on the Create button for the specified day.
         2. A chatview box opens with a chatbot welcoming the user by name.
         3. The chatbot ensures a structured and meaningful entry and the user input responses are saved on the backend.
-        - **Failure scenario(s)**:
-        1. The chatbot does not interpret user prompts correctly.
+        - **Failure scenario(s)**: 
+        ### **TODO**
+        1. The chatbot does not interpret user response correctly.
         2. The user does not complete the journal entry.
-        3. There is an error on the backend/database and the entry isnt saved.
+        3. There is an error on the backend/database and the entry is not saved.
     
     2. **Edit**
         - **Description**: Edit an existing journal entry.
         - **Primary actor(s)**:  User
         - **Main success scenario**: 
         1. The user selects a date that already has a journal entry and click the edit button.
-        2. The chatbox loads the previous journal entry.
+        2. The saved journal entry is loaded.
         3. The user has the ability to modify the text.
         4. The updated entry is saved.
         - **Failure scenario(s)**: 
-        1. The chatbox fails to load the previous entry.
-        2. The entry fails to update/save due to a backend error.
+        1. The previously saved entry fails to load.
+        4. The entry fails to update/save due to a backend error.
 
     3. **Export**
         - **Description**: Export A Journal Entry as PDF or CSV file.
@@ -142,7 +60,6 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         3. The user selects a format.
         4. The user selected file format is generated and the user downloads it.
         - **Failure scenario(s)**:
-        1. The file does not generate correctly.
         2. The exported text is incomplete or incorrectly formatted.
         3. The user experiences a download failure due to network or browser issues.
 
@@ -152,7 +69,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         - **Main success scenario**:
         1. The user selects a date with an existing journal entry.
         2. The Delete button is clicked.
-        3. The chatbot confirms if a user would like to proceed?
+        3. The system asks if a user would like to proceed?
         4. The user confirms, and the entry is permanently removed from the db.
         5. The calendar view updates to remove the journaled indicator.
         - **Failure scenario(s)**:
@@ -163,7 +80,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 2. **Sentiment Analysis & Analytics**
     - **Overview**:
-    1. Journal Entries stored on the db are analyzed the text and a sentiment score is generated.
+    Journal Entries stored on the db are analyzed the text and a sentiment score is generated.
 
     - **Detailed Flow for Each Independent Scenario**:
     1. **Compute Sentiment Score (Backend)**
@@ -189,14 +106,14 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         2. Charts are not rendering correctly.
         3. Insufficient Data to render charts.
 
-6. **Acitivity Suggestions** 
+3. **Activity Suggestions** 
     - **Overview**:
-        1. : The system shows some suggested activities based on detected mood from Mood Tracking functionality.
+        1.  The system shows some suggested activities based on detected mood from Mood Tracking functionality.
         
     - **Detailed Flow for Each Independent Scenario**: 
-        1. . **Select and Play Music**:
-            - **Description**: Based on the mood tracking statistics, system selects and plays appropriate music.
-            - **Primary actor(s)**: System
+        1.  **Activity Suggestions**:
+            - **Description**: Based on the user's activity to happiness correlation, the chat bot suggests activity
+            - **Primary actor(s)**: User, Paid User
             - **Main success scenario**:
                 1. System retrieves mood tracking data.
                 2. System compose a prompt based on user's mood tracking data, and invoke an LLM
@@ -204,31 +121,31 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Failure scenario(s)**:
                 - 1a. System fails to retrieve mood tracking data.
                     - 1a1. An error message is displayed for retrieving mood tracking data
-                    - 1a2. System assumes the mood is peaceful.
+                    - 1a2. System prompts user to retry
                 - 2a. Failure to invoke LLM
                     - 2a1. An error message is logged for invoke LLM failure
                     - 2a2. System selects a suggests some general relaxing exercise
                 - 3a. Activity description fails to load
                     - 3a1. An error message is displayed telling user the error, and potential solutions
                     - 2a2. System prompts the user to try again.
-7. **Authentication with Google** 
+4. **Authentication with Google** 
     - **Overview**:
         1. Authenticate User: The User authenticates and creates an account
     
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Authenticate User**:
             - **Description**: The actor authenticates using their google account
-            - **Primary actor(s)**: User
+            - **Primary actor(s)**: User, Paid User
             - **Main success scenario**:
                 1. User presses "Sign-in" button
                 2. User is prompted to type in the google account information (Email followed by password)
                 3. User is authenticated
             - **Failure scenario(s)**:
                 - 2a. User types in wrong information
-                    - 2a1. The system displays an error message telling the user of the error and potential solution.
+                    - 2a1. The authentication API displays an error message telling the user of the error and potential solution.
                     - 2a2. The authentication pop up prompts the user to try again
     
-8. **Adding Photos and Videos to the Journal Entry** 
+5. **Adding Photos and Videos to the Journal Entry** 
     - **Overview**:
         1. Adding Photos and videos from the entry: Users can attach media files to the journal entries
         2. Removing Photos and video from the entry: Users can remove attached media files from a journal entry
@@ -236,7 +153,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Adding Photos and videos from the entry**:
             - **Description**: The user should be able to attach photos or videos to their journal entry from their phone storage or directly by using the devices's camera
-            - **Primary actor(s)**: User
+            - **Primary actor(s)**: Paid User
             - **Main success scenario**:
                 1. The user selects a journal entry
                 2. The user clicks on the "Attachment icon" button
@@ -245,7 +162,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 5. The media is uploaded
             - **Failure scenario(s)**:
                 - 4a. User selects an unsupported file format
-                    - 3a1. An error message is displayed: "Unsupported file format: Please select a following file format"
+                    - 3a1. An error message is displayed: "Unsupported file format: Please select a following file format: JPG, PNG, JPEG"
                     - 3a2. The user is prompted to try again with a valid file format
                 - 4b. The device doesn't have enough storage
                     - 3b1. The user clicks on to capture a new media
@@ -256,7 +173,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
         2. **Removing Photos and video from the entry**:
             - **Description**: The user should be able to remove previously attached media from their journal entries.
-            - **Primary actor(s)**: User
+            - **Primary actor(s)**: Paid User
             - **Main success scenario**:
                 1. The user selects a journal entry containing attached media
                 2. The user selects the media they want remove
@@ -273,6 +190,26 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 - 5a. The media is not successfully deleted
                     - 5a1. An error is displayed: "The media was not successfully deleted. Try again"
                     - 5a2. The user is prompted to try again
+
+3. **Upgrade Account** 
+    - **Overview**:
+        1. Upgrade account using third-party payment method: The user is able to upgrade their membership to get the perks. They would be a paid user after they upgrade the account.
+    
+    - **Detailed Flow for Each Independent Scenario**: 
+        1. **Upgrade account using third-party payment method**:
+            - **Description**: User should be able to use third-party payment option to upgrade privileges of their account to enable adding photos and videos to journal entries.
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. User goes through third-party payment system
+                2. The payment is approved by their financial institution
+                3. The user is notified their account has its privileges elevated. It will also mention the perks that come with it and a short set of instructions.
+            - **Failure scenario(s)**:
+                - 2a. There is an error with the third-party payment and it returns as not completed.
+                    - 2a1. The user is notified of the transaction failure and the type high-level error if that is returned.
+                - 3a. The account fails to upgrade
+                    - 3a1. The system prompts the user to call 123-456-7890
+
+
 ### **3.4. Screen Mockups**
 
 
@@ -285,9 +222,9 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 2. **Response Times**
     - **Description**: 
         - Operations for managing journal entries should be completed within 2 seconds when the server is available.
-        - Sentiment analysis should take within 20 seconds.
-        - LLM responses should be fetched within 5 seconds.
-    - **Justification**: Fast response times are crucial for a smooth user experience. Waiting a maximum of 5 seconds for a prompt for writing sounds reasonable along with max 20 seconds for analysis to be done after an entry is created as it will already take some time for the user to navigate to the menu if they wanted to see progress tracking of the app. For operations involving journal entries, people will probably want something a bit more responsive since they might want to look through multiple past journal entries for example.
+        - Sentiment analysis API should take within 20 seconds.
+        - Chat bot responses should be fetched within 5 seconds.
+    - **Justification**: Fast response times are crucial for a smooth user experience. Waiting a maximum of 5 seconds for a prompt for writing sounds reasonable along with max 20 seconds for analysis to be done after an entry is created as it will already take some time for the user to navigate to the menu if they wanted to see progress tracking of the app. For operations involving journal entries, people will probably want something a bit more responsive since they might want to look through multiple past journal entries.
 
 3. **Usability**
     - **Description**: 
@@ -314,41 +251,41 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Purpose**: Handles the management (CURD) of the Journal. Also handles the addition of media to the journal
     - **Interfaces**: 
         1. POST /api/journal
-            - **Purpose**: Create a journal entry
-            - **Request Body**: date
+            - **Purpose**: Create a new journal entry 
+            - **Request Body**: Date, content, Username
             - **Response Body**: Message: a message generated by the chatbot.
         2. GET /api/journal
             - **Purpose**: Retrieve a journal entry
-            - **Request Parameters**: date
+            - **Request Parameters**: Date, Username
             - **Response Body**: journal: the chosen journal entry
         3. PUT /api/journal
             - **Purpose**: Edit an existing journal entry
-            - **Request Body**: date, updated content
+            - **Request Body**: Date, updated content, Username
             - **Response Body**: the updated content
         4. DELETE /api/journal
-            - **Purpose**: Retrieve a journal entry
-            - **Request Parameters**: date
+            - **Purpose**: Delete a journal entry
+            - **Request Parameters**: Date, Username
             - **Response Body**: status code: 200
         5. POST /api/journal/media
             - **Purpose**: Adding photos and videos to the existing or new journal entries
-            - **Request Body**: date, media
+            - **Request Body**: Date, media, Username
             - **Response Body**: The image selected by the user.
-        5. DELETE /api/journal/media
+        6. DELETE /api/journal/media
             - **Purpose**: Removing photos and videos to the existing or new journal entries
-            - **Request Body**: date, media
-            - **Response Body**: The image selected by the user.
+            - **Request Body**: Media, Username
+            - **Response Body**: Status code: 200.
 3. **Analysis & Sentiment Tracking**
-    - **Purpose**: Handles user authentication (via Google/Facebook), and profile management.
+    - **Purpose**: Analyze and tracks the user's mood to get a trend over a certain period of time
     - **Interfaces**: 
         1. GET /api/analytics/getTrend
-            - **Purpose**: ...
+            - **Purpose**: Get the user's trend over a certain period of time
             - **Request Parameters**: (optional) period: ENUM (WEEK, MONTH, YEAR). get the sentiment trend within a period.
             - **Response Body**: Boolean. True if the user inputted a valid credential, otherwise False.
 
 
 ### **4.2. Databases**
 1. **[WRITE_NAME_HERE]**
-    - **Purpose**: ...
+    - **Purpose**: NYI
 2. ...
 
 
@@ -360,7 +297,10 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Purpose**: To authenticate a user with a valid credential
             - **Request Parameters**: Credential (Google email and password)
             - **Response Body**: the analysis results over the specified period
-2. ...
+2. **Stripe- Third-party payment**
+
+3. **Sentiment Analysis - Google cloud API**
+
 
 
 ### **4.4. Frameworks**
@@ -376,13 +316,15 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 4. **Kubernetes**
     - **Purpose**: Container orchestration
     - **Reason**: Helps manage and scale containers efficiently across multiple nodes.
+5. **RASA**
+    NYI
 
 ### **4.5. Dependencies Diagram** 
 ![alt text](images/dependency.png)
 (feel free to change it in google drive)
 
 ### **4.6. Functional Requirements Sequence Diagram**
-1. [**Authentication**](#fr1)\
+1. Authentication\
 ![alt text](images/Authenticate.jpg)
 2. Create
 ![alt text](images/create.png)
@@ -404,7 +346,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 ![alt text](images/Add_media.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
-1. [**[WRITE_NAME_HERE]**](#nfr1)
+1. [**[WRITE_NAME_HERE]**]
     - **Validation**: ...
 2. ...
 - Privacy: stored entries will be encrypted and stored in our database 
@@ -418,7 +360,6 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 
 ### **4.8. Main Project Complexity Design**
-**[WRITE_NAME_HERE]**
 - **Description**: 
         Based On a custom trained chatbot that is designed to guide users through structured journal entries by dynamically adjusting its questions based on user responses. 
         It ensures that entries are meaningful, complete, and well-organized by leveraging Rasa NLU for intent classification and dialogue management.
@@ -452,8 +393,9 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 "sleep": None,
                 "exercise": None,
                 "stress": None,
-                "goal": None
-                "sentiment_score": None
+                "goal": None,
+                "sentiment_score": None,
+                "Social Life": None,
             }
 
             # Step 1: Greeting
