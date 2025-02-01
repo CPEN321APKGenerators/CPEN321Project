@@ -14,7 +14,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 ### **3.2. Actors Description**
 1. **Users**: The primary actor of the application. "Users" can authenticate, manage entries, perform sentiment analysis, update their profile, and make payments.
-2. **Paid Users**: It is a secondary actor and upgraded version of the "User" actor. It inherits all User functionalities except the payment use case and additionally allows media uploads in journal entries.
+2. **Paid Users**: It is a secondary actor and upgraded version of the "User" actor. It inherits all "User" functionalities except the payment use case and additionally allows media uploads in journal entries.
 
 
 ### **3.3. Functional Requirements**
@@ -28,7 +28,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Detailed Flow for Each Independent Scenario**:
     1. **Create**
         - **Description**: Create a Journal Entry
-        - **Primary actor(s)**: User
+        - **Primary actor(s)**: User, Paid User
         - **Main success scenario**: 
         1. The user clicks on the Create button for the specified day.
         2. A chatview box opens with a chatbot welcoming the user by name.
@@ -41,7 +41,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     
     2. **Edit**
         - **Description**: Edit an existing journal entry.
-        - **Primary actor(s)**:  User
+        - **Primary actor(s)**:  User, Paid User
         - **Main success scenario**: 
         1. The user selects a date that already has a journal entry and click the edit button.
         2. The saved journal entry is loaded.
@@ -53,7 +53,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
     3. **Export**
         - **Description**: Export A Journal Entry as PDF or CSV file.
-        - **Primary actor(s)**:  User
+        - **Primary actor(s)**:  User, Paid User
         - **Main success scenario**:
         1. The user selects a date that already has a journal entry and click the export button.
         2. The chatbot asks for the preferred export format PDF or CSV.
@@ -65,7 +65,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
     4. **Delete**
         - **Description**: Delete a journal entry.
-        - **Primary actor(s)**:  User
+        - **Primary actor(s)**:  User, Paid User
         - **Main success scenario**:
         1. The user selects a date with an existing journal entry.
         2. The Delete button is clicked.
@@ -96,7 +96,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
     2. **Display Sentiment Trends in Analytics**
         - **Description**: Display an overview of the user’s mood over a period of time.
-        - **Primary actor(s)**:  User
+        - **Primary actor(s)**: User, Paid User
         - **Main success scenario**: 
         1. The user clicks on the Analytics button on top of the calander.
         2. visual graphs of sentiment trends over a period of time is then displayed.
