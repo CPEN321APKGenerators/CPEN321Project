@@ -241,7 +241,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 
 ### **3.4. Screen Mockups**
-
+![alt text](images/Flow_diagram.png)
 
 ### **3.5. Non-Functional Requirements**
 <a name="nfr1"></a>
@@ -347,9 +347,9 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         1. POST /api/payment
             - **Request Body**: Amount, Card
             - **Response Body**: Transaction Status
-3. **Sentiment Analysis - Google cloud API**
+3. **Sentiment Analysis - Openai API**
     - **Purpose**: Analyzes user's journal entry to determine sentiment.
-    - **Rationale**: When we did the authentication for M1 using google, It was easy to learn and we expect this would be simple as well. 
+    - **Rationale**: Most of the group has used the openai API previously. It is very simple to learn as well. 
     - **Interfaces**:
         1. POST /api/sentiment
             - **Request Body**: journal entry
@@ -400,14 +400,14 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 ### **4.7. Non-Functional Requirements Design**
 1. **Encryption of Entries**
-    - **Planned Implementation**: We will use AES-256-CBC encrytpion protocol to ensure all entires in the database are only viewable by the user who wrote them. During registration a "salt" will be created and this will be combined with Password-Based Key Derivation Function 2 and an initialization vector to encrypt and store data. Salt will be stored in the DB with the password-based key being derived each time the user needs to modify/add entries.
+    - **Planned Implementation**: We will use AES-256-CBC encryption protocol to ensure all entires in the database are only viewable by the user who wrote them. During registration a "salt" will be created and this will be combined with Password-Based Key Derivation Function 2 and an initialization vector to encrypt and store data. Salt will be stored in the DB with the password-based key being derived each time the user needs to modify/add entries.
 2. **Performance**
     - **Planned Implementation**: Using https to MongoDB, we can receive and transmit simple text, image and video (or database operations that surround these things), at a rate that will match. 
     For sentiment analysis, because there are multiple sentiments along with multiple variables that need to be tracked, the openai API will be used to compute weights for different emotions to later display in the "sentiment summary" screen.
-    For prompting the user, we will use the Sara framework to customize our own chatbot LLM to analyze and follow a set flow of conversation and to log activities that the user reports throughout the day for statistics tracking. Using this framework will allow us to be more flexible in that it can be run much faster than an external API call.
-# **TODO**
-- Usability:
-    > operations for users managing journal entries should take less than 3 clicks
+    For prompting the user, we will use the SARA framework to customize our own chatbot LLM to analyze and follow a set flow of conversation and to log activities that the user reports throughout the day for statistics tracking. Using this framework will allow us to be more flexible in that it can be run much faster than an external API call.
+
+3. **Usability**
+    - **Planned Implementation**: We will make sure the buttons design flow will be within 3 click. The user would click on the entry from calendar activity, which would take the user to the entry view activity. Then the user would do their final click of manage entry to get access to the entry. Please refer to the Screen Mockups for a detailed view.
 
 
 ### **4.8. Main Project Complexity Design**
@@ -505,7 +505,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             saveToDB(entry)
         
 ## 5. Contributions
-- Nyi Nyi (3-4 hours): Complexity design, database module, functional requirement, frameworks, 
+- Nyi Nyi (3-4 hours): Complexity design, database module, functional requirement, frameworks, Screen Mockups
 - Christine Jiang (10 hours): Functional requirement, sequence diagrams, component diagram, framework, main components
 - Kevin Li (4-5 hours): nonfunctional requirements, nonfunctional design, functional requirement
 - Amod Ghimire (5 hours): Functional requirement, sequence diagram, ector description, external modules
