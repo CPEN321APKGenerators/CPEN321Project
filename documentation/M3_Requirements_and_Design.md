@@ -9,7 +9,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram** 
-![alt text](images/Screenshot%202025-01-30%20at%203.03.35 PM.png)
+![alt text](images/usecases.png)
 (TO CHANGE)
 
 ### **3.2. Actors Description**
