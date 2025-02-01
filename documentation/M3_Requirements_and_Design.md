@@ -218,7 +218,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 <a name="nfr1"></a>
 
 1. **Entry Encryption**
-    - **Description**: User entries will be stored in an external database encrypted with CBC protocol
+    - **Description**: User entries will be stored in an external database encrypted with AES protocol
     - **Justification**: Encrypting user data as an extra layer of security will make more people willing to choose our application to save all of their sensitive personal information. Protecting this information is also extremely important from a privacy/ethics point of view, along with for the safety of users as well.
 2. **Response Times**
     - **Description**: 
@@ -367,15 +367,13 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 ![alt text](images/Add_media.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
-1. [**[WRITE_NAME_HERE]**]
-    - **Validation**: ...
-2. ...
-- Privacy: stored entries will be encrypted and stored in our database 
-    > text, videos, images should be encrypted using CBC
-- Performance:
-    > operations for managing journal entries should be completed within 2 seconds when the server is available
-    > sentiment analysis should take within 20 seconds
-    > LLM responses should be fetched within 5 seconds
+1. **Encryption of Entries**
+    - **Planned Implementation**: We will use AES-256-CBC encrytpion protocol to ensure all entires in the database are only viewable by the user who wrote them. During registration a "salt" will be created and this will be combined with Password-Based Key Derivation Function 2 and an initialization vector to encrypt and store data. Salt will be stored in the DB with the password-based key being derived each time the user needs to modify/add entries.
+2. **Performance**
+    - **Planned Implementation**: Using https to MongoDB, we can receive and transmit simple text, image and video (or database operations that surround these things), at a rate that will match. 
+    For sentiment analysis, because there are multiple sentiments along with multiple variables that need to be tracked, the openai API will be used to compute weights for different emotions to later display in the "sentiment summary" screen.
+    For prompting the user, we will use the Sara framework to customize our own chatbot LLM to analyze and follow a set flow of conversation and to log activities that the user reports throughout the day for statistics tracking. Using this framework will allow us to be more flexible in that it can be run much faster than an external API call.
+# **TODO**
 - Usability:
     > operations for users managing journal entries should take less than 3 clicks
 
