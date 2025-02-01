@@ -115,6 +115,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Description**: Based on the user's activity to happiness correlation, the chat bot suggests activity
             - **Primary actor(s)**: User, Paid User
             - **Main success scenario**:
+                1. User clicks on the Analytics button on top of the calendar.
                 1. System retrieves mood tracking data.
                 2. System compose a prompt based on user's mood tracking data, and invoke an LLM
                 3. Suggested activities are displayed to the user.
@@ -239,16 +240,20 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Interfaces**: 
         1. Get /api/profile/isPaidUser
             - **Purpose**: Checks if a user is a paid user
-            - **Request Parameters**: user: an identifier of the user
+            - **Request Parameters**: username: an identifier of the user
             - **Response Body**: Boolean. True if the user is a paid user, otherwise False.
         2. Get /api/profile
             - **Purpose**: Gets the user's profile.
-            - **Request Parameters**: user: an identifier of the user
+            - **Request Parameters**: username: an identifier of the user
             - **Response Body**: an object containing:
                 - paidStatus: Boolean
                 - reminderSetting: {Weekday: Time to remind}
+        3. PUT /api/profile/reminder
+            - **Purpose**: Updates the user's reminder
+            - **Request Body**: username, updated reminder
+            - **Response Body**: status code 200
 2. **Manage Journaling (Journal Entries management)**
-    - **Purpose**: Handles the management (CURD) of the Journal. Also handles the addition of media to the journal
+    - **Purpose**: Handles the management (create, edit, delete, export) of the Journal. Also handles the addition of media to the journal.
     - **Interfaces**: 
         1. POST /api/journal
             - **Purpose**: Create a new journal entry 
@@ -278,9 +283,13 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Purpose**: Analyze and tracks the user's mood to get a trend over a certain period of time
     - **Interfaces**: 
         1. GET /api/analytics/getTrend
-            - **Purpose**: Get the user's trend over a certain period of time
-            - **Request Parameters**: (optional) period: ENUM (WEEK, MONTH, YEAR). get the sentiment trend within a period.
-            - **Response Body**: Boolean. True if the user inputted a valid credential, otherwise False.
+            - **Purpose**: Get the user's sentiment trend over a certain period of time
+            - **Request Parameters**: Username, (optional) period: ENUM (WEEK, MONTH, YEAR). get the sentiment trend within a period. Default period includes all entries.
+            - **Response Body**: return the user's sentiment date within the specified period.
+        2. POST /api/analytics/suggestion
+            - **Purpose**: Get a suggestion based on the user's trend within a week
+            - **Request Body**: username
+            - **Response Body**: the chatbot's suggestion.
 
 
 ### **4.2. Databases**
