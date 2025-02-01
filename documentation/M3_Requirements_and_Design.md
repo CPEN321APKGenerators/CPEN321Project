@@ -146,13 +146,13 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                     - 2a1. The authentication API displays an error message telling the user of the error and potential solution.
                     - 2a2. The authentication pop up prompts the user to try again
     
-5. **Adding Photos and Videos to the Journal Entry** 
+5. **Adding and Deleting Media in the Journal Entry** 
     - **Overview**:
-        1. Adding Photos and videos from the entry: Users can attach media files to the journal entries
-        2. Removing Photos and video from the entry: Users can remove attached media files from a journal entry
+        1. Adding media to the entry: Users can attach media files to the journal entries
+        2. Removing media from the entry: Users can remove attached media files from a journal entry
     
     - **Detailed Flow for Each Independent Scenario**: 
-        1. **Adding Photos and videos from the entry**:
+        1. **Adding media to the the entry**:
             - **Description**: The user should be able to attach photos or videos to their journal entry from their phone storage or directly by using the devices's camera
             - **Primary actor(s)**: Paid User
             - **Main success scenario**:
@@ -172,7 +172,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                     - 5a1. An error is displayed: "The media was not successfully uploaded. Try again"
                     - 5a2. The user is prompted to try again 
 
-        2. **Removing Photos and video from the entry**:
+        2. **Removing media from the entry**:
             - **Description**: The user should be able to remove previously attached media from their journal entries.
             - **Primary actor(s)**: Paid User
             - **Main success scenario**:
@@ -468,7 +468,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             saveToDB(entry)
         
 ## 5. Contributions
-- ...
-- ...
-- ...
-- ...
+- Nyi Nyi (3-4 hours): Complexity design, database module, functional requirement, frameworks, 
+- Christine Jiang (10 hours): Functional requirement, sequence diagrams, component diagram, framework, main components
+- Kevin Li (4-5 hours): nonfunctional requirements, nonfunctional design, functional requirement
+- Amod Ghimire (5 hours): Functional requirement, sequence diagram, ector description, external modules
