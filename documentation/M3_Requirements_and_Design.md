@@ -32,12 +32,18 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         - **Main success scenario**: 
         1. The user clicks on the Create button for the specified day.
         2. A chatview box opens with a chatbot welcoming the user by name.
-        3. The chatbot ensures a structured and meaningful entry and the user input responses are saved on the backend.
+        3. The chatbot ensures a structured and meaningful entry.
+        4. The user input responses are saved on the backend.
         - **Failure scenario(s)**: 
-        ### **TODO**
-        1. The chatbot does not interpret user response correctly.
-        2. The user does not complete the journal entry.
-        3. There is an error on the backend/database and the entry is not saved.
+        - 1a. User clicks the Create button, but nothing happens
+            - 1a1.  The system displays an error message & prompts the user to try again.
+        - 2a. The chatbox fails to load.
+            - 1a1.  The system displays an error message & prompts the user to try again.    
+        - 3a. Chatbot fails to guide the user through structured journaling.
+            - 3a1.  The chatbot displays an error message.
+        - 4a. Entry submission fails due to a backend/database error.
+            - 4a1. The system notifies that the entry was not saved.
+            - 4a2: The system provides an option to retry saving.
     
     2. **Edit**
         - **Description**: Edit an existing journal entry.
@@ -48,8 +54,12 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         3. The user has the ability to modify the text.
         4. The updated entry is saved.
         - **Failure scenario(s)**: 
-        1. The previously saved entry fails to load.
-        4. The entry fails to update/save due to a backend error.
+        - 1a. User clicks the Edit button, but nothing happens.
+            - 1a1.  The system displays an error message & prompts the user to try again.
+        - 2a. The entry fails to load.
+            - 2a1.  The system displays an error message & prompts the user to try again.
+        - 4a.  The  Modified changes fail to save.
+            - 4a1. The system prompts the user to retry.
 
     3. **Export**
         - **Description**: Export A Journal Entry as PDF or CSV file.
@@ -60,8 +70,11 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         3. The user selects a format.
         4. The user selected file format is generated and the user downloads it.
         - **Failure scenario(s)**:
-        2. The exported text is incomplete or incorrectly formatted.
-        3. The user experiences a download failure due to network or browser issues.
+        - 1a. User clicks the Export button, but nothing happens.
+            - 1a1.  The system displays an error message & prompts the user to try again.
+        - 3a.  User selects the format, but the file is not downloaded successfully.
+            - 3a1. A system message informs the user about the failed download.
+            - 3a2. The system provides an option to retry.
 
     4. **Delete**
         - **Description**: Delete a journal entry.
@@ -73,9 +86,13 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         4. The user confirms, and the entry is permanently removed from the db.
         5. The calendar view updates to remove the journaled indicator.
         - **Failure scenario(s)**:
-        1. The journal entry is accidentally deleted without a way to restore it.
-        2. The backend fails to delete the entry.
-        3. The calendar view does not update correctly.
+        - 2a. User clicks the Delete button, but nothing happens.
+            - 2a1.  The system displays an error message & prompts the user to try again.
+        - 4a. User confirms deletion, but the journal entry is not removed from the database.
+            - 4a1.  The system notifies the user about the issue and suggests retrying.
+        - 5a. The calendar view does not update after deletion.
+            - 5a1. he system attempts a UI refresh.
+            - 5a2. If unsuccessful, the user is asked to reload the page manually.
 
 
 2. **Sentiment Analysis & Analytics**
@@ -91,8 +108,12 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         2. The sentiment score is stored in the database alongside the journal entry.
 
         - **Failure scenario(s)**:
-        1. ML Model or API fails to interpret user input accurately.
-        2. The sentiment score is not saved correctly in the database.
+        -1a. User submits an entry, but the sentiment analysis process fails.
+            -1a1. The system logs the issue and retries the analysis.
+
+        - 2a. Sentiment score is generated but not stored in the database
+            -2a1. The system attempts to resave the data
+            -2a2.  If resaving fails, an error message is displayed.
 
     2. **Display Sentiment Trends in Analytics**
         - **Description**: Display an overview of the user’s mood over a period of time.
@@ -102,9 +123,17 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         2. visual graphs of sentiment trends over a period of time is then displayed.
         3. User is able to chose Monthly/weekly, Pie Chart, Frequently used words in entries, etc..
         - **Failure scenario(s)**: 
-        1. Sentinment data is missing, incorrect, or not updated in real-time.
-        2. Charts are not rendering correctly.
-        3. Insufficient Data to render charts.
+        - 1a. User clicks Analytics, but sentiment data retrieval fails
+           - 1a1. The system retries fetching data.
+           - 1a2. If unsuccessful, an error message is displayed.
+
+        - 2a. User attempts to view a chart, but does not render
+           - 2a1. The system refreshes the UI and attempts to reload the chart.
+
+        - 3a. User does not have enough journal entries for meaningful analysis.
+           - 3a1. A message informs the user that more entries are needed.
+           - 3a2. The system suggests journaling more frequently.
+
 
 3. **Activity Suggestions** 
     - **Overview**:
@@ -218,7 +247,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 <a name="nfr1"></a>
 
 1. **Entry Encryption**
-    - **Description**: User entries will be stored in an external database encrypted with CBC protocol
+    - **Description**: User entries will be stored in an external database encrypted with AES protocol
     - **Justification**: Encrypting user data as an extra layer of security will make more people willing to choose our application to save all of their sensitive personal information. Protecting this information is also extremely important from a privacy/ethics point of view, along with for the safety of users as well.
 2. **Response Times**
     - **Description**: 
@@ -295,10 +324,12 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Request Body**: username
             - **Response Body**: the chatbot's suggestion.
 
+
 ### **4.2. Databases**
-1. **[WRITE_NAME_HERE]**
-    - **Purpose**: NYI
-2. ...
+1. **[MongoDB]**
+    - **Purpose**: Stores user journal entries along with sentiment scores.
+2. **[AWS_S3]**
+    - **Purpose**: Stores media files (images, videos, audio) uploaded in journal entries.  
 
 
 ### **4.3. External Modules**
@@ -338,7 +369,8 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Purpose**: Container orchestration
     - **Reason**: Helps manage and scale containers efficiently across multiple nodes.
 5. **RASA**
-    NYI
+    - **Purpose**: Chatbot for guided journaling.
+    - **Reason**: Enables structured journaling by dynamically adjusting responses based on user input.
 
 ### **4.5. Dependencies Diagram** 
 ![alt text](images/dependency.png)
@@ -367,15 +399,13 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 ![alt text](images/Add_media.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
-1. [**[WRITE_NAME_HERE]**]
-    - **Validation**: ...
-2. ...
-- Privacy: stored entries will be encrypted and stored in our database 
-    > text, videos, images should be encrypted using CBC
-- Performance:
-    > operations for managing journal entries should be completed within 2 seconds when the server is available
-    > sentiment analysis should take within 20 seconds
-    > LLM responses should be fetched within 5 seconds
+1. **Encryption of Entries**
+    - **Planned Implementation**: We will use AES-256-CBC encrytpion protocol to ensure all entires in the database are only viewable by the user who wrote them. During registration a "salt" will be created and this will be combined with Password-Based Key Derivation Function 2 and an initialization vector to encrypt and store data. Salt will be stored in the DB with the password-based key being derived each time the user needs to modify/add entries.
+2. **Performance**
+    - **Planned Implementation**: Using https to MongoDB, we can receive and transmit simple text, image and video (or database operations that surround these things), at a rate that will match. 
+    For sentiment analysis, because there are multiple sentiments along with multiple variables that need to be tracked, the openai API will be used to compute weights for different emotions to later display in the "sentiment summary" screen.
+    For prompting the user, we will use the Sara framework to customize our own chatbot LLM to analyze and follow a set flow of conversation and to log activities that the user reports throughout the day for statistics tracking. Using this framework will allow us to be more flexible in that it can be run much faster than an external API call.
+# **TODO**
 - Usability:
     > operations for users managing journal entries should take less than 3 clicks
 
@@ -415,11 +445,11 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 "exercise": None,
                 "stress": None,
                 "goal": None,
-                "sentiment_score": None,
-                "Social Life": None,
+                "socialInteraction": None,
+                "sentimentScore": None,
             }
 
-            # Step 1: Greeting
+            # Step 1: Greet The User
             chatbot.say("Hi! How are you doing today, ready for your daily journaling?")
             response = user_input()
 
@@ -439,31 +469,38 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             chatbot.ask("Did you get in exercise for the day?")
             sessionData["exercise"] = user_input()
 
-            # Step 5: Ask about stress level
+            # Step 5: Ask about stress levels
             chatbot.ask("Is your stress level low, medium, or high?")
             sessionData["stress"] = user_input()
 
-            # Step 6: Ask about user's goals for the day
+            # Step 6: Ask about goals for the day
             chatbot.ask("What do you want to accomplish today?")
             sessionData["goal"] = user_input()
 
-            # Step 7: Provide a summary
-            chatbot.say(f"Here's your daily journaling log:\n"
-                        f"- Mood: {sessionData['mood']}\n"
-                        f"- Sleep: {sessionData['sleep']} hours\n"
-                        f"- Exercise: {sessionData['exercise']}hours \n"
-                        f"- Stress: {sessionData['stress']}\n"
-                        f"- Goal: {sessionData['goal']}")
+            # Step 7: Ask about social interactions for the day
+            chatbot.ask("Did you have any meaningful social interactions with anyone for the day?")
+            sessionData["goal"] = user_input()
 
+            # Step 7: Provide a summary
+            chatbot.say("Here's your daily journaling log:\n" +
+                        "- Mood: " + sessionData['mood'] + "\n" +
+                        "- Sleep: " + sessionData['sleep'] + " hours\n" +
+                        "- Exercise: " + sessionData['exercise'] + " hours\n" +
+                        "- Stress: " + sessionData['stress'] + "\n" +
+                        "- Goal: " + sessionData['goal'] + "\n" +
+                        "- Social Interaction: " + sessionData['socialInteraction'])
+
+            #Step 8: Save To DB
             entry = {
-                "user_name": user_name,
-                "date": get_current_date(),
+                "userName": userName,
+                "date": getDate(),
                 "mood": sessionData["mood"],
                 "sleep": sessionData["sleep"],
                 "exercise": sessionData["exercise"],
                 "stress": sessionData["stress"],
                 "goal": sessionData["goal"],
-                "sentiment_score": sentiment_score
+                "socialInteraction": sessionData["socialInteraction"],
+                "sentimentScore": sentimentScore
             }
             saveToDB(entry)
         
