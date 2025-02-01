@@ -272,7 +272,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response Body**: The image selected by the user.
         6. DELETE /api/journal/media
             - **Purpose**: Removing photos and videos to the existing or new journal entries
-            - **Request Body**: Media, Username
+            - **Request Parameters**: Media, Username
             - **Response Body**: Status code: 200.
 3. **Analysis & Sentiment Tracking**
     - **Purpose**: Analyze and tracks the user's mood to get a trend over a certain period of time
@@ -291,17 +291,26 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 ### **4.3. External Modules**
 1. **Google Authenticator** 
-    - **Purpose**: Handles the authentication of an user
+    - **Purpose**: Handles the authentication, and registration of an user.
+    - **Rationale**: There was a tutorial in google authentication. Everyone in group is familiar with it
     - **Interfaces**: 
         1. GET /api/authenticate
-            - **Purpose**: To authenticate a user with a valid credential
             - **Request Parameters**: Credential (Google email and password)
-            - **Response Body**: the analysis results over the specified period
-2. **Stripe- Third-party payment**
-
+            - **Response Body**: Login status
+2. **Stripe - Third-party payment**
+    - **Purpose**: Manage a secure payment transactions using Stripe. 
+    - **Rationale**: Stripe has developer-friendly APIs and is easy to learn. The alternative was Paypal which is supposedly less flexible for developers.
+    - **Interfaces**:
+        1. POST /api/payment
+            - **Request Body**: Amount, Card
+            - **Response Body**: Transaction Status
 3. **Sentiment Analysis - Google cloud API**
-
-
+    - **Purpose**: Analyzes user's journal entry to determine sentiment.
+    - **Rationale**: When we did the authentication for M1 using google, It was easy to learn and we expect this would be simple as well. 
+    - **Interfaces**:
+        1. POST /api/sentiment
+            - **Request Body**: journal entry
+            - **Response Body**: Sentiment score
 
 ### **4.4. Frameworks**
 1. **Docker**
