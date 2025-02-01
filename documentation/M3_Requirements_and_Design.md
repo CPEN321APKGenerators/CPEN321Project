@@ -54,7 +54,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         3. The user has the ability to modify the text.
         4. The updated entry is saved.
         - **Failure scenario(s)**: 
-        - 2a. User clicks the Edit button, but nothing happens.
+        - 1a. User clicks the Edit button, but nothing happens.
             - 1a1.  The system displays an error message & prompts the user to try again.
         - 2a. The entry fails to load.
             - 2a1.  The system displays an error message & prompts the user to try again.
@@ -87,7 +87,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
         5. The calendar view updates to remove the journaled indicator.
         - **Failure scenario(s)**:
         - 2a. User clicks the Delete button, but nothing happens.
-            - 1a1.  The system displays an error message & prompts the user to try again.
+            - 2a1.  The system displays an error message & prompts the user to try again.
         - 4a. User confirms deletion, but the journal entry is not removed from the database.
             - 4a1.  The system notifies the user about the issue and suggests retrying.
         - 5a. The calendar view does not update after deletion.
