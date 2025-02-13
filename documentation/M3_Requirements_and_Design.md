@@ -20,7 +20,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 ### **3.3. Functional Requirements**
 <a name="fr1"></a>
 
-1. **Create, Delete, Edit and Export Journal Entries**
+1. **Manage Journals Entries**
     - **Overview**:
     1. Calender View On the Front End: A Calendar with indicator to mark days that contain journal entries and days without.
     2. Click On Specific Day: If day has been journaled, 3 buttons appear Edit, Export, Delete. If day has not been journaled, Create button appears.
@@ -134,31 +134,27 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
            - 3a1. A message informs the user that more entries are needed.
            - 3a2. The system suggests journaling more frequently.
 
-
-3. **Activity Suggestions** 
+3. **Manage Profile** 
     - **Overview**:
-        1.  The system shows some suggested activities based on detected mood from Mood Tracking functionality.
+        The user can change their reminder in manage profile
         
     - **Detailed Flow for Each Independent Scenario**: 
-        1.  **Activity Suggestions**:
-            - **Description**: Based on the user's activity to happiness correlation, the chat bot suggests activity
+        1.  **Update Reminder Settings**:
+            - **Description**: The user can update the app's reminder settings to notify the user to write journals.
             - **Primary actor(s)**: User, Paid User
             - **Main success scenario**:
-                1. User clicks on the Analytics button on top of the calendar.
-                1. System retrieves mood tracking data.
-                2. System compose a prompt based on user's mood tracking data, and invoke an LLM
-                3. Suggested activities are displayed to the user.
+                1. User clicks on the profile icon.
+                2. System display the user profile and reminder settings to the user.
+                3. User changes the reminder settings and click update.
+                3. Update success message is displayed on the app.
             - **Failure scenario(s)**:
-                - 1a. System fails to retrieve mood tracking data.
-                    - 1a1. An error message is displayed for retrieving mood tracking data
-                    - 1a2. System prompts user to retry
-                - 2a. Failure to invoke LLM
-                    - 2a1. An error message is logged for invoke LLM failure
-                    - 2a2. System selects a suggests some general relaxing exercise
-                - 3a. Activity description fails to load
-                    - 3a1. An error message is displayed telling user the error, and potential solutions
-                    - 2a2. System prompts the user to try again.
-4. **Authentication with Google** 
+                - 2a. System fails to retrieve user data.
+                    - 2a1. An error message is displayed for retrieving user data
+                    - 2a2. System prompts user to retry
+                - 3a. Failure to change reminder settings
+                    - 3a1. An error message is logged for update reminder settings
+
+4. **Authentication** 
     - **Overview**:
         1. Authenticate User: The User authenticates and creates an account
     
@@ -175,7 +171,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                     - 2a1. The authentication API displays an error message telling the user of the error and potential solution.
                     - 2a2. The authentication pop up prompts the user to try again
     
-5. **Adding and Deleting Media in the Journal Entry** 
+5. **Manage Media** 
     - **Overview**:
         1. Adding media to the entry: Users can attach media files to the journal entries
         2. Removing media from the entry: Users can remove attached media files from a journal entry
@@ -269,48 +265,108 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Interfaces**: 
         1. Get /api/profile/isPaidUser
             - **Purpose**: Checks if a user is a paid user
-            - **Request Parameters**: username: an identifier of the user
-            - **Response Body**: Boolean. True if the user is a paid user, otherwise False.
+            - **Request Parameters**: userID: the user ID for the user
+            - **Response Body**:
+            {
+                "isPaid": (Boolean) True if the user is a paid user, otherwise False.
+            }
         2. Get /api/profile
             - **Purpose**: Gets the user's profile.
-            - **Request Parameters**: username: an identifier of the user
-            - **Response Body**: an object containing:
-                - paidStatus: Boolean
-                - reminderSetting: {Weekday: Time to remind}
+            - **Request Parameters**: userID: the user ID for the user
+            - **Response Body**:
+            {
+                "isPaid": (Boolean) True if the user is a paid user, otherwise False.
+                "reminderSetting": {
+                    Weekday: (list of integers) Weekdays to remind,
+                    time: time to remind the user,
+                }
+            }
         3. PUT /api/profile/reminder
             - **Purpose**: Updates the user's reminder
-            - **Request Body**: username, updated reminder
-            - **Response Body**: status code 200
+            - **Request Body**:
+            {
+                "updated_reminder": the updated reminder settings for the user,
+                "userID": the user ID for the user
+            }
+            - **Response Body**:
+            {
+                "update_success": (Boolean) True if reminder is updated, otherwise false
+            }
 2. **Manage Journaling (Journal Entries management)**
     - **Purpose**: Handles the management (create, edit, delete, export) of the Journal. Also handles the addition of media to the journal.
     - **Interfaces**: 
         1. POST /api/journal
             - **Purpose**: Create a new journal entry 
-            - **Request Body**: Date, Username
-            - **Response Body**: Message: a message generated by the chatbot.
+            - **Request Body**:
+            {
+                "date": the date for a new journal entry,
+                "userID": the user ID for the user
+            }
+            - **Response Body**:
+            {
+                "message": a message generated by the chatbot.
+            }
         2. GET /api/journal
             - **Purpose**: Retrieve a journal entry
-            - **Request Parameters**: Date, Username
-            - **Response Body**: journal: the chosen journal entry
+            - **Request Parameters**:
+                date: the date for a new journal entry,
+                userID: the user ID for the user
+            - **Response Body**: 
+            {
+                "journal": {
+                    "text": the chosen journal entry,
+                    "media": [ (a list of media)
+                        "media_id": the id of media resources,
+                        ...
+                    ]
+                }
+            }
         3. PUT /api/journal
             - **Purpose**: Edit an existing journal entry
-            - **Request Body**: Date, updated content, Username
-            - **Response Body**: the updated content
+            - **Request Body**:
+            {
+                "date": the date for a new journal entry,
+                "userID": the user ID for the user,
+                "updated_content": the updated journal entry for a selected date
+            }
+            - **Response Body**:
+            {
+                "update_success": true if update successfully, false otherwise.    
+            }
         4. DELETE /api/journal
             - **Purpose**: Delete a journal entry
-            - **Request Parameters**: Date, Username
-            - **Response Body**: status code: 200
+            - **Request Parameters**:
+                date: the date for a new journal entry,
+                userID: the user ID for the user
+            - **Response Body**:
+            {
+                "delete_success": successfully deleted the journal entry
+            }
         5. POST /api/journal/media
             - **Purpose**: Adding photos and videos to the existing or new journal entries
-            - **Request Body**: Date, media, Username
-            - **Response Body**: The image selected by the user.
+            - **Request Body**:
+            {
+                "date": the date for a new journal entry,
+                "userID": the user ID for the user,
+                "media": the media to add to the journal entry for a selected date
+            }
+            - **Response Body**: {
+                "media_id": the identifier for the media added to the journal,
+                "success"
+            }
         6. DELETE /api/journal/media
             - **Purpose**: Removing photos and videos to the existing or new journal entries
-            - **Request Parameters**: Media, Username
+            - **Request Parameters**:
+                date: the date for a new journal entry,
+                userID: the user ID for the user,
+                mediaID: the media to add to the journal entry for a selected date
             - **Response Body**: Status code: 200.
-        7. POST /api/journal/file
+        7. GET /api/journal/file
             - **Purpose**: Export an existing journal entry 
-            - **Request Body**: Date, Username, format (pdf, csv)
+            - **Request Parameters**:
+                date: the date for a new journal entry,
+                userID: the user ID for the user,
+                format: only accepts 'pdf' or 'csv'
             - **Response Body**: filename, downloadURL.
 3. **Analysis & Sentiment Tracking**
     - **Purpose**: Analyze and tracks the user's mood to get a trend over a certain period of time
@@ -326,10 +382,12 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 
 ### **4.2. Databases**
-1. **[MongoDB]**
+1. **[MessageDB]**
     - **Purpose**: Stores user journal entries along with sentiment scores.
 2. **[AWS_S3]**
-    - **Purpose**: Stores media files (images, videos, audio) uploaded in journal entries.  
+    - **Purpose**: Stores media files (images, videos, audio) uploaded in journal entries. 
+3. **[UserDB]**
+    - **Purpose**: Stores user profile along with reminder settings. 
 
 
 ### **4.3. External Modules**
