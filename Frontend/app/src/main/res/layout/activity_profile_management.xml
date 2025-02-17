@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ProfileManagement">
+
+        <!-- Back Button -->
+        <Button
+            android:id="@+id/profile_back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="&#60;"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Preferred Name Input -->
+        <EditText
+            android:id="@+id/profile_name_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="120dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="30dp"
+            android:hint="Enter Preferred Name"
+            android:padding="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_back_button" />
+
+        <!-- Account Status (Free or Paid) -->
+        <TextView
+            android:id="@+id/profile_account_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="20dp"
+            android:text="Account Status: Free"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_name_input" />
+
+        <!-- Upgrade Button (Visible only if Free) -->
+        <Button
+            android:id="@+id/profile_upgrade_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:text="Upgrade"
+            android:visibility="visible"
+            app:layout_constraintStart_toEndOf="@id/profile_account_status"
+            app:layout_constraintTop_toBottomOf="@id/profile_name_input" />
+
+        <!-- Separator Line -->
+        <View
+            android:id="@+id/profile_separator_1"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="30dp"
+            android:background="#CCCCCC"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_account_status" />
+
+        <!-- Reminder Section -->
+        <ImageView
+            android:id="@+id/profile_reminder_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="30dp"
+            android:background="#00FFFFFF"
+            android:src="@android:drawable/ic_popup_reminder"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_separator_1"
+            app:tint="#FFD700" />
+
+        <TextView
+            android:id="@+id/profile_reminder_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="30dp"
+            android:text="Remind Me"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@id/profile_reminder_icon"
+            app:layout_constraintTop_toBottomOf="@id/profile_separator_1" />
+
+        <!-- Reminder Frequency Dropdown -->
+
+        <!-- Reminder Time Selector -->
+
+        <!-- Separator Line -->
+
+
+        <!-- Add Activities Section -->
+
+        <Spinner
+            android:id="@+id/profile_reminder_dropdown"
+            android:layout_width="189dp"
+            android:layout_height="27dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="28dp"
+            app:layout_constraintStart_toEndOf="@+id/profile_reminder_text"
+            app:layout_constraintTop_toBottomOf="@+id/profile_separator_1" />
+
+        <TimePicker
+            android:id="@+id/profile_reminder_timepicker"
+            android:layout_width="250dp"
+            android:layout_height="139dp"
+            android:layout_marginTop="20dp"
+            android:timePickerMode="spinner"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_reminder_dropdown" />
+
+        <View
+            android:id="@+id/profile_separator_2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="30dp"
+            android:background="#CCCCCC"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_reminder_timepicker" />
+
+        <TextView
+            android:id="@+id/reminder_at_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="at"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.105"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_reminder_icon" />
+
+        <TextView
+            android:id="@+id/preferred_name_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Preferred\nName:"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/profile_name_input"
+            app:layout_constraintHorizontal_bias="0.468"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_back_button" />
+
+        <TextView
+            android:id="@+id/activities_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:text="Activities Tracking"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.022"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_separator_2" />
+
+        <!-- RecyclerView for Activity List -->
+
+        <!-- Button to Add Activity -->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/profile_activity_list"
+            android:layout_width="280dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="40dp"
+            android:nestedScrollingEnabled="false"
+            android:padding="16dp"
+            android:scrollbars="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/activities_title_text" />
+
+        <Button
+            android:id="@+id/profile_add_activity_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="50dp"
+            android:padding="10dp"
+            android:text="+ Add Activity"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_activity_list"
+            app:layout_constraintVertical_bias="0.213" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

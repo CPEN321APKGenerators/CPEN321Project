@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.cpen321project"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.cpen321project"
