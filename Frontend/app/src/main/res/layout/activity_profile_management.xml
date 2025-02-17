@@ -137,6 +137,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/profile_reminder_timepicker" />
 
+        <View
+            android:id="@+id/profile_separator_"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="30dp"
+            android:background="#CCCCCC"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_add_activity_button" />
+
         <TextView
             android:id="@+id/reminder_at_text"
             android:layout_width="wrap_content"
@@ -177,36 +188,45 @@
 
         <!-- Button to Add Activity -->
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/profile_activity_list"
-            android:layout_width="280dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="40dp"
-            android:nestedScrollingEnabled="false"
-            android:padding="16dp"
-            android:scrollbars="vertical"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.496"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activities_title_text" />
-
         <Button
             android:id="@+id/profile_add_activity_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="28dp"
             android:layout_marginEnd="50dp"
             android:padding="10dp"
             android:text="+ Add Activity"
             android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_activity_list"
-            app:layout_constraintVertical_bias="0.213" />
+            app:layout_constraintTop_toBottomOf="@+id/profile_activity_list" />
+
+        <Button
+            android:id="@+id/save_settings_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="164dp"
+            android:layout_marginEnd="50dp"
+            android:padding="10dp"
+            android:text="Save Settings"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_activity_list" />
+
+        <ListView
+            android:id="@+id/profile_activity_list"
+            android:layout_width="361dp"
+            android:layout_height="113dp"
+            android:layout_marginTop="28dp"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/activities_title_text" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
