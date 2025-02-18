@@ -1,0 +1,47 @@
+use cpen-321-journal
+
+// Optional: Drop the database if you want to start fresh
+db.dropDatabase();
+
+// Create a "users" collection and insert sample users with embedded journal entries
+db.createCollection("users")
+db.users.insertMany([
+    {
+        user_id: 1,
+        preferred_name: "John",
+        createdAt: new Date(),
+        paid: false,
+        notifications: {enabled: false, time: null},
+        entries: [
+            { title: "First Entry", content: "This is my first journal entry.", date: new Date() },
+            { title: "Second Entry", content: "Reflections on my day.", date: new Date() }
+        ]
+    },
+    {
+        user_id: 2,
+        preferred_name: "Jane",
+        createdAt: new Date(),
+        paid: true,
+        notifications: {enabled: true, time: "21:00"},
+        entries: [
+            { title: "Third Entry", content: "Ideas for my next project.", date: new Date() }
+        ]
+    },
+    {
+        user_id: 3,
+        preferred_name: "mark_taylor",
+        createdAt: new Date(),
+        paid: false,
+        notifications: {enabled: true, time: "9:00"},
+        entries: [
+            { title: "Another Entry", content: "Today was pretty shit...", date: new Date() }
+        ]
+    }
+])
+
+// Verify "users" collection with embedded entries
+show collections
+db.users.find().pretty()
+
+// Output success message
+print("✅ Database 'cpen-321-journal' initialized with users and embedded journal entries!")
