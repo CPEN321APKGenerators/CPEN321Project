@@ -1,12 +1,11 @@
-.env
+# Ignore system files
+.DS_Store
+Thumbs.db
 
-dist/
-build/
-tmp/
-temp/
-
-
+# Ignore IDE/editor-specific files
 .vscode/
+.idea/
 
-node_modules/
-package-lock.json
+# Global logs
+logs/
+*.log
