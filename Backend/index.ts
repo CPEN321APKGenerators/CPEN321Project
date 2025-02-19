@@ -1,7 +1,7 @@
 import express, {NextFunction, Request, Response} from "express";
 import { MongoClient } from "mongodb";
 import { client } from "./services";
-import { TodoRoutes } from "./routes/TodoRoutes";
+import { JournalRoutes } from "./routes/JournalRoutes";
 import { validationResult } from "express-validator";
 import morgan from "morgan";
 
@@ -12,9 +12,9 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 // const OtherRoutes=[]
-// const Routes = [...TodoRoutes, ...OtherRoutes]
+// const Routes = [...JournalRoutes, ...OtherRoutes]
 
-TodoRoutes.forEach((route) => {
+JournalRoutes.forEach((route) => {
     (app as any)[route.method](
         route.route,
         route.validation,
