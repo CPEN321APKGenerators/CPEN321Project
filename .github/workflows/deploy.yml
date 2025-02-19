@@ -27,7 +27,7 @@ jobs:
                 username: ${{secrets.EC2_USER}}
                 key: ${{secrets.EC2_KEY}}
                 script: |
-                    cd /home/ubuntu/cpen321journal
+                    cd /home/ubuntu/cpen321journal/Backend
 
                     # Write secrets into - env
                     cat > .env <<EOF
