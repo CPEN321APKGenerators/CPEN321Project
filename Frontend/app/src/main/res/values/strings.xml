@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Cpen321project</string>
+    <string name="lastmonthbuttontext"><![CDATA[<--]]></string>
+    <string name="nextmonthbuttontext"><![CDATA[-->]]></string>
+    <string name="Monthyear">February 2025</string>
+    <string name="Journal_date">Journal Entry for:</string>
+    <string name="save_entry_button">Save Entry</string>
+    <string name="write_your_journal_entry_here_hint">Write your journal entry here...</string>
 </resources>
