@@ -13,7 +13,8 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 // const OtherRoutes=[]
-const Routes = [...JournalRoutes, ...UserRoutes];
+// const Routes = [...JournalRoutes, ...UserRoutes];
+const Routes = [...JournalRoutes];
 
 Routes.forEach((route) => {
     (app as any)[route.method](
