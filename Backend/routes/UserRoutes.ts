@@ -9,7 +9,7 @@ export const UserRoutes = [
         route: "/api/profile",
         action: controller.createOrGetUserProfile,
         validation: [
-            // query("userID").exists().isString()
+            body("userID").exists().isString()
         ]
     },
     {
@@ -17,7 +17,7 @@ export const UserRoutes = [
         route: "/api/profile/isPaid",
         action: controller.isUserPaid,
         validation: [
-            // query("userID").exists().isString()
+            query("userID").exists().isString()
         ]
     },
     {
@@ -25,7 +25,8 @@ export const UserRoutes = [
         route: "/api/profile/fcmtoken",
         action: controller.storeFcmToken,
         validation: [
-            // query("userID").exists().isString() and fcm token
+            body("userID").exists().isString(),
+            body("fcmToken").exists()
         ]
     },
     {
@@ -33,7 +34,7 @@ export const UserRoutes = [
         route: "/api/profile/reminder",
         action: controller.changeReminder,
         validation: [
-            // body("userID").exists().isString(),
+            body("userID").exists().isString(),
             // body("status").optional().isIn(["active", "inactive"]),
             // body("reminders.enabled").optional().isBoolean(),
             // body("reminders.time").optional().matches(/^\d{2}:\d{2}$/),
