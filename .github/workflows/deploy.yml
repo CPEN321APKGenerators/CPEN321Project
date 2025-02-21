@@ -29,6 +29,15 @@ jobs:
                 script: |
                     cd /home/ubuntu/cpen321journal/Backend
 
+                    # Create the config directory
+                    mkdir -p config
+
+                    # Write the JSON file directly on EC2
+                    echo '${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}' > config/cpen321project-c324e-firebase-adminsdk.json
+
+                    # Give permissions to the JSON file
+                    chmod 600 config/cpen321project-c324e-firebase-adminsdk.json
+
                     # Write secrets into - env
                     cat > .env <<EOF
                     PORT=${{secrets.PROD_PORT}}
