@@ -34,7 +34,7 @@ export const UserRoutes = [
         route: "/api/profile/reminder",
         action: controller.changeReminder,
         validation: [
-            body("userID").exists().isString(),
+            body("userID").exists().isString()
             // body("status").optional().isIn(["active", "inactive"]),
             // body("reminders.enabled").optional().isBoolean(),
             // body("reminders.time").optional().matches(/^\d{2}:\d{2}$/),
