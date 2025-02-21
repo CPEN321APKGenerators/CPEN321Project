@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { client } from "../services";
 import { ObjectId } from "mongodb";
-// import admin from "firebase-admin";
+import admin from "firebase-admin";
 
 // Initialize Firebase Admin SDK (Ensure serviceAccountKey.json is properly configured)
 // if (!admin.apps.length) {
