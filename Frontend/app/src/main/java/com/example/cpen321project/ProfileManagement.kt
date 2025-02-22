@@ -200,8 +200,8 @@ class ProfileManagement : AppCompatActivity() {
 
     private fun sendReminderSettings(weekdays: List<Int>, time: String) {
         val userID = "12345"  // Replace with actual user ID
-//        val url = "https://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/reminder"
-        val url = "http://10.0.2.2:3001/api/profile/reminder"
+        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/reminder"
+//        val url = "http://10.0.2.2:3001/api/profile/reminder"
 
         // Construct the JSON body with updated structure
         val json = JSONObject()
