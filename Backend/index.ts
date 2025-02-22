@@ -93,9 +93,9 @@ client.connect().then( () => {
 
 async function scheduleNotifications() {
     // Run every minute
-    // cron.schedule('* * * * *', async () => {
+    cron.schedule('* * * * *', async () => {
     // Run at the start of every hour
-    cron.schedule('0 * * * *', async () => {
+    // cron.schedule('0 * * * *', async () => {
         console.log('Checking for scheduled notifications...');
 
         try {

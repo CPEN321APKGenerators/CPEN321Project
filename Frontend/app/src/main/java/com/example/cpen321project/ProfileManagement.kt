@@ -35,14 +35,30 @@ class ProfileManagement : AppCompatActivity() {
     private lateinit var activitiesAdapter: ArrayAdapter<String>
     private val activitiesList = mutableListOf<String>()  // List of activities
     private lateinit var reminderSpinner: Spinner
-    private val reminderOptions = arrayOf("Everyday", "Never", "Every 2 Days", "Once a Week")
     val permissionsArr = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
     lateinit var notificationManager: NotificationManager
+    private val selectedDays = mutableListOf<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_profile_management)
+        val saveSettingsButton: Button = findViewById(R.id.save_settings_button)
+        val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
+        saveSettingsButton.setOnClickListener {
+            // Get selected time from TimePicker
+            val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
+            val minute = if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
+
+            // Convert time to 24-hour format (e.g., "21:00")
+            val formattedTime = String.format("%02d:%02d", hour, minute)
+
+            // Send reminder settings with selected days and time
+            sendReminderSettings(selectedDays, formattedTime)
+        }
+
+
+        setupDayCircles()
 
         if (checkSelfPermission(permissionsArr[0]) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, permissionsArr, 200)
@@ -64,36 +80,6 @@ class ProfileManagement : AppCompatActivity() {
         activityListView = findViewById(R.id.profile_activity_list)
         addActivityButton = findViewById(R.id.profile_add_activity_button)
 
-        // Initialize Spinner
-        reminderSpinner = findViewById(R.id.profile_reminder_dropdown)
-
-        // Create an ArrayAdapter with the options
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, reminderOptions)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        reminderSpinner.adapter = adapter
-
-        reminderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selectedOption = reminderOptions[position]
-                val weekdays = when (selectedOption) {
-                    "Everyday" -> listOf(1, 2, 3, 4, 5, 6, 7)
-                    "Once a Week" -> listOf(1)  // Every Monday
-                    "Every 2 Days" -> listOf(1, 3, 5, 7)
-                    "Never" -> emptyList()
-                    else -> emptyList()
-                }
-
-                // Send Reminder Settings to Backend
-                sendReminderSettings(weekdays, "08:00")  // Default time to 08:00
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-    }
 
         // Set up the ListView adapter
         activitiesAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, activitiesList)
@@ -214,12 +200,17 @@ class ProfileManagement : AppCompatActivity() {
 
     private fun sendReminderSettings(weekdays: List<Int>, time: String) {
         val userID = "12345"  // Replace with actual user ID
-        val url = "http://10.0.2.2:3001/api/profile/reminder/settings"
+//        val url = "https://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/reminder"
+        val url = "http://10.0.2.2:3001/api/profile/reminder"
 
+        // Construct the JSON body with updated structure
         val json = JSONObject()
+        val updatedReminder = JSONObject()
+        updatedReminder.put("Weekday", JSONArray(weekdays))
+        updatedReminder.put("time", time)
+
         json.put("userID", userID)
-        json.put("Weekdays", JSONArray(weekdays))
-        json.put("time", time)
+        json.put("updated_reminder", updatedReminder)
 
         val client = OkHttpClient()
         val requestBody = RequestBody.create(
@@ -235,15 +226,53 @@ class ProfileManagement : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     Log.d("Reminder", "Reminder settings updated successfully")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Reminder updated successfully!", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Log.e("Reminder", "Failed to update reminder settings")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Failed to update reminder settings", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
 
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Reminder", "Failed to connect to server", e)
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                }
             }
         })
     }
+
+
+    private fun setupDayCircles() {
+        val daysOfWeek = listOf(
+            findViewById<ImageView>(R.id.day_mon),  // Monday -> 1
+            findViewById<ImageView>(R.id.day_tue),  // Tuesday -> 2
+            findViewById<ImageView>(R.id.day_wed),  // Wednesday -> 3
+            findViewById<ImageView>(R.id.day_thu),  // Thursday -> 4
+            findViewById<ImageView>(R.id.day_fri),  // Friday -> 5
+            findViewById<ImageView>(R.id.day_sat),  // Saturday -> 6
+            findViewById<ImageView>(R.id.day_sun)   // Sunday -> 7
+        )
+
+        for ((index, day) in daysOfWeek.withIndex()) {
+            val dayNumber = index + 1  // Now it matches [1 = Monday, ..., 7 = Sunday]
+            day.setOnClickListener {
+                if (selectedDays.contains(dayNumber)) {
+                    // Deselect day
+                    selectedDays.remove(dayNumber)
+                    day.setBackgroundResource(R.drawable.circle_grey)
+                } else {
+                    // Select day
+                    selectedDays.add(dayNumber)
+                    day.setBackgroundResource(R.drawable.circle_purple)
+                }
+            }
+        }
+    }
+
 
 }

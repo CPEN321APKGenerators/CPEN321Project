@@ -74,28 +74,6 @@
             app:layout_constraintTop_toBottomOf="@id/profile_account_status" />
 
         <!-- Reminder Section -->
-        <ImageView
-            android:id="@+id/profile_reminder_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="30dp"
-            android:background="#00FFFFFF"
-            android:src="@android:drawable/ic_popup_reminder"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profile_separator_1"
-            app:tint="#FFD700" />
-
-        <TextView
-            android:id="@+id/profile_reminder_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="30dp"
-            android:text="Remind Me"
-            android:textSize="16sp"
-            app:layout_constraintStart_toEndOf="@id/profile_reminder_icon"
-            app:layout_constraintTop_toBottomOf="@id/profile_separator_1" />
 
         <!-- Reminder Frequency Dropdown -->
 
@@ -106,25 +84,216 @@
 
         <!-- Add Activities Section -->
 
-        <Spinner
-            android:id="@+id/profile_reminder_dropdown"
-            android:layout_width="189dp"
-            android:layout_height="27dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="28dp"
-            app:layout_constraintStart_toEndOf="@+id/profile_reminder_text"
-            app:layout_constraintTop_toBottomOf="@+id/profile_separator_1" />
+        <TextView
+            android:id="@+id/profile_reminder_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:text="Remind Me"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@id/profile_reminder_icon"
+            app:layout_constraintTop_toBottomOf="@id/profile_separator_1" />
+
+        <ImageView
+            android:id="@+id/profile_reminder_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:background="#00FFFFFF"
+            android:src="@android:drawable/ic_popup_reminder"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_separator_1"
+            app:tint="#FFD700" />
+
+
+        <LinearLayout
+            android:id="@+id/days_of_week_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="56dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_separator_1">
+
+            <!-- Sunday -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/day_sun"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/circle_grey"
+                    android:contentDescription="Sunday"
+                    android:tag="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Su"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Monday -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/day_mon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/circle_grey"
+                    android:contentDescription="Monday"
+                    android:tag="1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Mo"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Tuesday -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/day_tue"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/circle_grey"
+                    android:contentDescription="Tuesday"
+                    android:tag="2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Tu"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Wednesday -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/day_wed"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/circle_grey"
+                    android:contentDescription="Wednesday"
+                    android:tag="3" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="We"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Thursday -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/day_thu"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/circle_grey"
+                    android:contentDescription="Thursday"
+                    android:tag="4" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Th"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Friday -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/day_fri"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/circle_grey"
+                    android:contentDescription="Friday"
+                    android:tag="5" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Fr"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Saturday -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/day_sat"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/circle_grey"
+                    android:contentDescription="Saturday"
+                    android:tag="6" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Sa"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+        </LinearLayout>
 
         <TimePicker
             android:id="@+id/profile_reminder_timepicker"
             android:layout_width="250dp"
             android:layout_height="139dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:timePickerMode="spinner"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profile_reminder_dropdown" />
+            app:layout_constraintTop_toBottomOf="@+id/days_of_week_layout" />
 
         <View
             android:id="@+id/profile_separator_2"
@@ -152,10 +321,10 @@
             android:id="@+id/reminder_at_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="84dp"
             android:text="at"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.105"
+            app:layout_constraintEnd_toStartOf="@+id/profile_reminder_timepicker"
+            app:layout_constraintHorizontal_bias="0.705"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/profile_reminder_icon" />
 
