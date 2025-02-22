@@ -13,14 +13,11 @@
     "@types/express": "^5.0.0",
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
-    "@types/express-validator": "^7.0.0",
-    "@types/firebase-admin": "^11.6.3",
     "firebase-admin": "^11.11.1",
     "mongodb": "^6.11.0",
     "node-cron": "^3.0.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3",
-    "@types/cron": "^1.8.1"
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
     "@types/morgan": "^1.9.9",
