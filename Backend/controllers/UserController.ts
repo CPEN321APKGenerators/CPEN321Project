@@ -93,51 +93,51 @@ export class UserController {
     }
 
     // Update Reminder Settings
-async changeReminder(req: Request, res: Response, next: NextFunction) {
-    const { updated_reminder, userID } = req.body;
+    async changeReminder(req: Request, res: Response, next: NextFunction) {
+        const { updated_reminder, userID } = req.body;
 
-    if (!updated_reminder || !userID) {
-        return res.status(400).json({ error: "updated_reminder and userID are required" });
-    }
-
-    try {
-        // Fetch user timeOffset
-        const user = await client.db("cpen321journal").collection("users").findOne({ userID });
-
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
+        if (!updated_reminder || !userID) {
+            return res.status(400).json({ error: "updated_reminder and userID are required" });
         }
 
-        const userOffset = user.timeOffset;
+        try {
+            // Fetch user timeOffset
+            const user = await client.db("cpen321journal").collection("users").findOne({ userID });
 
-        // Convert reminder time to server time
-        const userTime = updated_reminder.time;
-        const serverOffset = getServerOffset();
-        const userDateTime = DateTime.fromFormat(userTime, 'HH:mm', { zone: `UTC${userOffset}` });
-        const serverDateTime = userDateTime.setZone(`UTC${serverOffset}`);
-        const serverTime = serverDateTime.toFormat('HH:mm');
-        console.log("user notif in server time: ", serverTime)
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
 
-        // Store converted server time
-        updated_reminder.time = serverTime;
+            const userOffset = user.timeOffset;
 
-        // Update reminder settings
-        const result = await client.db("cpen321journal").collection("users").updateOne(
-            { userID },
-            { $set: { reminderSetting: updated_reminder, updatedAt: new Date() } },
-            { upsert: true }
-        );
+            // Convert reminder time to server time
+            const userTime = updated_reminder.time;
+            const serverOffset = getServerOffset();
+            const userDateTime = DateTime.fromFormat(userTime, 'HH:mm', { zone: `UTC${userOffset}` });
+            const serverDateTime = userDateTime.setZone(`UTC${serverOffset}`);
+            const serverTime = serverDateTime.toFormat('HH:mm');
+            console.log("user notif in server time: ", serverTime)
 
-        if (result.acknowledged) {
-            res.status(200).json({ update_success: true });            
-        } else {
+            // Store converted server time
+            updated_reminder.time = serverTime;
+
+            // Update reminder settings
+            const result = await client.db("cpen321journal").collection("users").updateOne(
+                { userID },
+                { $set: { reminderSetting: updated_reminder, updatedAt: new Date() } },
+                { upsert: true }
+            );
+
+            if (result.acknowledged) {
+                res.status(200).json({ update_success: true });            
+            } else {
+                res.status(500).json({ update_success: false });
+            }
+        } catch (err) {
+            console.error("Error updating reminder:", err);
             res.status(500).json({ update_success: false });
         }
-    } catch (err) {
-        console.error("Error updating reminder:", err);
-        res.status(500).json({ update_success: false });
     }
-}
 
 
 
