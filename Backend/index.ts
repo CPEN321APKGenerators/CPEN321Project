@@ -5,12 +5,23 @@ import { JournalRoutes } from "./routes/JournalRoutes";
 import { validationResult } from "express-validator";
 import morgan from "morgan";
 import { UserRoutes } from "./routes/UserRoutes";
+// import scheduleNotifications from './src/jobs/notificationJobs';
+import cron from 'node-cron';
+import admin from 'firebase-admin';
 
 const app = express();
 
 // if this middleware is before get, it means it will run before the get request
 app.use(express.json())
 app.use(morgan('tiny'))
+
+// Initialize Firebase Admin
+if (!admin.apps.length) {
+  const serviceAccount = require('../config/cpen321project-c324e-firebase-adminsdk');
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 // const OtherRoutes=[]
 const Routes = [...JournalRoutes, ...UserRoutes];
@@ -77,3 +88,58 @@ client.connect().then( () => {
     console.log(err)
     client.close()
 })
+
+
+async function scheduleNotifications() {
+    // Run every minute
+    cron.schedule('* * * * *', async () => {
+        console.log('Checking for scheduled notifications...');
+
+        try {
+            await client.connect();
+            const db = client.db('cpen321journal');
+            const usersCollection = db.collection('users');
+
+            const today = new Date();
+            console.log(today)
+            const day = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            console.log(day)
+            const currentTime = today.toTimeString().substring(0, 5);
+            console.log(currentTime)
+
+            const users = await usersCollection.find({}).toArray();
+
+            users.forEach(user => {
+                const { reminderSetting, fcmToken, userID } = user;
+                console.log(reminderSetting)
+
+                if (
+                    reminderSetting &&
+                    reminderSetting.Weekday.includes(day) &&
+                    reminderSetting.time === currentTime
+                ) {
+                    console.log(currentTime)
+                    const message = {
+                        data: {
+                            title: 'Journal Reminder',
+                            body: "It's time to write your journal entry!",
+                            reminderTime: reminderSetting.time,
+                            reminderDays: JSON.stringify(reminderSetting.Weekday)
+                        },
+                        token: fcmToken
+                    };
+                    console.log(message)
+
+                    admin.messaging().send(message)
+                        .then(response => console.log(`Notification sent to ${userID}:`, response))
+                        .catch(error => console.error(`Error sending notification to ${userID}:`, error));
+                }
+            });
+        } catch (error) {
+            console.error('Error checking notifications:', error);
+        }
+    });
+}
+
+// Initialize Cron Jobs
+scheduleNotifications();

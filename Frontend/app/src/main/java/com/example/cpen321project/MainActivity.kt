@@ -2,6 +2,7 @@ package com.example.cpen321project
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -11,15 +12,27 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.messaging.FirebaseMessaging
+import okhttp3.*
+import org.json.JSONObject
+import java.io.IOException
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+
+
 
 class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var calendarRecyclerView: RecyclerView
     private lateinit var monthYearText: TextView
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +43,18 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // Get FCM Token
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val fcmToken = task.result
+                Log.d("FCM Token", fcmToken ?: "No Token")
+
+                // Store Token in Backend
+                storeFcmTokenInBackend(fcmToken ?: "")
+            }
+        }
+
         // need to get the actual date from the back end just for example
         journalentries.add("2025-02-05")
         journalentries.add("2025-02-10")
@@ -119,5 +144,45 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         }
     }
 
+    private fun storeFcmTokenInBackend(fcmToken: String) {
+        val userID = "12345" // Get this dynamically (e.g., after user login)
+        val url = "http:/10.0.2.2:3001/api/profile/fcmtoken"
 
+        val json = JSONObject()
+        json.put("userID", userID)
+        json.put("fcmToken", fcmToken)
+
+        val client = OkHttpClient()
+        val requestBody = RequestBody.create(
+            "application/json".toMediaTypeOrNull(), json.toString()
+        )
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    Log.d("FCM Token", "Token stored successfully")
+                    Log.d("FCM Token", "Response: ${response.code} - ${response.message}")
+
+                    // Safely read response body as String
+                    val responseBody = response.body?.string() ?: "No Response Body"
+                    Log.d("FCM Token", "Response Body: $responseBody")
+                } else {
+                    Log.e("FCM Token", "Failed to store token. Status Code: ${response.code}")
+                    val responseBody = response.body?.string() ?: "No Response Body"
+                    Log.e("FCM Token", "Response Body: $responseBody")
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("FCM Token", "Failed to store token", e)
+            }
+        })
+
+
+    }
 }
