@@ -101,29 +101,25 @@ async function scheduleNotifications() {
             const db = client.db('cpen321journal');
             const usersCollection = db.collection('users');
 
-            const now = new Date();
-            const utcTime = now.toISOString().substring(11, 16); // Get HH:MM in UTC
+            const now = DateTime.utc();
+            const utcDay = now.weekday; // 1 = Monday, 7 = Sunday
+            const utcTime = now.toFormat('HH:mm');
+
+            console.log("Current UTC Day:", utcDay);
+            console.log("Current UTC Time:", utcTime);
 
             const users = await usersCollection.find({}).toArray();
 
             users.forEach(user => {
-                const { reminderSetting, fcmToken, userID, timeOffset } = user;
-
-                // Calculate the user's current day and time using their offset
-                const userDateTime = DateTime.fromJSDate(now).setZone(`UTC${timeOffset}`);
-                const userDay = userDateTime.weekday % 7; // Luxon: 1 = Monday, ..., 7 = Sunday -> JS: 0 = Sunday, ..., 6 = Saturday
-                const userTime = userDateTime.toFormat('HH:mm');
-
-                console.log(userDateTime.toISO()); // Log user's full datetime
-                console.log(userDay); // Log user's day
-                console.log(userTime); // Log user's time
+                const { reminderSetting, fcmToken, userID } = user;
+                console.log("Stored Reminder:", reminderSetting);
 
                 if (
                     reminderSetting &&
-                    reminderSetting.Weekday.includes(userDay) &&
-                    reminderSetting.time === userTime
+                    reminderSetting.Weekday.includes(utcDay) && // Check UTC weekday
+                    reminderSetting.time === utcTime // Check UTC time
                 ) {
-                    console.log("Reminder time matched:", userTime);
+                    console.log("Reminder matched for user:", userID);
 
                     const message = {
                         data: {
@@ -144,6 +140,7 @@ async function scheduleNotifications() {
             console.error('Error checking notifications:', error);
         }
     });
+
 }
 
 // Initialize Cron Jobs

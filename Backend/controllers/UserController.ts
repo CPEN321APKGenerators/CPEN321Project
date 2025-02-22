@@ -21,6 +21,27 @@ const getServerOffset = () => {
     return `${sign}${hours}:${minutes}`;
 };
 
+// Convert User Time and Weekday to UTC
+const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
+    // Convert user time to UTC time
+    const userDateTime = DateTime.fromFormat(userTime, 'HH:mm', { zone: `UTC${userOffset}` });
+    const utcDateTime = userDateTime.toUTC();
+    const utcTime = utcDateTime.toFormat('HH:mm');
+
+    // Convert each user weekday to the corresponding UTC weekday
+    const utcWeekdays = userWeekdays.map((day:any) => {
+        // Create a DateTime object with the user's weekday and time
+        const date = DateTime.now().set({ weekday: day, hour: userDateTime.hour, minute: userDateTime.minute }).setZone(`UTC${userOffset}`);
+        
+        // Convert to UTC and get the weekday
+        const utcDay = date.toUTC().weekday;
+        
+        console.log(`User Weekday: ${day}, UTC Weekday: ${utcDay}`);
+        return utcDay;
+    });
+    return { utcTime, utcWeekdays };
+}
+
 export class UserController {
     // Create or Get User Profile
     async createOrGetUserProfile(req: Request, res: Response, next: NextFunction) {
@@ -109,17 +130,17 @@ export class UserController {
             }
 
             const userOffset = user.timeOffset;
-
-            // Convert reminder time to server time
             const userTime = updated_reminder.time;
-            const serverOffset = getServerOffset();
-            const userDateTime = DateTime.fromFormat(userTime, 'HH:mm', { zone: `UTC${userOffset}` });
-            const serverDateTime = userDateTime.setZone(`UTC${serverOffset}`);
-            const serverTime = serverDateTime.toFormat('HH:mm');
-            console.log("user notif in server time: ", serverTime)
+            const userWeekdays = updated_reminder.Weekday;
 
-            // Store converted server time
-            updated_reminder.time = serverTime;
+            // Convert reminder time and weekdays to UTC
+            const { utcTime, utcWeekdays } = convertToUtc(userTime, userOffset, userWeekdays);
+
+            // Store converted UTC time and weekdays
+            updated_reminder.time = utcTime;
+            updated_reminder.Weekday = utcWeekdays;
+
+            console.log("Reminder stored in UTC:", updated_reminder);
 
             // Update reminder settings
             const result = await client.db("cpen321journal").collection("users").updateOne(
@@ -129,7 +150,7 @@ export class UserController {
             );
 
             if (result.acknowledged) {
-                res.status(200).json({ update_success: true });            
+                res.status(200).json({ update_success: true });
             } else {
                 res.status(500).json({ update_success: false });
             }
