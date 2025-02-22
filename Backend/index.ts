@@ -8,6 +8,7 @@ import { UserRoutes } from "./routes/UserRoutes";
 // import scheduleNotifications from './src/jobs/notificationJobs';
 import cron from 'node-cron';
 import admin from 'firebase-admin';
+const { DateTime } = require('luxon');
 
 const app = express();
 
@@ -100,25 +101,30 @@ async function scheduleNotifications() {
             const db = client.db('cpen321journal');
             const usersCollection = db.collection('users');
 
-            const today = new Date();
-            console.log(today)
-            const day = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-            console.log(day)
-            const currentTime = today.toTimeString().substring(0, 5);
-            console.log(currentTime)
+            const now = new Date();
+            const utcTime = now.toISOString().substring(11, 16); // Get HH:MM in UTC
 
             const users = await usersCollection.find({}).toArray();
 
             users.forEach(user => {
-                const { reminderSetting, fcmToken, userID } = user;
-                console.log(reminderSetting)
+                const { reminderSetting, fcmToken, userID, timeOffset } = user;
+
+                // Calculate the user's current day and time using their offset
+                const userDateTime = DateTime.fromJSDate(now).setZone(`UTC${timeOffset}`);
+                const userDay = userDateTime.weekday % 7; // Luxon: 1 = Monday, ..., 7 = Sunday -> JS: 0 = Sunday, ..., 6 = Saturday
+                const userTime = userDateTime.toFormat('HH:mm');
+
+                console.log(userDateTime.toISO()); // Log user's full datetime
+                console.log(userDay); // Log user's day
+                console.log(userTime); // Log user's time
 
                 if (
                     reminderSetting &&
-                    reminderSetting.Weekday.includes(day) &&
-                    reminderSetting.time === currentTime
+                    reminderSetting.Weekday.includes(userDay) &&
+                    reminderSetting.time === userTime
                 ) {
-                    console.log(currentTime)
+                    console.log("Reminder time matched:", userTime);
+
                     const message = {
                         data: {
                             title: 'Journal Reminder',
@@ -128,7 +134,6 @@ async function scheduleNotifications() {
                         },
                         token: fcmToken
                     };
-                    console.log(message)
 
                     admin.messaging().send(message)
                         .then(response => console.log(`Notification sent to ${userID}:`, response))
