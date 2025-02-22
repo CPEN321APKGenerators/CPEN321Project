@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { client } from "../services";
 import { ObjectId } from "mongodb";
 import admin from "firebase-admin";
+import { DateTime } from "luxon";
 
 // Initialize Firebase Admin SDK (Ensure serviceAccountKey.json is properly configured)
 if (!admin.apps.length) {
@@ -10,6 +11,15 @@ if (!admin.apps.length) {
         credential: admin.credential.cert(serviceAccount)
     });
 }
+
+const getServerOffset = () => {
+    const offset = new Date().getTimezoneOffset(); // in minutes
+    const absOffset = Math.abs(offset);
+    const hours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+    const minutes = String(absOffset % 60).padStart(2, '0');
+    const sign = offset > 0 ? '-' : '+';
+    return `${sign}${hours}:${minutes}`;
+};
 
 export class UserController {
     // Create or Get User Profile
@@ -83,33 +93,53 @@ export class UserController {
     }
 
     // Update Reminder Settings
-    async changeReminder(req: Request, res: Response, next: NextFunction) {
-        const { updated_reminder, userID } = req.body;
+async changeReminder(req: Request, res: Response, next: NextFunction) {
+    const { updated_reminder, userID } = req.body;
 
-        if (!updated_reminder || !userID) {
-            return res.status(400).json({ error: "updated_reminder and userID are required" });
+    if (!updated_reminder || !userID) {
+        return res.status(400).json({ error: "updated_reminder and userID are required" });
+    }
+
+    try {
+        // Fetch user timeOffset
+        const user = await client.db("cpen321journal").collection("users").findOne({ userID });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
         }
 
-        try {
-            const result = await client.db("cpen321journal").collection("users").updateOne(
-                { userID },
-                { $set: { reminderSetting: updated_reminder, updatedAt: new Date() } },
-                { upsert: true }
-            );
+        const userOffset = user.timeOffset;
 
-            if (result.acknowledged) {
-                // Send Push Notification using FCM
-                // await this.sendReminderNotification(userID, updated_reminder);
-            
-                res.status(200).json({ update_success: true });            
-            } else {
-                res.status(500).json({ update_success: false });
-            }
-        } catch (err) {
-            console.error("Error updating reminder:", err);
+        // Convert reminder time to server time
+        const userTime = updated_reminder.time;
+        const serverOffset = getServerOffset();
+        const userDateTime = DateTime.fromFormat(userTime, 'HH:mm', { zone: `UTC${userOffset}` });
+        const serverDateTime = userDateTime.setZone(`UTC${serverOffset}`);
+        const serverTime = serverDateTime.toFormat('HH:mm');
+        console.log("user notif in server time: ", serverTime)
+
+        // Store converted server time
+        updated_reminder.time = serverTime;
+
+        // Update reminder settings
+        const result = await client.db("cpen321journal").collection("users").updateOne(
+            { userID },
+            { $set: { reminderSetting: updated_reminder, updatedAt: new Date() } },
+            { upsert: true }
+        );
+
+        if (result.acknowledged) {
+            res.status(200).json({ update_success: true });            
+        } else {
             res.status(500).json({ update_success: false });
         }
+    } catch (err) {
+        console.error("Error updating reminder:", err);
+        res.status(500).json({ update_success: false });
     }
+}
+
+
 
 
     // Send Reminder Notification via Firebase Cloud Messaging (FCM)
@@ -144,16 +174,16 @@ export class UserController {
 
     // Store FCM Token
     async storeFcmToken(req: Request, res: Response, next: NextFunction) {
-        const { userID, fcmToken } = req.body;
+        const { userID, fcmToken, timeOffset } = req.body;
 
-        if (!userID || !fcmToken) {
-            return res.status(400).json({ error: "userID and fcmToken are required" });
+        if (!userID || !fcmToken || !timeOffset) {
+            return res.status(400).json({ error: "userID, fcmToken, timeOffset are required" });
         }
 
         try {
             const result = await client.db("cpen321journal").collection("users").updateOne(
                 { userID },
-                { $set: { fcmToken, updatedAt: new Date() } },
+                { $set: { fcmToken, timeOffset, updatedAt: new Date() } },
                 { upsert: true }
             );
 
@@ -170,3 +200,4 @@ export class UserController {
 
 
 }
+

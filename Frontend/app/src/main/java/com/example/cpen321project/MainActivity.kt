@@ -25,7 +25,8 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var calendarRecyclerView: RecyclerView
@@ -146,11 +147,16 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
     private fun storeFcmTokenInBackend(fcmToken: String) {
         val userID = "12345" // Get this dynamically (e.g., after user login)
-        val url = "http:/10.0.2.2:3001/api/profile/fcmtoken"
-
+        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/fcmtoken"
+//        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
+        val currentZone = ZoneId.systemDefault()
+        val zonedDateTime = ZonedDateTime.now(currentZone)
+        val offset = zonedDateTime.offset
         val json = JSONObject()
+        Log.d("time zone", "$currentZone, $zonedDateTime, $offset")
         json.put("userID", userID)
         json.put("fcmToken", fcmToken)
+        json.put("timeOffset", offset)
 
         val client = OkHttpClient()
         val requestBody = RequestBody.create(
