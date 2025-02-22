@@ -17,7 +17,7 @@ app.use(morgan('tiny'))
 
 // Initialize Firebase Admin
 if (!admin.apps.length) {
-  const serviceAccount = require('../config/cpen321project-c324e-firebase-adminsdk');
+  const serviceAccount = require('../config/cpen321project-c324e-firebase-adminsdk.json');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });

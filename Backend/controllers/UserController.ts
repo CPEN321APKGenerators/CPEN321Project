@@ -5,7 +5,7 @@ import admin from "firebase-admin";
 
 // Initialize Firebase Admin SDK (Ensure serviceAccountKey.json is properly configured)
 if (!admin.apps.length) {
-    const serviceAccount = require("../config/cpen321project-c324e-firebase-adminsdk")
+    const serviceAccount = require("../config/cpen321project-c324e-firebase-adminsdk.json")
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
     });
