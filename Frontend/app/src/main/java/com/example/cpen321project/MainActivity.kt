@@ -34,9 +34,25 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
 
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Check if user is authenticated
+        val googleUserId = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
+
+        if (googleUserId.isNullOrEmpty()) {
+            // If not authenticated, redirect to LoginActivity
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish() // Prevents going back to MainActivity without authentication
+            return
+        }
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_view)) { v, insets ->
@@ -52,9 +68,13 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                 Log.d("FCM Token", fcmToken ?: "No Token")
 
                 // Store Token in Backend
-                storeFcmTokenInBackend(fcmToken ?: "")
+                storeFcmTokenInBackend(fcmToken ?: "", userID = googleUserId)
             }
         }
+
+        val googleUserIdd = intent.getStringExtra("GoogleUserID") ?:
+        getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("GoogleUserID", null)
+        Log.d("MainActivity", "Google User ID: $googleUserId")
 
         // need to get the actual date from the back end just for example
         journalentries.add("2025-02-05")
@@ -82,6 +102,12 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             val intent = Intent(this, ProfileManagement::class.java)
             startActivity(intent)
         }
+
+        findViewById<Button>(R.id.log_out_button).setOnClickListener() {
+            logOut()
+        }
+
+
     }
 
     private fun initWidgets() {
@@ -145,8 +171,9 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         }
     }
 
-    private fun storeFcmTokenInBackend(fcmToken: String) {
-        val userID = "12345" // Get this dynamically (e.g., after user login)
+    private fun storeFcmTokenInBackend(fcmToken: String, userID: String) {
+        Log.d(TAG, "storing fcm token for ${userID}")
+//        val userID = "12345" // Get this dynamically (e.g., after user login)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/fcmtoken"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val currentZone = ZoneId.systemDefault()
@@ -188,7 +215,19 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                 Log.e("FCM Token", "Failed to store token", e)
             }
         })
-
-
     }
+
+    fun logOut() {
+        // Clear Google User ID from SharedPreferences
+        getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .edit()
+            .remove("GoogleUserID")
+            .apply()
+
+        // Redirect to LoginActivity
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish() // Close MainActivity
+    }
+
 }
