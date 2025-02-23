@@ -21,32 +21,39 @@ const getServerOffset = () => {
     return `${sign}${hours}:${minutes}`;
 };
 
-// Convert user time and weekday to UTC
-function convertToUtc(userTime:any, userOffset:any, userWeekdays:any) {
-    // Extract hours and minutes from userTime (e.g., "16:42")
-    const [userHours, userMinutes] = userTime.split(":").map(Number);
+// Convert User Time and Weekday to UTC
+const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
+    const utcWeekdays = userWeekdays.map((day: any) => {
+        // Create a DateTime object with the user's weekday and time
+        const date = DateTime.now()
+            .set({ weekday: day, hour: 0, minute: 0, second: 0, millisecond: 0 })
+            .setZone(`UTC${userOffset}`);
 
-    // Convert time to UTC by subtracting user offset
-    let utcHours = userHours - userOffset;
+        // Add user time to the date
+        const userDateTime = date.plus({
+            hours: parseInt(userTime.split(':')[0]),
+            minutes: parseInt(userTime.split(':')[1])
+        });
 
-    // Adjust the weekday if hour overflows or underflows
-    let utcWeekdays = [...userWeekdays];
-    if (utcHours >= 24) {
-        utcHours -= 24;
-        utcWeekdays = utcWeekdays.map(day => (day + 1) % 7); // Move to next day
-    } else if (utcHours < 0) {
-        utcHours += 24;
-        utcWeekdays = utcWeekdays.map(day => (day - 1 + 7) % 7); // Move to previous day
-    }
+        // Convert to UTC and get the time and weekday
+        const utcDateTime = userDateTime.toUTC();
+        const utcTime = utcDateTime.toFormat('HH:mm');
+        const utcDay = utcDateTime.weekday;
 
-    // Format time as "HH:mm"
-    const utcTime = `${utcHours.toString().padStart(2, '0')}:${userMinutes.toString().padStart(2, '0')}`;
+        console.log(`User Weekday: ${day}, UTC Weekday: ${utcDay}, User Time: ${userTime}, UTC Time: ${utcTime}`);
+        
+        return utcDay;
+    });
 
-    return {
-        utcTime,
-        utcWeekdays
-    };
-}
+    // Convert the last user time to UTC to get the correct time (since time is the same for all weekdays)
+    const date = DateTime.now().setZone(`UTC${userOffset}`);
+    const userDateTime = date.set({ hour: parseInt(userTime.split(':')[0]), minute: parseInt(userTime.split(':')[1]) });
+    const utcDateTime = userDateTime.toUTC();
+    const utcTime = utcDateTime.toFormat('HH:mm');
+
+    return { utcTime, utcWeekdays };
+};
+
 
 
 export class UserController {
