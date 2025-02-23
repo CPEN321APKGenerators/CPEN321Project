@@ -21,31 +21,33 @@ const getServerOffset = () => {
     return `${sign}${hours}:${minutes}`;
 };
 
-// Convert User Time and Weekday to UTC
 const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
     const utcWeekdays = userWeekdays.map((day: any) => {
-        // Create a DateTime object with the user's weekday and time
-        const date = DateTime.now()
-            .set({ weekday: day, hour: 0, minute: 0, second: 0, millisecond: 0 })
-            .setZone(`UTC${userOffset}`);
-
-        // Add user time to the date
-        const userDateTime = date.plus({
-            hours: parseInt(userTime.split(':')[0]),
-            minutes: parseInt(userTime.split(':')[1])
-        });
-
-        // Convert to UTC and get the time and weekday
+        // Get the current date and time in the user's timezone
+        let userDateTime = DateTime.now()
+            .setZone(`UTC${userOffset}`)
+            .set({ weekday: day, hour: parseInt(userTime.split(':')[0]), minute: parseInt(userTime.split(':')[1]), second: 0, millisecond: 0 });
+        
+        // Adjust for past time today
+        if (userDateTime < DateTime.now().setZone(`UTC${userOffset}`)) {
+            userDateTime = userDateTime.plus({ days: 7 });
+        }
+        
+        // Convert to UTC
         const utcDateTime = userDateTime.toUTC();
         const utcTime = utcDateTime.toFormat('HH:mm');
-        const utcDay = utcDateTime.weekday;
+        let utcDay = utcDateTime.weekday;
+
+        // Check if the day changed after conversion
+        if (utcDateTime < userDateTime) {
+            utcDay = (utcDay % 7) + 1;
+        }
 
         console.log(`User Weekday: ${day}, UTC Weekday: ${utcDay}, User Time: ${userTime}, UTC Time: ${utcTime}`);
-        
         return utcDay;
     });
 
-    // Convert the last user time to UTC to get the correct time (since time is the same for all weekdays)
+    // Convert the time for storage (all weekdays share the same time)
     const date = DateTime.now().setZone(`UTC${userOffset}`);
     const userDateTime = date.set({ hour: parseInt(userTime.split(':')[0]), minute: parseInt(userTime.split(':')[1]) });
     const utcDateTime = userDateTime.toUTC();
@@ -53,6 +55,7 @@ const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
 
     return { utcTime, utcWeekdays };
 };
+
 
 
 
