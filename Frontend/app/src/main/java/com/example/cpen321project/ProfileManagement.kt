@@ -47,6 +47,10 @@ class ProfileManagement : AppCompatActivity() {
         val saveSettingsButton: Button = findViewById(R.id.save_settings_button)
         val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
         val preferredNameText = findViewById<EditText>(R.id.profile_name_input)
+        val backbutton = findViewById<Button>(R.id.profile_back_button)
+        backbutton.setOnClickListener {
+            finish()
+        }
         saveSettingsButton.setOnClickListener {
             // Get selected time from TimePicker
             val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
