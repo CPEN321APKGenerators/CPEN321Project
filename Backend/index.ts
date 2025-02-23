@@ -116,7 +116,11 @@ async function scheduleNotifications() {
                 const { reminderSetting, fcmToken, userID } = user;
                 console.log("Stored Reminder:", reminderSetting);
 
+                const weekdays = reminderSetting?.Weekday || [];
+                const reminderTime = reminderSetting?.time || null;
+
                 if (
+                    Array.isArray(weekdays) &&
                     reminderSetting &&
                     reminderSetting.Weekday.includes(utcDay) && // Check UTC weekday
                     reminderSetting.time === utcTime // Check UTC time

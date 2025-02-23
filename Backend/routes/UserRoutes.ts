@@ -5,9 +5,17 @@ const controller = new UserController();
 
 export const UserRoutes = [
     {
+        method: "get",
+        route: "/api/profile",
+        action: controller.getUserProfile,
+        validation: [
+            query("userID").exists().isString()
+        ]
+    },
+    {
         method: "post",
         route: "/api/profile",
-        action: controller.createOrGetUserProfile,
+        action: controller.createOrUpdateUserProfile,
         validation: [
             body("userID").exists().isString()
         ]
