@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { client } from "../services";
-import { GridFSBucket, ObjectId } from "mongodb";
-import multer from "multer";
-import { GridFsStorage } from "multer-gridfs-storage";
 
 
 const isValidBase64 = (str: string) => {
