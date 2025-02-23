@@ -35,14 +35,15 @@ export class JournalController {
             message: "New journal entry created successfully with images!" 
         });
     }
-    
+
 
     async getJournal(req: Request, res: Response, next: NextFunction) {
         const { date, userID } = req.query;
         
+        // Ensure strings are used for date and userID
         const entry = await client.db("cpen321journal").collection("journals")
-            .findOne({ date, userID });
-    
+            .findOne({ date: date as string, userID: userID as string });
+
         res.status(200).json({
             journal: entry ? { 
                 text: entry.text, 
@@ -50,15 +51,16 @@ export class JournalController {
             } : { text: "", media: [] }
         });
     }
+
     
 
     async putJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, updated_content, updated_media } = req.body;
+        const { date, userID, text, media } = req.body;
         
         const result = await client.db("cpen321journal").collection("journals")
             .updateOne(
                 { date, userID },
-                { $set: { text: updated_content, media: updated_media || [] } }
+                { $set: { text: text, media: media || [] } }
             );
     
         res.status(200).json({ 
