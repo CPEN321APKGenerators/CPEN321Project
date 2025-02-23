@@ -21,26 +21,33 @@ const getServerOffset = () => {
     return `${sign}${hours}:${minutes}`;
 };
 
-// Convert User Time and Weekday to UTC
-const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
-    // Convert user time to UTC time
-    const userDateTime = DateTime.fromFormat(userTime, 'HH:mm', { zone: `UTC${userOffset}` });
-    const utcDateTime = userDateTime.toUTC();
-    const utcTime = utcDateTime.toFormat('HH:mm');
+// Convert user time and weekday to UTC
+function convertToUtc(userTime:any, userOffset:any, userWeekdays:any) {
+    // Extract hours and minutes from userTime (e.g., "16:42")
+    const [userHours, userMinutes] = userTime.split(":").map(Number);
 
-    // Convert each user weekday to the corresponding UTC weekday
-    const utcWeekdays = userWeekdays.map((day:any) => {
-        // Create a DateTime object with the user's weekday and time
-        const date = DateTime.now().set({ weekday: day, hour: userDateTime.hour, minute: userDateTime.minute }).setZone(`UTC${userOffset}`);
-        
-        // Convert to UTC and get the weekday
-        const utcDay = date.toUTC().weekday;
-        
-        console.log(`User Weekday: ${day}, UTC Weekday: ${utcDay}`);
-        return utcDay;
-    });
-    return { utcTime, utcWeekdays };
+    // Convert time to UTC by subtracting user offset
+    let utcHours = userHours - userOffset;
+
+    // Adjust the weekday if hour overflows or underflows
+    let utcWeekdays = [...userWeekdays];
+    if (utcHours >= 24) {
+        utcHours -= 24;
+        utcWeekdays = utcWeekdays.map(day => (day + 1) % 7); // Move to next day
+    } else if (utcHours < 0) {
+        utcHours += 24;
+        utcWeekdays = utcWeekdays.map(day => (day - 1 + 7) % 7); // Move to previous day
+    }
+
+    // Format time as "HH:mm"
+    const utcTime = `${utcHours.toString().padStart(2, '0')}:${userMinutes.toString().padStart(2, '0')}`;
+
+    return {
+        utcTime,
+        utcWeekdays
+    };
 }
+
 
 export class UserController {
     async getUserProfile(req: Request, res: Response, next: NextFunction) {
