@@ -1,10 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import { client } from "../services";
-import { ObjectId } from "mongodb";
+import { GridFSBucket, ObjectId } from "mongodb";
+import multer from "multer";
+import { GridFsStorage } from "multer-gridfs-storage";
+
+
+const isValidBase64 = (str: string) => {
+    return /^data:image\/(png|jpeg|jpg);base64,[A-Za-z0-9+/=]+$/.test(str);
+};
+
 
 export class JournalController {
     async postJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID } = req.body;
+        const { date, userID, text, media } = req.body; // media is an array of Base64 strings
         
         // Check for existing entry
         const existing = await client.db("cpen321journal").collection("journals")
@@ -15,50 +23,52 @@ export class JournalController {
                 message: "Journal entry already exists for this date" 
             });
         }
-
-        // Create new entry
+    
+        // Create new entry with Base64 images
         const result = await client.db("cpen321journal").collection("journals")
             .insertOne({
                 date,
                 userID,
-                text: "",
-                media: [],
+                text: text || "",
+                media: media || [], // Store Base64 images here
                 createdAt: new Date()
             });
-
+    
         res.status(201).json({ 
-            // TODO: replace this message to chatbot msg
-            message: "New journal entry created successfully! Start reflecting!" 
+            message: "New journal entry created successfully with images!" 
         });
     }
+    
 
     async getJournal(req: Request, res: Response, next: NextFunction) {
         const { date, userID } = req.query;
         
         const entry = await client.db("cpen321journal").collection("journals")
             .findOne({ date, userID });
-
+    
         res.status(200).json({
             journal: entry ? { 
                 text: entry.text, 
-                media: entry.media 
+                media: entry.media // Return Base64 images
             } : { text: "", media: [] }
         });
     }
+    
 
     async putJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, updated_content } = req.body;
+        const { date, userID, updated_content, updated_media } = req.body;
         
         const result = await client.db("cpen321journal").collection("journals")
             .updateOne(
                 { date, userID },
-                { $set: { text: updated_content } }
+                { $set: { text: updated_content, media: updated_media || [] } }
             );
-
+    
         res.status(200).json({ 
             update_success: result.modifiedCount > 0 
         });
     }
+    
 
     async deleteJournal(req: Request, res: Response, next: NextFunction) {
         const { date, userID } = req.query;
@@ -71,3 +81,4 @@ export class JournalController {
         });
     }
 }
+
