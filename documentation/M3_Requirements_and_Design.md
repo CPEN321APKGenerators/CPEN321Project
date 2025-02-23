@@ -263,85 +263,173 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 1. **User Management**
     - **Purpose**: Handles user authentication (via Google/Facebook), and profile management.
     - **Interfaces**: 
-        1. Get /api/profile/isPaidUser
-            - **Purpose**: Checks if a user is a paid user
-            - **Request Parameters**: userID: the user ID for the user
-            - **Response Body**:
-            {
-                "isPaid": (Boolean) True if the user is a paid user, otherwise False.
-            }
-        2. Get /api/profile
-            - **Purpose**: Gets the user's profile.
-            - **Request Parameters**: userID: the user ID for the user
-            - **Response Body**:
-            {
-                "isPaid": (Boolean) True if the user is a paid user, otherwise False.
-                "reminderSetting": {
-                    Weekday: (list of integers) Weekdays to remind,
-                    time: time to remind the user,
+        1. Get /api/profile
+            - **Purpose**: Retrieve a user's profile information.
+            - **Request Parameters**: userID: Required, string.
+            - **Response**:
+            - Status Code: 201 Created
+                Response Body:
+                {
+                    "isPaid": "boolean",
+                    "reminderSetting": "object",
+                    "preferred_name": "string",
+                    "activities_tracking": ["string"],
+                    "userReminderTime": ["string"],
+                    "createdAt": "string",
+                    "fcmToken": "string",
+                    "timeOffset": "string"
                 }
+            - Status Code: 404 Not Found
+            Response Body:
+            {
+                "error": "User not found"
             }
-        3. PUT /api/profile/reminder
-            - **Purpose**: Updates the user's reminder
+            - Status Code: 500 Internal Server Error
+        2. Get /api/profile/isPaidUser
+            - **Purpose**: Check if a user is a paid member.
+            - **Request Parameters**: userID: Required, must be a string.
+            - **Response**:
+            - Status Code: 200 OK
+                Response Body:
+            {
+                "isPaid": "boolean"
+            }
+            - Status Code: 404 Not Found
+            Response Body:
+            {
+                "error": "User not found"
+            }
+            - Status Code: 500 Internal Server Error
+
+        3. POST /api/profile
+            - **Purpose**: Create or update a user profile.
             - **Request Body**:
             {
-                "updated_reminder": the updated reminder settings for the user,
-                "userID": the user ID for the user
+                "userID": "string",
+                "isPaid": "boolean (optional)",
+                "preferred_name": "string (optional)",
+                "activities_tracking": ["string (optional)"]
             }
-            - **Response Body**:
+            - **Response**:
+                - Status Code: 201 Created or 200 OK
+                    Response Body:
+                    {
+                        "message": "User profile created/updated successfully",
+                        "updatedFields": "object"
+                    }
+                - Status Code: 500 Internal Server Error
+        4. POST /api/profile/fcmtoken
+            - **Purpose**: Store or update a user's FCM (Firebase Cloud Messaging) token.
+            - **Request Body**:
             {
-                "update_success": (Boolean) True if reminder is updated, otherwise false
+                "userID": "string",
+                "fcmToken": "string",
+                "timeOffset": "string"
             }
+            - **Response**:
+                - Status Code: 200 OK
+                    Response Body:
+                    {
+                        "success": true
+                    }
+                - Status Code: 500 Internal Server Errors
+        
+        5. POST /api/profile/reminder
+            - **Purpose**: Change or update a user's reminder settings.
+            - **Request Body**:
+            {
+                "userID": "string",
+                "updated_reminder": {
+                    "Weekday": ["integer"],
+                    "time": "string (HH:mm)"
+                }
+            }
+            (Note: Weekday field uses integers 1-7 to represent weekdays from Monday to Sunday)
+            - **Response**:
+            - Status Code: 200 OK
+                Response Body:
+                {
+                    "update_success": true
+                }
+            - Status Code: 500 Internal Server Errors
+
 2. **Manage Journaling (Journal Entries management)**
     - **Purpose**: Handles the management (create, edit, delete, export) of the Journal. Also handles the addition of media to the journal.
     - **Interfaces**: 
         1. POST /api/journal
-            - **Purpose**: Create a new journal entry 
+            - **Purpose**: Create a new journal entry for a specific user on a given date.
             - **Request Body**:
             {
-                "date": the date for a new journal entry,
-                "userID": the user ID for the user
+                "date": "string (ISO8601 format)",
+                "userID": "string" (required),
+                "text": "string (optional)",
+                "media": ["string (Base64 encoded images) (optional)"]
             }
-            - **Response Body**:
-            {
-                "message": a message generated by the chatbot.
-            }
+            - **Response**:
+                - Status Code: 201 Created
+                    Response Body:
+                    {
+                        "message": "New journal entry created successfully with images!"
+                    }
+                - Status Code: 400 Bad Request
+                    Response Body:
+                    {
+                        "message": "Journal entry already exists for this date"
+                    }
+                - Status Code: 500 Internal Server Error
+
         2. GET /api/journal
-            - **Purpose**: Retrieve a journal entry
+            - **Purpose**: Retrieve a journal entry for a specific user on a given date.
             - **Request Parameters**:
-                date: the date for a new journal entry,
-                userID: the user ID for the user
-            - **Response Body**: 
-            {
-                "journal": {
-                    "text": the chosen journal entry,
-                    "media": [ (a list of media)
-                        "media_id": the id of media resources,
-                        ...
-                    ]
+                - date: Required, ISO8601 formatted string.
+                - userID: Required, string.
+            - **Response**: 
+                - Status Code: 200 OK
+                Response Body:
+                {
+                    "journal": {
+                        "text": "string",
+                        "media": ["string (Base64 encoded images)"]
+                    }
                 }
-            }
+                - Status Code: 404 Not Found
+                Response Body:
+                {
+                    "journal": {
+                        "text": "",
+                        "media": []
+                    }
+                }
+                - Status Code: 500 Internal Server Error
+
         3. PUT /api/journal
-            - **Purpose**: Edit an existing journal entry
+            - **Purpose**: Update an existing journal entry for a specific user on a given date.
             - **Request Body**:
             {
-                "date": the date for a new journal entry,
-                "userID": the user ID for the user,
-                "updated_content": the updated journal entry for a selected date
+                "date": "string (ISO8601 format)",
+                "userID": "string",
+                "text": "string (optional)",
+                "media": ["string (Base64 encoded images) (optional)"]
             }
-            - **Response Body**:
-            {
-                "update_success": true if update successfully, false otherwise.    
-            }
+            - **Response**:
+            - Status Code: 200 OK
+                Response Body:
+                {
+                    "update_success": true
+                }
+            - Status Code: 500 Internal Server Error
         4. DELETE /api/journal
-            - **Purpose**: Delete a journal entry
+            - **Purpose**: Delete a journal entry for a specific user on a given date.
             - **Request Parameters**:
-                date: the date for a new journal entry,
-                userID: the user ID for the user
-            - **Response Body**:
-            {
-                "delete_success": successfully deleted the journal entry
-            }
+                date: Required, ISO8601 formatted string.
+                userID: Required, string.
+            - **Response**:
+            - Status Code: 200 OK
+                Response Body:
+                {
+                    "delete_success": true
+                }
+            - Status Code: 500 Internal Server Error
         5. POST /api/journal/media
             - **Purpose**: Adding photos and videos to the existing or new journal entries
             - **Request Body**:
