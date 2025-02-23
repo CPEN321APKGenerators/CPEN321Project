@@ -100,7 +100,6 @@ export class UserController {
         const { 
             userID, 
             isPaid, 
-            reminderSetting, 
             preferred_name, 
             activities_tracking 
         } = req.body;
@@ -129,7 +128,6 @@ export class UserController {
                 };
     
                 if (isPaid !== undefined) updatedFields.isPaid = isPaid;
-                if (reminderSetting !== undefined) updatedFields.reminderSetting = reminderSetting;
                 if (preferred_name !== undefined) updatedFields.preferred_name = preferred_name;
                 if (activities_tracking !== undefined) updatedFields.activities_tracking = activities_tracking;
     
@@ -149,7 +147,7 @@ export class UserController {
                 const newUser = {
                     userID,
                     isPaid: isPaid || false,
-                    reminderSetting: reminderSetting || {"Weekday":[], "time":"9:00"},
+                    reminderSetting: {"Weekday":[], "time":"9:00"},
                     preferred_name: preferred_name || "",
                     activities_tracking: activities_tracking || [],
                     createdAt: new Date(),
