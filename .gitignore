@@ -9,3 +9,4 @@ Thumbs.db
 # Global logs
 logs/
 *.log
+Backend/config/cpen321project-c324e-firebase-adminsdk.json

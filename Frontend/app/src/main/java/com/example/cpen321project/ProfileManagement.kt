@@ -8,6 +8,25 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import android.Manifest
+import com.google.firebase.messaging.FirebaseMessaging
+import okhttp3.*
+import java.io.IOException
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.pm.PackageManager
+import android.os.Build
+import android.util.Log
+import androidx.core.app.ActivityCompat
+import org.json.JSONArray
+import org.json.JSONObject
+
+const val CHANNEL_ID = "channel_id"
 
 class ProfileManagement : AppCompatActivity() {
 
@@ -16,13 +35,47 @@ class ProfileManagement : AppCompatActivity() {
     private lateinit var activitiesAdapter: ArrayAdapter<String>
     private val activitiesList = mutableListOf<String>()  // List of activities
     private lateinit var reminderSpinner: Spinner
-    private val reminderOptions = arrayOf("Everyday", "Never", "Every 2 Days", "Once a Week")
-
+    val permissionsArr = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+    lateinit var notificationManager: NotificationManager
+    private val selectedDays = mutableListOf<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getUserProfile()
         enableEdgeToEdge()
         setContentView(R.layout.activity_profile_management)
+        val saveSettingsButton: Button = findViewById(R.id.save_settings_button)
+        val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
+        val preferredNameText = findViewById<EditText>(R.id.profile_name_input)
+        val backbutton = findViewById<Button>(R.id.profile_back_button)
+        backbutton.setOnClickListener {
+            finish()
+        }
+        saveSettingsButton.setOnClickListener {
+            // Get selected time from TimePicker
+            val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
+            val minute = if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
+
+            // Convert time to 24-hour format (e.g., "21:00")
+            val formattedTime = String.format("%02d:%02d", hour, minute)
+            val preferredName = preferredNameText.text.toString().trim()
+
+            // Send reminder settings with selected days and time
+            sendReminderSettings(selectedDays, formattedTime)
+            sendUserProfile(preferredName, activitiesList)
+        }
+
+
+        setupDayCircles()
+
+        if (checkSelfPermission(permissionsArr[0]) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, permissionsArr, 200)
+        }
+        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL_ID, "General Notifications", NotificationManager.IMPORTANCE_DEFAULT)
+            notificationManager.createNotificationChannel(channel)
+        }
 
         // Apply window insets for proper layout
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_view)) { v, insets ->
@@ -35,32 +88,6 @@ class ProfileManagement : AppCompatActivity() {
         activityListView = findViewById(R.id.profile_activity_list)
         addActivityButton = findViewById(R.id.profile_add_activity_button)
 
-        // Initialize Spinner
-        reminderSpinner = findViewById(R.id.profile_reminder_dropdown)
-
-        // Create an ArrayAdapter with the options
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, reminderOptions)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        reminderSpinner.adapter = adapter
-
-        // Handle item selection
-        reminderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selectedOption = reminderOptions[position]
-                Toast.makeText(
-                    this@ProfileManagement,
-                    "Selected: $selectedOption",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
 
         // Set up the ListView adapter
         activitiesAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, activitiesList)
@@ -178,4 +205,221 @@ class ProfileManagement : AppCompatActivity() {
         activityListView.layoutParams = params
         activityListView.requestLayout()
     }
+
+    private fun sendReminderSettings(weekdays: List<Int>, time: String) {
+        val userID = "12345"  // Replace with actual user ID
+        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/reminder"
+//        val url = "http://10.0.2.2:3001/api/profile/reminder"
+
+        // Construct the JSON body with updated structure
+        val json = JSONObject()
+        val updatedReminder = JSONObject()
+        updatedReminder.put("Weekday", JSONArray(weekdays))
+        updatedReminder.put("time", time)
+
+        json.put("userID", userID)
+        json.put("updated_reminder", updatedReminder)
+
+        val client = OkHttpClient()
+        val requestBody = RequestBody.create(
+            "application/json".toMediaTypeOrNull(), json.toString()
+        )
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    Log.d("Reminder", "Reminder settings updated successfully")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Reminder updated successfully!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e("Reminder", "Failed to update reminder settings")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Failed to update reminder settings", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("Reminder", "Failed to connect to server", e)
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+
+    private fun setupDayCircles() {
+        val daysOfWeek = listOf(
+            findViewById<ImageView>(R.id.day_mon),  // Monday -> 1
+            findViewById<ImageView>(R.id.day_tue),  // Tuesday -> 2
+            findViewById<ImageView>(R.id.day_wed),  // Wednesday -> 3
+            findViewById<ImageView>(R.id.day_thu),  // Thursday -> 4
+            findViewById<ImageView>(R.id.day_fri),  // Friday -> 5
+            findViewById<ImageView>(R.id.day_sat),  // Saturday -> 6
+            findViewById<ImageView>(R.id.day_sun)   // Sunday -> 7
+        )
+
+        for ((index, day) in daysOfWeek.withIndex()) {
+            val dayNumber = index + 1  // Matches [1 = Monday, ..., 7 = Sunday]
+            day.setOnClickListener {
+                if (selectedDays.contains(dayNumber)) {
+                    selectedDays.remove(dayNumber)
+                    day.setBackgroundResource(R.drawable.circle_grey)
+                } else {
+                    selectedDays.add(dayNumber)
+                    day.setBackgroundResource(R.drawable.circle_purple)
+                }
+            }
+        }
+    }
+
+
+    private fun getUserProfile() {
+        val userID = "12345"  // Replace with dynamic userID if necessary
+        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile?userID=$userID"
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    response.body?.string()?.let { responseBody ->
+                        val jsonResponse = JSONObject(responseBody)
+
+                        // Extract fields from response
+                        val preferredName = jsonResponse.optString("preferred_name", "")
+                        val activitiesTracking = jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
+                        val userReminderTime = jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
+                        val weekdays = userReminderTime.optJSONArray("Weekday") ?: JSONArray()
+                        val reminderTime = userReminderTime.optString("time", "")
+
+                        // Update UI on the main thread
+                        runOnUiThread {
+                            // Update preferred name
+                            findViewById<EditText>(R.id.profile_name_input).setText(preferredName)
+
+                            // Update activities tracking list
+                            activitiesList.clear()
+                            for (i in 0 until activitiesTracking.length()) {
+                                activitiesList.add(activitiesTracking.getString(i))
+                            }
+                            activitiesAdapter.notifyDataSetChanged()
+                            updateListViewHeight()
+
+                            // Update reminder days selection
+                            selectedDays.clear()
+                            for (i in 0 until weekdays.length()) {
+                                selectedDays.add(weekdays.getInt(i))
+                            }
+                            highlightSelectedDays()
+
+                            // Update TimePicker
+                            if (reminderTime.isNotEmpty()) {
+                                val (hour, minute) = reminderTime.split(":").map { it.toInt() }
+                                val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
+                                if (Build.VERSION.SDK_INT >= 23) {
+                                    timePicker.hour = hour
+                                    timePicker.minute = minute
+                                } else {
+                                    timePicker.currentHour = hour
+                                    timePicker.currentMinute = minute
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Log.e("UserProfile", "Failed to get user profile")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Failed to get user profile", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("UserProfile", "Failed to connect to server", e)
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+    private fun highlightSelectedDays() {
+        val daysOfWeek = listOf(
+            findViewById<ImageView>(R.id.day_mon),  // Monday -> 1
+            findViewById<ImageView>(R.id.day_tue),  // Tuesday -> 2
+            findViewById<ImageView>(R.id.day_wed),  // Wednesday -> 3
+            findViewById<ImageView>(R.id.day_thu),  // Thursday -> 4
+            findViewById<ImageView>(R.id.day_fri),  // Friday -> 5
+            findViewById<ImageView>(R.id.day_sat),  // Saturday -> 6
+            findViewById<ImageView>(R.id.day_sun)   // Sunday -> 7
+        )
+
+        for ((index, day) in daysOfWeek.withIndex()) {
+            val dayNumber = index + 1  // Matches [1 = Monday, ..., 7 = Sunday]
+            if (selectedDays.contains(dayNumber)) {
+                day.setBackgroundResource(R.drawable.circle_purple)  // Highlight selected days
+            } else {
+                day.setBackgroundResource(R.drawable.circle_grey)  // Unselected days
+            }
+        }
+    }
+
+    private fun sendUserProfile(preferredName: String, activities: List<String>) {
+        val userID = "12345"  // Replace with dynamic userID if needed
+        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
+
+        // Construct JSON body
+        val json = JSONObject()
+        json.put("userID", userID)
+        json.put("preferred_name", preferredName)
+        json.put("activities_tracking", JSONArray(activities))
+
+        val client = OkHttpClient()
+        val requestBody = RequestBody.create(
+            "application/json".toMediaTypeOrNull(), json.toString()
+        )
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    Log.d("UserProfile", "User profile updated successfully")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e("UserProfile", "Failed to update user profile")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("UserProfile", "Failed to connect to server", e)
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+
+
 }

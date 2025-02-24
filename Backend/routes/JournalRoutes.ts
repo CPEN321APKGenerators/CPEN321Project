@@ -29,7 +29,7 @@ export const JournalRoutes = [
         validation: [
             body("date").exists().isISO8601(),
             body("userID").exists().isString(),
-            body("updated_content").exists().isString()
+            body("text").exists().isString()
         ]
     },
     {
