@@ -7,58 +7,101 @@
     android:padding="16dp"
     android:id="@+id/journalview">
 
+    <!-- Back Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <Button
-        android:id="@+id/Backbuttonentries"
-        android:layout_width="109dp"
-        android:layout_height="wrap_content"
-        android:text="Back" />
+        <Button
+            android:id="@+id/Backbuttonentries"
+            android:layout_width="109dp"
+            android:layout_height="wrap_content"
+            android:text="Back" />
     </LinearLayout>
 
+    <!-- Journal Date -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-    <TextView
-        android:id="@+id/journalDateText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="10dp"
-        android:text="@string/Journal_date"/>
+        <TextView
+            android:id="@+id/journalDateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="10dp"
+            android:text="@string/Journal_date"/>
     </LinearLayout>
 
+    <!-- Chatbot Conversation ScrollView -->
+    <ScrollView
+        android:id="@+id/chatScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:fillViewport="true"
+        android:background="#EEEEEE"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:id="@+id/chatContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <!-- Chat Input Field -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
 
         <EditText
-            android:id="@+id/journalEntryInput"
-            android:layout_width="match_parent"
-            android:layout_height="600dp"
-            android:background="@android:drawable/editbox_background"
-            android:gravity="top"
-            android:hint="@string/write_your_journal_entry_here_hint"
-            android:text=""
+            android:id="@+id/chatInput"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Type a message..."
             android:padding="10dp"
-            android:textSize="16sp" />
+            android:background="@android:drawable/editbox_background"/>
+
+        <Button
+            android:id="@+id/sendChatButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"/>
     </LinearLayout>
 
+    <!-- User Journal Entry -->
+    <EditText
+        android:id="@+id/journalEntryInput"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@android:drawable/editbox_background"
+        android:gravity="top"
+        android:hint="@string/write_your_journal_entry_here_hint"
+        android:text=""
+        android:padding="10dp"
+        android:textSize="16sp" />
+
+    <!-- Image View -->
+    <ImageView
+        android:id="@+id/journalImageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:contentDescription="Selected Image"/>
+
+    <!-- Save Button -->
     <Button
         android:id="@+id/Saveentrybutton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/save_entry_button" />
 
-    <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="15dp">
-
-</LinearLayout>
+    <!-- Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -87,5 +130,6 @@
             android:layout_height="wrap_content"
             app:srcCompat="@android:drawable/ic_menu_share" />
     </LinearLayout>
+
 
 </LinearLayout>
