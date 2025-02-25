@@ -7,7 +7,8 @@ import morgan from "morgan";
 import { UserRoutes } from "./routes/UserRoutes";
 import cron from 'node-cron';
 import admin from 'firebase-admin';
-import stripeSecret from "./config/cpen321project-stripe-secret.json";
+import fs from 'fs';
+import path from 'path';
 
 const { DateTime } = require('luxon');
 
@@ -25,6 +26,9 @@ if (!admin.apps.length) {
   });
 }
 
+// Read the secret as a string
+const stripeSecret = fs.readFileSync(path.join(__dirname, './config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+console.log(stripeSecret)
 // const OtherRoutes=[]
 const Routes = [...JournalRoutes, ...UserRoutes];
 // const Routes = [...JournalRoutes];
@@ -91,7 +95,7 @@ client.connect().then( () => {
     client.close()
 })
 
-const stripe = require('stripe')(stripeSecret.stripeSecret);
+const stripe = require('stripe')(stripeSecret);
 // This example sets up an endpoint using the Express framework.
 // Watch this video to get started: https://youtu.be/rPR2aJ6XnAc.
 

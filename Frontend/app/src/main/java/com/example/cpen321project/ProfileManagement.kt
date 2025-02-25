@@ -125,7 +125,7 @@ class ProfileManagement : AppCompatActivity() {
         }
         paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
 //        "http://10.0.2.2:3001/payment-sheet".httpPost().responseJson { _, _, result ->
-            "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/payment-sheet".httpPost().responseJson { _, _, result ->
+        "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/payment-sheet".httpPost().responseJson { _, _, result ->
             if (result is Result.Success) {
                 val responseJson = result.get().obj()
                 paymentIntentClientSecret = responseJson.getString("paymentIntent")
