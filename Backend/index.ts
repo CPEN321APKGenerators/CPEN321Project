@@ -1,10 +1,10 @@
 import express, {NextFunction, Request, Response} from "express";
 import { MongoClient } from "mongodb";
 import { client } from "./services";
-import { JournalRoutes } from "./routes/JournalRoutes";
+import { JournalRoutes } from "./src/routes/JournalRoutes";
 import { validationResult } from "express-validator";
 import morgan from "morgan";
-import { UserRoutes } from "./routes/UserRoutes";
+import { UserRoutes } from "./src/routes/UserRoutes";
 import cron from 'node-cron';
 import admin from 'firebase-admin';
 import fs from 'fs';
@@ -20,14 +20,16 @@ app.use(morgan('tiny'))
 
 // Initialize Firebase Admin
 if (!admin.apps.length) {
-  const serviceAccount = require('../config/cpen321project-c324e-firebase-adminsdk.json');
+//   const serviceAccount = require('../config/cpen321project-c324e-firebase-adminsdk.json');
+    const serviceAccount = require('./src/config/cpen321project-c324e-firebase-adminsdk.json');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
 }
 
 // Read the secret as a string
-const stripeSecret = fs.readFileSync(path.join(__dirname, './config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+// const stripeSecret = fs.readFileSync(path.join(__dirname, './config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+const stripeSecret = fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
 console.log(stripeSecret)
 // const OtherRoutes=[]
 const Routes = [...JournalRoutes, ...UserRoutes];

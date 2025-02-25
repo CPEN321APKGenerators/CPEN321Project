@@ -99,7 +99,8 @@ class LoginActivity : AppCompatActivity() {
                             .createFrom(credential.data)
                         Log.d(TAG, "Google ID token: ${googleIdTokenCredential.idToken}")
                         Log.d(TAG, "Google id: ${googleIdTokenCredential.id}")
-                        val googleUserId = googleIdTokenCredential.id
+                        var googleUserId = googleIdTokenCredential.id
+                        googleUserId = "123"
 
                         // Save Google User ID in SharedPreferences
                         getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -108,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
                             .apply()
 
                         // post a new user
-
+                        callCreateUser(googleUserId)
 
                         // Redirect to MainActivity
                         val intent = Intent(this, MainActivity::class.java)

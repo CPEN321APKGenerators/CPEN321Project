@@ -33,12 +33,12 @@ jobs:
                     mkdir -p config
 
                     # Write the JSON file directly on EC2
-                    echo '${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}' > config/cpen321project-c324e-firebase-adminsdk.json
-                    echo '${{ secrets.STRIPE_SECRET }}' > config/cpen321project-stripe-secret.txt
+                    echo '${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}' > src/config/cpen321project-c324e-firebase-adminsdk.json
+                    echo '${{ secrets.STRIPE_SECRET }}' > src/config/cpen321project-stripe-secret.txt
 
                     # Give permissions to the JSON file
-                    chmod 600 config/cpen321project-c324e-firebase-adminsdk.json
-                    chmod 600 config/cpen321project-stripe-secret.json
+                    chmod 600 src/config/cpen321project-c324e-firebase-adminsdk.json
+                    chmod 600 src/config/cpen321project-stripe-secret.txt
 
                     # Write secrets into - env
                     cat > .env <<EOF

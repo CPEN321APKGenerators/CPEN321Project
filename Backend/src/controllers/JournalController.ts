@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { client } from "../services";
+import { client } from "../../services";
 
 
 const isValidBase64 = (str: string) => {

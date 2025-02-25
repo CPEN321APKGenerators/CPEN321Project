@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { client } from "../services";
+import { client } from "../../services";
 import { ObjectId } from "mongodb";
 import admin from "firebase-admin";
 import { DateTime } from "luxon";
