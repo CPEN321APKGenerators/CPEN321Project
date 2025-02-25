@@ -25,6 +25,14 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import org.json.JSONArray
 import org.json.JSONObject
+import android.widget.Button
+import com.android.volley.RequestQueue
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.fuel.json.responseJson
+import com.github.kittinunf.result.Result
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheetResult
 
 const val CHANNEL_ID = "channel_id"
 
@@ -38,6 +46,14 @@ class ProfileManagement : AppCompatActivity() {
     val permissionsArr = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
     lateinit var notificationManager: NotificationManager
     private val selectedDays = mutableListOf<Int>()
+
+    lateinit var paymentSheet: PaymentSheet
+    lateinit var customerConfig: PaymentSheet.CustomerConfiguration
+    lateinit var paymentIntentClientSecret: String
+
+    companion object {
+        private const val TAG = "Profile Management"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,8 +120,27 @@ class ProfileManagement : AppCompatActivity() {
             true
         }
 
+        findViewById<Button>(R.id.profile_upgrade_button).setOnClickListener() {
+            presentPaymentSheet()
+        }
+        paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
+//        "http://10.0.2.2:3001/payment-sheet".httpPost().responseJson { _, _, result ->
+            "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/payment-sheet".httpPost().responseJson { _, _, result ->
+            if (result is Result.Success) {
+                val responseJson = result.get().obj()
+                paymentIntentClientSecret = responseJson.getString("paymentIntent")
+                customerConfig = PaymentSheet.CustomerConfiguration(
+                    id = responseJson.getString("customer"),
+                    ephemeralKeySecret = responseJson.getString("ephemeralKey")
+                )
+                val publishableKey = responseJson.getString("publishableKey")
+                PaymentConfiguration.init(this, publishableKey)
+            }
+        }
+
         // Ensure ListView expands correctly inside ScrollView
         updateListViewHeight()
+
     }
 
     // Function to show input dialog for adding an activity
@@ -207,7 +242,8 @@ class ProfileManagement : AppCompatActivity() {
     }
 
     private fun sendReminderSettings(weekdays: List<Int>, time: String) {
-        val userID = "12345"  // Replace with actual user ID
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/reminder"
 //        val url = "http://10.0.2.2:3001/api/profile/reminder"
 
@@ -282,7 +318,8 @@ class ProfileManagement : AppCompatActivity() {
 
 
     private fun getUserProfile() {
-        val userID = "12345"  // Replace with dynamic userID if necessary
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile?userID=$userID"
 
         val client = OkHttpClient()
@@ -299,6 +336,7 @@ class ProfileManagement : AppCompatActivity() {
 
                         // Extract fields from response
                         val preferredName = jsonResponse.optString("preferred_name", "")
+                        val accountStatus = jsonResponse.optBoolean("isPaid", false)
                         val activitiesTracking = jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
                         val userReminderTime = jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
                         val weekdays = userReminderTime.optJSONArray("Weekday") ?: JSONArray()
@@ -308,6 +346,12 @@ class ProfileManagement : AppCompatActivity() {
                         runOnUiThread {
                             // Update preferred name
                             findViewById<EditText>(R.id.profile_name_input).setText(preferredName)
+
+                            if (accountStatus == true) {
+                                findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
+                            } else {
+                                findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Free")
+                            }
 
                             // Update activities tracking list
                             activitiesList.clear()
@@ -376,8 +420,85 @@ class ProfileManagement : AppCompatActivity() {
         }
     }
 
+    private fun upgradeUserAfterPaid() {
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
+        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/isPaid"
+//        val url = "http://10.0.2.2:3001/api/profile/isPaid"
+        // Construct JSON body
+        val json = JSONObject()
+        json.put("userID", userID)
+
+        val client = OkHttpClient()
+        val requestBody = RequestBody.create(
+            "application/json".toMediaTypeOrNull(), json.toString()
+        )
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    Log.d("UserProfile", "User account status updated successfully")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "User account status updated successfully!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e("UserProfile", "Failed to update user account status")
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Failed to update user account status", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("UserProfile", "Failed to connect to server", e)
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+    fun presentPaymentSheet() {
+        paymentSheet.presentWithPaymentIntent(
+            paymentIntentClientSecret,
+            PaymentSheet.Configuration(
+                merchantDisplayName = "My merchant name",
+                customer = customerConfig,
+                // Set `allowsDelayedPaymentMethods` to true if your business handles
+                // delayed notification payment methods like US bank accounts.
+                allowsDelayedPaymentMethods = true
+            )
+        )
+    }
+
+    fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
+        when (paymentSheetResult) {
+            is PaymentSheetResult.Canceled -> {
+                Log.d(TAG, "Canceled")
+            }
+
+            is PaymentSheetResult.Failed -> {
+                Log.d(TAG, "Error: ${paymentSheetResult.error}")
+            }
+
+            is PaymentSheetResult.Completed -> {
+                // Display for example, an order confirmation screen
+                Log.d(TAG, "Completed")
+                findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
+                upgradeUserAfterPaid()
+                findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
+            }
+        }
+    }
+
     private fun sendUserProfile(preferredName: String, activities: List<String>) {
-        val userID = "12345"  // Replace with dynamic userID if needed
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
 
         // Construct JSON body
@@ -419,7 +540,5 @@ class ProfileManagement : AppCompatActivity() {
             }
         })
     }
-
-
 
 }

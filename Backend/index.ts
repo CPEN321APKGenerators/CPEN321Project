@@ -5,9 +5,10 @@ import { JournalRoutes } from "./routes/JournalRoutes";
 import { validationResult } from "express-validator";
 import morgan from "morgan";
 import { UserRoutes } from "./routes/UserRoutes";
-// import scheduleNotifications from './src/jobs/notificationJobs';
 import cron from 'node-cron';
 import admin from 'firebase-admin';
+import stripeSecret from "./config/cpen321project-stripe-secret.json";
+
 const { DateTime } = require('luxon');
 
 const app = express();
@@ -23,6 +24,9 @@ if (!admin.apps.length) {
     credential: admin.credential.cert(serviceAccount)
   });
 }
+
+
+console.log(stripeSecret.stripeSecret);
 
 // const OtherRoutes=[]
 const Routes = [...JournalRoutes, ...UserRoutes];
@@ -89,6 +93,36 @@ client.connect().then( () => {
     console.log(err)
     client.close()
 })
+
+const stripe = require('stripe')(stripeSecret.stripeSecret);
+// This example sets up an endpoint using the Express framework.
+// Watch this video to get started: https://youtu.be/rPR2aJ6XnAc.
+
+app.post('/api/payment-sheet', async (req, res) => {
+  // Use an existing Customer ID if this is a returning customer.
+  const customer = await stripe.customers.create();
+  const ephemeralKey = await stripe.ephemeralKeys.create(
+    {customer: customer.id},
+    {apiVersion: '2025-02-24.acacia'}
+  );
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: 1099,
+    currency: 'cad',
+    customer: customer.id,
+    // In the latest version of the API, specifying the `automatic_payment_methods` parameter
+    // is optional because Stripe enables its functionality by default.
+    automatic_payment_methods: {
+      enabled: true,
+    },
+  });
+
+  res.json({
+    paymentIntent: paymentIntent.client_secret,
+    ephemeralKey: ephemeralKey.secret,
+    customer: customer.id,
+    publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM'
+  });
+});
 
 
 async function scheduleNotifications() {

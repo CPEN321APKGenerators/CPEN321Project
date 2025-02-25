@@ -30,6 +30,14 @@ export const UserRoutes = [
     },
     {
         method: "post",
+        route: "/api/profile/isPaid",
+        action: controller.upgradeUser,
+        validation: [
+            body("userID").exists().isString()
+        ]
+    },
+    {
+        method: "post",
         route: "/api/profile/fcmtoken",
         action: controller.storeFcmToken,
         validation: [
