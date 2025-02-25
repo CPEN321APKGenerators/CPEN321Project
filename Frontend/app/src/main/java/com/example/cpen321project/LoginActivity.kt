@@ -100,7 +100,7 @@ class LoginActivity : AppCompatActivity() {
                         Log.d(TAG, "Google ID token: ${googleIdTokenCredential.idToken}")
                         Log.d(TAG, "Google id: ${googleIdTokenCredential.id}")
                         var googleUserId = googleIdTokenCredential.id
-                        googleUserId = "123"
+                        googleUserId = "12345"
 
                         // Save Google User ID in SharedPreferences
                         getSharedPreferences("AppPreferences", MODE_PRIVATE)

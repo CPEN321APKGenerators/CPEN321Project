@@ -67,22 +67,27 @@ class ProfileManagement : AppCompatActivity() {
         backbutton.setOnClickListener {
             finish()
         }
+        // Load the selected days from SharedPreferences
+        val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val savedDays = prefs.getStringSet("SelectedDays", emptySet()) ?: emptySet()
+        selectedDays.clear()
+        selectedDays.addAll(savedDays.map { it.toInt() })
+
+
         saveSettingsButton.setOnClickListener {
             // Get selected time from TimePicker
             val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
             val minute = if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
-
-            // Convert time to 24-hour format (e.g., "21:00")
             val formattedTime = String.format("%02d:%02d", hour, minute)
             val preferredName = preferredNameText.text.toString().trim()
 
-            // Send reminder settings with selected days and time
+            // Save the selected days locally
+            val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            prefs.edit().putStringSet("SelectedDays", selectedDays.map { it.toString() }.toSet()).apply()
+
             sendReminderSettings(selectedDays, formattedTime)
             sendUserProfile(preferredName, activitiesList)
         }
-
-
-        setupDayCircles()
 
         if (checkSelfPermission(permissionsArr[0]) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, permissionsArr, 200)
@@ -140,6 +145,8 @@ class ProfileManagement : AppCompatActivity() {
 
         // Ensure ListView expands correctly inside ScrollView
         updateListViewHeight()
+        setupDayCircles()
+        highlightSelectedDays()
 
     }
 
@@ -320,6 +327,7 @@ class ProfileManagement : AppCompatActivity() {
     private fun getUserProfile() {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
+        Log.d(TAG, "get user profile ${userID}")
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile?userID=$userID"
 
         val client = OkHttpClient()
@@ -349,6 +357,7 @@ class ProfileManagement : AppCompatActivity() {
 
                             if (accountStatus == true) {
                                 findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
+                                findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
                             } else {
                                 findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Free")
                             }
@@ -368,7 +377,7 @@ class ProfileManagement : AppCompatActivity() {
                             }
                             highlightSelectedDays()
 
-                            // Update TimePicker
+                            // Update TimePicker with the saved time
                             if (reminderTime.isNotEmpty()) {
                                 val (hour, minute) = reminderTime.split(":").map { it.toInt() }
                                 val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
@@ -418,6 +427,7 @@ class ProfileManagement : AppCompatActivity() {
                 day.setBackgroundResource(R.drawable.circle_grey)  // Unselected days
             }
         }
+        Log.d("Highlight", "Selected Days: $selectedDays")
     }
 
     private fun upgradeUserAfterPaid() {
