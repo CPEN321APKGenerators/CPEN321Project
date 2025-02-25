@@ -25,9 +25,6 @@ if (!admin.apps.length) {
   });
 }
 
-
-console.log(stripeSecret.stripeSecret);
-
 // const OtherRoutes=[]
 const Routes = [...JournalRoutes, ...UserRoutes];
 // const Routes = [...JournalRoutes];
