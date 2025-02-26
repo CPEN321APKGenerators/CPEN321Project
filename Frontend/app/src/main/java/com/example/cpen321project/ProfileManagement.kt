@@ -143,20 +143,32 @@ class ProfileManagement : AppCompatActivity() {
         findViewById<Button>(R.id.profile_upgrade_button).setOnClickListener() {
             presentPaymentSheet()
         }
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
+        val jsonBody = JSONObject()
+        jsonBody.put("userID", userID)
+
         paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
-//        "http://10.0.2.2:3001/payment-sheet".httpPost().responseJson { _, _, result ->
-        "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/payment-sheet".httpPost().responseJson { _, _, result ->
-            if (result is Result.Success) {
-                val responseJson = result.get().obj()
-                paymentIntentClientSecret = responseJson.getString("paymentIntent")
-                customerConfig = PaymentSheet.CustomerConfiguration(
-                    id = responseJson.getString("customer"),
-                    ephemeralKeySecret = responseJson.getString("ephemeralKey")
-                )
-                val publishableKey = responseJson.getString("publishableKey")
-                PaymentConfiguration.init(this, publishableKey)
+
+//        "http://10.0.2.2:3001/api/payment-sheet".httpPost()
+        "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/payment-sheet".httpPost()
+            .header("Content-Type" to "application/json")
+            .body(jsonBody.toString())
+            .responseJson { _, _, result ->
+                if (result is Result.Success) {
+                    val responseJson = result.get().obj()
+                    Log.d(TAG, "Response from payment sheet: ${responseJson}")
+                    paymentIntentClientSecret = responseJson.getString("paymentIntent")
+                    customerConfig = PaymentSheet.CustomerConfiguration(
+                        id = responseJson.getString("customer"),
+                        ephemeralKeySecret = responseJson.getString("ephemeralKey")
+                    )
+                    val publishableKey = responseJson.getString("publishableKey")
+                    PaymentConfiguration.init(this, publishableKey)
+                } else {
+                    Log.e(TAG, "Failed to get payment sheet: ${result}")
+                }
             }
-        }
 
         // Ensure ListView expands correctly inside ScrollView
         updateListViewHeight()
@@ -415,6 +427,7 @@ class ProfileManagement : AppCompatActivity() {
                 if (response.isSuccessful) {
                     response.body?.string()?.let { responseBody ->
                         val jsonResponse = JSONObject(responseBody)
+                        Log.d(TAG, "get user response: ${jsonResponse}")
 
                         // Extract fields from response
                         val preferredName = jsonResponse.optString("preferred_name", "")
@@ -613,6 +626,7 @@ class ProfileManagement : AppCompatActivity() {
         val requestBody = RequestBody.create(
             "application/json".toMediaTypeOrNull(), json.toString()
         )
+        Log.d(TAG, "Request body of send user profile: ${requestBody}")
 
         val request = Request.Builder()
             .url(url)

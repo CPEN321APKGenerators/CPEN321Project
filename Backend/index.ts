@@ -105,9 +105,11 @@ const stripe = require('stripe')(stripeSecret);
 // Watch this video to get started: https://youtu.be/rPR2aJ6XnAc.
 
 app.post('/api/payment-sheet', async (req, res) => {
-  // Use an existing Customer ID if this is a returning customer.
-  const customer = await stripe.customers.create();
-  const ephemeralKey = await stripe.ephemeralKeys.create(
+    // Use an existing Customer ID if this is a returning customer.
+    const { userID } = req.body;
+    console.log("user id from payment: ", userID)
+    const customer = await stripe.customers.create();
+    const ephemeralKey = await stripe.ephemeralKeys.create(
     {customer: customer.id},
     {apiVersion: '2025-02-24.acacia'}
   );
@@ -120,16 +122,74 @@ app.post('/api/payment-sheet', async (req, res) => {
     automatic_payment_methods: {
       enabled: true,
     },
+    metadata: {
+        userID: userID // This links the payment to the user in your system
+    },
   });
 
   res.json({
     paymentIntent: paymentIntent.client_secret,
     ephemeralKey: ephemeralKey.secret,
     customer: customer.id,
-    publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM'
+    publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM',
+    userID: userID
   });
 });
 
+// Replace this endpoint secret with your endpoint's unique secret 
+// If you are testing with the CLI, find the secret by running 'stripe listen'
+// If you are using an endpoint defined with the API or dashboard, look in your webhook settings
+// at https://dashboard.stripe.com/webhooks
+// const endpointSecret = 'whsec_ca1b269bb5a487ced2a6dba9f53412907d95fc5918ba86ded81dd457c3f3bafb';
+
+//@ts-ignore
+app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+  let event = request.body;
+  console.log("webhook event: ", event)
+
+  // Handle the event
+  switch (event.type) {
+    case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object;
+        console.log(`PaymentIntent for ${paymentIntent.amount} was successful! from webhook!`);
+        console.log("payment intent userID: ", paymentIntent.metadata);
+        console.log("payment intent userID: ", paymentIntent.metadata.userID);
+        // Then define and call a method to handle the successful payment intent.
+        handlePaymentIntentSucceeded(paymentIntent);
+        break;
+    case 'payment_method.attached':
+      const paymentMethod = event.data.object;
+      // Then define and call a method to handle the successful attachment of a PaymentMethod.
+      // handlePaymentMethodAttached(paymentMethod);
+      break;
+    default:
+      // Unexpected event type
+      console.log(`Unhandled event type ${event.type}.`);
+  }
+
+  // Return a 200 response to acknowledge receipt of the event
+  response.send();
+});
+
+app.listen(4242, () => console.log('Webhook Running on port 4242'));
+
+async function handlePaymentIntentSucceeded(paymentIntent: any) {
+    const userID = paymentIntent.metadata.userID;
+    const existingUser = await client.db("cpen321journal").collection("users").findOne({ userID });
+    if (existingUser) {
+        // User exists, update the provided fields only
+        const updatedFields: any = {
+            updatedAt: new Date()
+        };
+
+        updatedFields.isPaid = true;
+        await client.db("cpen321journal").collection("users").updateOne(
+            { userID },
+            { $set: updatedFields }
+        );
+        console.log("updated user!")
+    }
+}
 
 async function scheduleNotifications() {
     // Run every minute
