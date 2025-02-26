@@ -50,7 +50,6 @@ class ProfileManagement : AppCompatActivity() {
 
     private lateinit var activityListView: ListView
     private lateinit var addActivityButton: Button
-//    private lateinit var activitiesAdapter: ArrayAdapter<String>
     private lateinit var activitiesAdapter: ArrayAdapter<Activity>
     private val activitiesList = mutableListOf<Activity>()
     private lateinit var reminderSpinner: Spinner
@@ -526,48 +525,6 @@ class ProfileManagement : AppCompatActivity() {
         Log.d("Highlight", "Selected Days: $selectedDays")
     }
 
-    private fun upgradeUserAfterPaid() {
-        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/isPaid"
-//        val url = "http://10.0.2.2:3001/api/profile/isPaid"
-        // Construct JSON body
-        val json = JSONObject()
-        json.put("userID", userID)
-
-        val client = OkHttpClient()
-        val requestBody = RequestBody.create(
-            "application/json".toMediaTypeOrNull(), json.toString()
-        )
-
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    Log.d("UserProfile", "User account status updated successfully")
-                    runOnUiThread {
-                        Toast.makeText(this@ProfileManagement, "User account status updated successfully!", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Log.e("UserProfile", "Failed to update user account status")
-                    runOnUiThread {
-                        Toast.makeText(this@ProfileManagement, "Failed to update user account status", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("UserProfile", "Failed to connect to server", e)
-                runOnUiThread {
-                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        })
-    }
 
     fun presentPaymentSheet() {
         paymentSheet.presentWithPaymentIntent(
@@ -596,7 +553,6 @@ class ProfileManagement : AppCompatActivity() {
                 // Display for example, an order confirmation screen
                 Log.d(TAG, "Completed")
                 findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
-                upgradeUserAfterPaid()
                 findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
             }
         }

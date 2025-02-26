@@ -20,7 +20,6 @@ app.use(morgan('tiny'))
 
 // Initialize Firebase Admin
 if (!admin.apps.length) {
-//   const serviceAccount = require('../config/cpen321project-c324e-firebase-adminsdk.json');
     const serviceAccount = require('./src/config/cpen321project-c324e-firebase-adminsdk.json');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -28,7 +27,6 @@ if (!admin.apps.length) {
 }
 
 // Read the secret as a string
-// const stripeSecret = fs.readFileSync(path.join(__dirname, './config/cpen321project-stripe-secret.txt'), 'utf8').trim();
 const stripeSecret = fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
 console.log(stripeSecret)
 // const OtherRoutes=[]
@@ -140,7 +138,7 @@ app.post('/api/payment-sheet', async (req, res) => {
 // If you are testing with the CLI, find the secret by running 'stripe listen'
 // If you are using an endpoint defined with the API or dashboard, look in your webhook settings
 // at https://dashboard.stripe.com/webhooks
-// const endpointSecret = 'whsec_ca1b269bb5a487ced2a6dba9f53412907d95fc5918ba86ded81dd457c3f3bafb';
+// const endpointSecret = 'whsec_...';
 
 //@ts-ignore
 app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
