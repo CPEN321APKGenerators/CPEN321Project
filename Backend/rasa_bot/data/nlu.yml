@@ -1,0 +1,107 @@
+version: "3.1"
+
+nlu:
+
+- intent: greet
+  examples: |
+    - hello
+    - hi
+    - hey
+    - hi there
+    - hello bot
+    - greetings
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you later
+    - see you soon
+    - take care
+    - have a great day
+
+- intent: affirm
+  examples: |
+    - yes
+    - yeah
+    - sure
+    - absolutely
+    - of course
+    - definitely
+
+- intent: deny
+  examples: |
+    - no
+    - nope
+    - not really
+    - I don’t think so
+    - no thanks
+
+- intent: journal_provided
+  examples: |
+    - today was great!
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you real?
+    - who made you?
+    - what are you?
+
+- intent: inform
+  examples: |
+    - I did some yoga
+    - I went for a run
+    - I got 8 hours of sleep
+    - I ate a balanced diet
+    - My stress is low
+   
+- intent: thankyou
+  examples: |
+    - thanks
+    - thank you
+    - appreciate it
+    - thanks a lot
+    - many thanks
+
+- intent: out_of_scope
+  examples: |
+    - what’s the weather like?
+    - tell me a joke
+    - who won the football match?
+    - what's your name?
+
+- intent: ask_lower_stress
+  examples: |
+    - How can I lower my stress?
+    - What can I do to relax?
+    - I'm feeling anxious. What should I do?
+
+- intent: ask_eat_healthy
+  examples: |
+    - yes, I did.
+    - yes.
+
+- intent: ask_exercise
+  examples: |
+    - yes, I did.
+    - yes. 
+
+- intent: start_journal
+  examples: |
+    - I want to write in my journal
+    - I want to reflect
+    - Let me journal something
+    - Let me write down my thoughts
+    - I need to write something
+    - I feel like journaling
+    - journal
+
+- intent: start_wellness_log
+  examples: |
+    - Yes, let's do a wellness check-in
+    - Sure, ask me the questions
+    - Let's log my habits
+    - Yes, I'm ready to answer
+    - Let's start my wellness log
+    - wellness

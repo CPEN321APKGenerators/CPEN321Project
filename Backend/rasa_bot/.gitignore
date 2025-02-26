@@ -1,0 +1,19 @@
+# Ignore virtual environment
+venv/
+
+# Ignore trained models and cache
+models/
+.rasa/
+.cache/
+.data/
+
+# Ignore database files
+events.db
+rasa.db
+
+# Ignore logs and temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.tar.gz
+*.log
