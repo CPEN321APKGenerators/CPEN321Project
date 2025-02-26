@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         // Check if user is authenticated
         val googleUserId = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
+        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleIDtoken", null)
 
         if (googleUserId.isNullOrEmpty()) {
             // If not authenticated, redirect to LoginActivity

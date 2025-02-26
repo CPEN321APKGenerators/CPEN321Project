@@ -431,31 +431,79 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 }
             - Status Code: 500 Internal Server Error
         5. POST /api/journal/media
-            - **Purpose**: Adding photos and videos to the existing or new journal entries
+            - **Purpose**: Adds images to an existing journal entry. If no entry exists, a new one is created.
             - **Request Body**:
             {
-                "date": the date for a new journal entry,
-                "userID": the user ID for the user,
-                "media": the media to add to the journal entry for a selected date
+                "date": "string (ISO8601 format)",
+                "userID": "string",
+                "media": ["string (Base64 encoded images) (optional)"]
             }
-            - **Response Body**: {
-                "media_id": the identifier for the media added to the journal,
-                "success"
-            }
+            - **Response**:
+                - Status Code: 201 Created
+                    Response Body:
+                    {
+                        "success": true
+                    }
+                - Status Code: 400 Bad Request
+                    Response Body:
+                    { "message": "No media provided" }
+                    { "message": "Invalid media format" }
+                - Status Code: 500 Internal Server Error
         6. DELETE /api/journal/media
-            - **Purpose**: Removing photos and videos to the existing or new journal entries
+            - **Purpose**: Deletes a specific media item from a journal entry.
             - **Request Parameters**:
-                date: the date for a new journal entry,
-                userID: the user ID for the user,
-                mediaID: the media to add to the journal entry for a selected date
-            - **Response Body**: Status code: 200.
-        7. GET /api/journal/file
-            - **Purpose**: Export an existing journal entry 
+                date: Required, ISO8601 formatted string.
+                userID: Required, string.
+                media: Required, string. The Base64 encoded media to be deleted.
+            - **Response**:
+                - Status Code: 200 OK
+                    Response Body:
+                    { "delete_success": true } - If the media was deleted.
+                    { "delete_success": false } - If the media was not found.
+                - Status Code: 400 Bad Request
+                    Response Body:
+                    { "message": "Invalid or no media specified for deletion" }
+                - Status Code: 404 Not Found
+                    Response Body:
+                    { "message": "Journal entry not found" }
+                - Status Code: 500 Internal Server Error
+        7. GET /api/journal/media
+            - **Purpose**: Retrieves all media of a journal entry on a specific date.
             - **Request Parameters**:
-                date: the date for a new journal entry,
-                userID: the user ID for the user,
-                format: only accepts 'pdf' or 'csv'
-            - **Response Body**: filename, downloadURL.
+                - date: Required, ISO8601 formatted string.
+                - userID: Required, string.
+            - **Response**: 
+                - Status Code: 200 OK
+                Response Body:
+                { "media": [strings of Base64 encoded images] }
+                - Status Code: 404 Not Found
+                Response Body:
+                { "message": "Journal entry not found" }
+                - Status Code: 500 Internal Server Error
+        8. GET /api/journal/file
+            - **Purpose**: Generates a file (PDF or CSV) containing all journal entries for a user.
+            - **Request Parameters**:
+                - date: Required, ISO8601 formatted string.
+                - format: Required, either "pdf" or "csv".
+                - googleToken: Required, string. Google ID token for user verification.
+            - **Response**: 
+                - Status Code: 200 OK
+                Response Body:
+                {
+                    "filename": "generated-file-name.pdf",
+                    "downloadURL": "https://our_ec2_instance.com/public/generated-file-name.pdf"
+                }
+                - Status Code: 400 Bad Request
+                Response Body:
+                { "message": "Invalid format. Only 'pdf' or 'csv' are accepted." }
+                - Status Code: 403 Forbidden
+                Response Body:
+                { "message": "Invalid Google token." }
+                { "message": "Unauthorized access." }
+                - Status Code: 404 Not Found
+                Response Body:
+                { "message": "No journal entries found for this user." }
+                - Status Code: 500 Internal Server Error
 3. **Analysis & Sentiment Tracking**
     - **Purpose**: Analyze and tracks the user's mood to get a trend over a certain period of time
     - **Interfaces**: 
