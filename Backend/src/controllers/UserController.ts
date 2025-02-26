@@ -113,8 +113,25 @@ export class UserController {
             return res.status(400).json({ error: "preferred_name must be a string" });
         }
     
-        if (activities_tracking && (!Array.isArray(activities_tracking) || activities_tracking.some(activity => typeof activity !== 'string'))) {
-            return res.status(400).json({ error: "activities_tracking must be an array of strings" });
+        // Validate activities_tracking
+        if (activities_tracking) {
+            if (!Array.isArray(activities_tracking)) {
+                return res.status(400).json({ error: "activities_tracking must be an array" });
+            }
+    
+            // Check each activity object in the array
+            for (const activity of activities_tracking) {
+                if (
+                    typeof activity !== 'object' ||
+                    typeof activity.name !== 'string' ||
+                    typeof activity.averageValue !== 'number' ||
+                    !['Hours', 'Minutes', 'Times'].includes(activity.unit)
+                ) {
+                    return res.status(400).json({ 
+                        error: "Each activity must be an object with 'name' (string), 'averageValue' (number), and 'unit' (Hours, Minutes, or Times)" 
+                    });
+                }
+            }
         }
     
         try {
@@ -166,8 +183,7 @@ export class UserController {
             console.error("Error creating or updating user profile:", err);
             res.status(500).json({ error: "Internal server error" });
         }
-    }
-    
+    }    
     
 
     // Check if User is Paid
