@@ -12,3 +12,6 @@ logs/
 Backend/config/cpen321project-c324e-firebase-adminsdk.json
 Backend/src/config/cpen321project-c324e-firebase-adminsdk.json
 Backend/src/config/cpen321project-stripe-secret.txt
+
+# Ignore dependencies installed
+Backend/node_modules

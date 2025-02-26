@@ -19,9 +19,12 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import org.json.JSONArray
 import org.json.JSONObject
@@ -36,12 +39,20 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
 
 const val CHANNEL_ID = "channel_id"
 
+// data class to hold activity details
+data class Activity(
+    var name: String,
+    var averageValue: Float,
+    var unit: String
+)
+
 class ProfileManagement : AppCompatActivity() {
 
     private lateinit var activityListView: ListView
     private lateinit var addActivityButton: Button
-    private lateinit var activitiesAdapter: ArrayAdapter<String>
-    private val activitiesList = mutableListOf<String>()  // List of activities
+//    private lateinit var activitiesAdapter: ArrayAdapter<String>
+    private lateinit var activitiesAdapter: ArrayAdapter<Activity>
+    private val activitiesList = mutableListOf<Activity>()
     private lateinit var reminderSpinner: Spinner
     val permissionsArr = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
     lateinit var notificationManager: NotificationManager
@@ -111,7 +122,11 @@ class ProfileManagement : AppCompatActivity() {
 
 
         // Set up the ListView adapter
-        activitiesAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, activitiesList)
+//        activitiesAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, activitiesList)
+//        activityListView.adapter = activitiesAdapter
+
+        // Set up the custom ListView adapter
+        activitiesAdapter = ActivitiesAdapter(this, activitiesList)
         activityListView.adapter = activitiesAdapter
 
         // Handle "Add Activity" button click
@@ -155,26 +170,50 @@ class ProfileManagement : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Add New Activity")
 
-        // Create an EditText inside the dialog
-        val input = EditText(this)
-        input.hint = "Enter activity name"
-        builder.setView(input)
+        // Create a LinearLayout to hold the inputs
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(50, 40, 50, 10)
+
+        // Activity Name Input
+        val nameInput = EditText(this)
+        nameInput.hint = "Enter activity name"
+        layout.addView(nameInput)
+
+        // Average Value Input
+        val valueInput = EditText(this)
+        valueInput.hint = "Enter average value"
+        valueInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        layout.addView(valueInput)
+
+        // Unit Dropdown
+        val units = arrayOf("Hours", "Minutes", "Times")
+        val unitSpinner = Spinner(this)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, units)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        unitSpinner.adapter = adapter
+        layout.addView(unitSpinner)
+
+        builder.setView(layout)
 
         // Add "Add" and "Cancel" buttons
         builder.setPositiveButton("Add") { _, _ ->
-            val activityName = input.text.toString().trim()
-            if (activityName.isNotEmpty()) {
-                addNewActivity(activityName)
+            val activityName = nameInput.text.toString().trim()
+            val averageValue = valueInput.text.toString().toFloatOrNull() ?: 0f
+            val unit = unitSpinner.selectedItem.toString()
+
+            if (activityName.isNotEmpty() && averageValue > 0) {
+                addNewActivity(activityName, averageValue, unit)
             } else {
-                Toast.makeText(this, "Activity name cannot be empty!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_SHORT).show()
             }
         }
 
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-
-        // Show the dialog
         builder.show()
     }
+
+
 
     // Function to show edit/delete options on long press
     private fun showEditDeleteDialog(position: Int) {
@@ -184,7 +223,7 @@ class ProfileManagement : AppCompatActivity() {
         builder.setItems(options) { _, which ->
             when (which) {
                 0 -> showEditActivityDialog(position)  // Edit selected
-                1 -> deleteActivity(position)         // Delete selected
+                1 -> deleteActivity(position)           // Delete selected
             }
         }
         builder.show()
@@ -195,28 +234,59 @@ class ProfileManagement : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Edit Activity")
 
-        // Create an EditText with the current activity name
-        val input = EditText(this)
-        input.setText(activitiesList[position])
-        builder.setView(input)
+        // Create a LinearLayout to hold the inputs
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(50, 40, 50, 10)
 
-        // Update activity name on "Save"
+        // Get the current activity details
+        val currentActivity = activitiesList[position]
+
+        // Activity Name Input
+        val nameInput = EditText(this)
+        nameInput.hint = "Enter activity name"
+        nameInput.setText(currentActivity.name)
+        layout.addView(nameInput)
+
+        // Average Value Input
+        val valueInput = EditText(this)
+        valueInput.hint = "Enter average value"
+        valueInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        valueInput.setText(currentActivity.averageValue.toString())
+        layout.addView(valueInput)
+
+        // Unit Dropdown
+        val units = arrayOf("Hours", "Minutes", "Times")
+        val unitSpinner = Spinner(this)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, units)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        unitSpinner.adapter = adapter
+        unitSpinner.setSelection(units.indexOf(currentActivity.unit))
+        layout.addView(unitSpinner)
+
+        builder.setView(layout)
+
+        // Update activity on "Save"
         builder.setPositiveButton("Save") { _, _ ->
-            val updatedName = input.text.toString().trim()
-            if (updatedName.isNotEmpty()) {
-                activitiesList[position] = updatedName
+            val updatedName = nameInput.text.toString().trim()
+            val updatedValue = valueInput.text.toString().toFloatOrNull() ?: 0f
+            val updatedUnit = unitSpinner.selectedItem.toString()
+
+            if (updatedName.isNotEmpty() && updatedValue > 0) {
+                currentActivity.name = updatedName
+                currentActivity.averageValue = updatedValue
+                currentActivity.unit = updatedUnit
                 activitiesAdapter.notifyDataSetChanged()
                 updateListViewHeight()
             } else {
-                Toast.makeText(this, "Activity name cannot be empty!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_SHORT).show()
             }
         }
 
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-
-        // Show the dialog
         builder.show()
     }
+
 
     // Function to delete an activity
     private fun deleteActivity(position: Int) {
@@ -225,12 +295,15 @@ class ProfileManagement : AppCompatActivity() {
         updateListViewHeight()
     }
 
+
     // Function to add a new activity to the list
-    private fun addNewActivity(activityName: String) {
-        activitiesList.add(activityName)
+    private fun addNewActivity(name: String, averageValue: Float, unit: String) {
+        val newActivity = Activity(name, averageValue, unit)
+        activitiesList.add(newActivity)
         activitiesAdapter.notifyDataSetChanged()
         updateListViewHeight()
     }
+
 
     // Function to dynamically adjust ListView height
     private fun updateListViewHeight() {
@@ -247,6 +320,7 @@ class ProfileManagement : AppCompatActivity() {
         activityListView.layoutParams = params
         activityListView.requestLayout()
     }
+
 
     private fun sendReminderSettings(weekdays: List<Int>, time: String) {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -327,7 +401,7 @@ class ProfileManagement : AppCompatActivity() {
     private fun getUserProfile() {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
-        Log.d(TAG, "get user profile ${userID}")
+        Log.d(TAG, "get user profile $userID")
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile?userID=$userID"
 
         val client = OkHttpClient()
@@ -355,17 +429,25 @@ class ProfileManagement : AppCompatActivity() {
                             // Update preferred name
                             findViewById<EditText>(R.id.profile_name_input).setText(preferredName)
 
-                            if (accountStatus == true) {
-                                findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
+                            // Update account status
+                            if (accountStatus) {
+                                findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Premium"
                                 findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
                             } else {
-                                findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Free")
+                                findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Free"
                             }
 
                             // Update activities tracking list
                             activitiesList.clear()
                             for (i in 0 until activitiesTracking.length()) {
-                                activitiesList.add(activitiesTracking.getString(i))
+                                val activityJson = activitiesTracking.getJSONObject(i)
+                                val activityName = activityJson.optString("name", "")
+                                val averageValue = activityJson.optDouble("averageValue", 0.0).toFloat()
+                                val unit = activityJson.optString("unit", "")
+
+                                // Create a new Activity object and add it to the list
+                                val activity = Activity(activityName, averageValue, unit)
+                                activitiesList.add(activity)
                             }
                             activitiesAdapter.notifyDataSetChanged()
                             updateListViewHeight()
@@ -407,6 +489,7 @@ class ProfileManagement : AppCompatActivity() {
             }
         })
     }
+
 
     private fun highlightSelectedDays() {
         val daysOfWeek = listOf(
@@ -506,7 +589,7 @@ class ProfileManagement : AppCompatActivity() {
         }
     }
 
-    private fun sendUserProfile(preferredName: String, activities: List<String>) {
+    private fun sendUserProfile(preferredName: String, activities: List<Activity>) {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
@@ -515,7 +598,16 @@ class ProfileManagement : AppCompatActivity() {
         val json = JSONObject()
         json.put("userID", userID)
         json.put("preferred_name", preferredName)
-        json.put("activities_tracking", JSONArray(activities))
+
+        val activitiesArray = JSONArray()
+        for (activity in activities) {
+            val activityJson = JSONObject()
+            activityJson.put("name", activity.name)
+            activityJson.put("averageValue", activity.averageValue)
+            activityJson.put("unit", activity.unit)
+            activitiesArray.put(activityJson)
+        }
+        json.put("activities_tracking", activitiesArray)
 
         val client = OkHttpClient()
         val requestBody = RequestBody.create(
@@ -552,3 +644,20 @@ class ProfileManagement : AppCompatActivity() {
     }
 
 }
+
+class ActivitiesAdapter(context: Context, private val activities: List<Activity>) :
+    ArrayAdapter<Activity>(context, 0, activities) {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val activity = getItem(position)
+        val view = convertView ?: LayoutInflater.from(context).inflate(
+            android.R.layout.simple_list_item_2, parent, false
+        )
+        val text1 = view.findViewById<TextView>(android.R.id.text1)
+        val text2 = view.findViewById<TextView>(android.R.id.text2)
+
+        text1.text = activity?.name
+        text2.text = "Average: ${activity?.averageValue} ${activity?.unit}"
+        return view
+    }
+}
+
