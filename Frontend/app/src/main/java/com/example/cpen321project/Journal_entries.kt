@@ -5,9 +5,12 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -32,14 +35,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 class Journal_entries : AppCompatActivity() {
 
     private lateinit var journaldatetext: TextView
     private lateinit var journalentrytext: EditText
-    private lateinit var backtomainpage: Button
+    private lateinit var backtocalendar: Button
     private lateinit var editentry: ImageButton
     private lateinit var deleteentry: ImageButton
     private lateinit var share_entry: ImageButton
@@ -56,6 +61,9 @@ class Journal_entries : AppCompatActivity() {
     private lateinit var sendChatButton: Button
     private val client = OkHttpClient()
     private val chatbotUrl = "https://postman-echo.com/post" //actual bot address
+    private val BASE_URL = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com"
+    private var userID: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +76,7 @@ class Journal_entries : AppCompatActivity() {
         }
         journaldatetext = findViewById(R.id.journalDateText)
         journalentrytext = findViewById(R.id.journalEntryInput)
-        backtomainpage = findViewById(R.id.Backbuttonentries)
+        backtocalendar = findViewById(R.id.Backbuttonentries)
         editentry = findViewById(R.id.editbutton)
         deleteentry = findViewById(R.id.deletebutton)
         share_entry = findViewById(R.id.sharebutton)
@@ -78,12 +86,26 @@ class Journal_entries : AppCompatActivity() {
 
         selectedDate = intent.getStringExtra("SELECTED_DATE") ?: ""
         journaldatetext.text = "Journal Entry for $selectedDate"
+        userID = intent.getStringExtra("GOOGLE_ID")
+        val entrytext = intent.getStringExtra("Journal_Entry_fetched") ?: ""
+        if(entrytext.isNotEmpty()) {
+            val json = JSONObject(entrytext)
+            val journalObject = json.getJSONObject("journal")
+            val text = journalObject.getString("text")
+            journalentrytext.setText(text)
+            val mediaArray = journalObject.getJSONArray("media")
+            if (mediaArray.length() > 0) {
+                val base64Image = mediaArray.getString(0)  // Get the first image (adjust if multiple)
+                val bitmap = decodeBase64ToBitmap(base64Image)
+                journalImageview.setImageBitmap(bitmap) // Set the image in ImageView
+                journalImageview.visibility = View.VISIBLE
+            }
+        }
+        val journalexisted = intent.getBooleanExtra("Pre_existing journal",false)
 
-        val entry = intent.getStringExtra("Journal_Entry_fetched") ?: ""
-        journalentrytext.setText(entry)
         journalentrytext.isEnabled = false
 
-        backtomainpage.setOnClickListener(){
+        backtocalendar.setOnClickListener(){
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
@@ -100,8 +122,10 @@ class Journal_entries : AppCompatActivity() {
         }
 
         save_entry.setOnClickListener(){
-            if(journalentrytext.text.toString().isNotEmpty() && selectedDate != null){
+            if(!journalexisted){
                 saveentry()
+            } else {
+                updateJournalEntry()
             }
         }
 
@@ -176,6 +200,177 @@ class Journal_entries : AppCompatActivity() {
         }
     }
 
+    private fun saveentry() { // Need to save the entry to the database
+        val journalText = journalentrytext.text.toString().trim()
+        if ((journalText.isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
+            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val mediaArray = JSONArray()
+        val base64Image = convertImageViewToBase64(journalImageview)
+        if (base64Image != null) {
+            mediaArray.put(base64Image)  // Add Base64 image string to the JSON array
+        }
+
+        val json = JSONObject().apply {
+            put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
+            put("userID", userID)
+            put("text", journalText)
+            put("media", mediaArray)
+        }
+
+        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("$BASE_URL/api/journal")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, "Failed to save journal!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(applicationContext, "Journal saved successfully!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(applicationContext, "Error: ${response.body?.string()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        intent.putExtra("added_date",selectedDate.toString())
+        startActivity(intent)
+        finish()
+    }
+
+    private fun convertImageViewToBase64(imageView: ImageView): String? {
+        val drawable = imageView.drawable ?: return null  // Check if ImageView has an image
+        val bitmap = (drawable as BitmapDrawable).bitmap
+
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)  // Compress as PNG
+        val byteArray = outputStream.toByteArray()
+
+        return Base64.encodeToString(byteArray, Base64.DEFAULT)  // Convert to Base64
+    }
+
+    private fun decodeBase64ToBitmap(base64String: String): Bitmap? {
+        return try {
+            val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
+            BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun showdeleteconformationpopup() {
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle("Delete Journal Entry")
+            .setMessage("Are you sure you want to delete this journal entry?")
+            .setPositiveButton("Yes") { _, _ ->
+                deleteJournalEntry()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss() // Dismiss dialog, do nothing
+            }
+            .create()
+
+        alertDialog.show()
+    }
+
+    private fun updateJournalEntry() {
+        val updatedText = journalentrytext.text.toString().trim()
+        if ((updatedText.isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
+            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val mediaArray = JSONArray()
+        val base64Image = convertImageViewToBase64(journalImageview)
+        if (base64Image != null) {
+            mediaArray.put(base64Image)  // Add Base64 image string to the JSON array
+        }
+
+        val json = JSONObject().apply {
+            put("date", selectedDate)
+            put("userID", userID) // Replace with actual user ID
+            put("text", updatedText)
+            put("media", mediaArray)
+        }
+
+        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("$BASE_URL/api/journal")
+            .put(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, "Failed to update journal!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(applicationContext, "Journal updated!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(applicationContext, "Error updating journal!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        intent.putExtra("added_date",selectedDate.toString())
+        startActivity(intent)
+        finish()
+    }
+
+    private fun deleteJournalEntry() {
+        val request = Request.Builder()
+            .url("$BASE_URL/api/journal?date=$selectedDate&userID=$userID")  // Replace with actual user ID
+            .delete()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, "Failed to delete journal!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(applicationContext, "Journal deleted!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(applicationContext, "Error deleting journal!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+        journalentrytext.setText("")
+        // Close activity and go back to main screen
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        intent.putExtra("deleted_date",selectedDate.toString())
+        startActivity(intent)
+        finish()
+    }
+
     private fun showUploadOptions() {
         val options = arrayOf("Select from Gallery", "Take a Photo")
 
@@ -216,44 +411,6 @@ class Journal_entries : AppCompatActivity() {
             )
         } else {
             openMediaPicker()
-        }
-    }
-
-    private fun saveentry() { // Need to save the entry to the database
-        Toast.makeText(this, "Journal saved for $selectedDate", Toast.LENGTH_SHORT).show()
-
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.putExtra("added_date",selectedDate.toString())
-        startActivity(intent)
-        finish()
-    }
-
-    private fun showdeleteconformationpopup() {
-        val alertDialog = AlertDialog.Builder(this)
-            .setTitle("Delete Journal Entry")
-            .setMessage("Are you sure you want to delete this journal entry?")
-            .setPositiveButton("Yes") { _, _ ->
-                deleteJournalEntry()
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss() // Dismiss dialog, do nothing
-            }
-            .create()
-
-        alertDialog.show()
-    }
-
-    private fun deleteJournalEntry() {
-        if (journalentrytext.text.toString().isNotEmpty() && selectedDate != null) {
-            journalentrytext.setText("")
-            Toast.makeText(this, "Journal deleted for $selectedDate", Toast.LENGTH_SHORT).show()
-            // Close activity and go back to main screen
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            intent.putExtra("deleted_date",selectedDate.toString())
-            startActivity(intent)
-            finish()
         }
     }
 

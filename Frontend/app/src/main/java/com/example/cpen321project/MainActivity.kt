@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var monthYearText: TextView
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
+    private var googleUserIdd: String? = null
 
     companion object {
         private const val TAG = "MainActivity"
@@ -72,18 +73,23 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             }
         }
 
-        val googleUserIdd = intent.getStringExtra("GoogleUserID") ?:
+        googleUserIdd = intent.getStringExtra("GoogleUserID") ?:
         getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("GoogleUserID", null)
         Log.d("MainActivity", "Google User ID: $googleUserId")
 
-        // need to get the actual date from the back end just for example
-        journalentries.add("2025-02-05")
-        journalentries.add("2025-02-10")
-        val adddate = intent.getStringExtra("added_date") ?: ""
-        journalentries.add(adddate)
-        val deletedate = intent.getStringExtra("deleted_date") ?: ""
-        journalentries.remove(deletedate)
+        val addDate = intent.getStringExtra("added_date") ?: ""
+        if (addDate.isNotEmpty()) {
+            journalentries.add(addDate)
+            saveJournalEntries()  // Save after updating the set
+        }
 
+        val deleteDate = intent.getStringExtra("deleted_date") ?: ""
+        if (deleteDate.isNotEmpty()) {
+            journalentries.remove(deleteDate)
+            saveJournalEntries()  // Save after updating the set
+        }
+
+        loadJournalEntries()
         initWidgets()
         selectedDate = LocalDate.now()
         setMonthView()
@@ -159,10 +165,13 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             // Allow only past or current dates
             if (!selectedJournalDate.isAfter(LocalDate.now())) {
                 val intent = Intent(this, Journal_entries::class.java)
-                intent.putExtra("SELECTED_DATE", selectedJournalDate.toString()) // Pass date to next activity
-                if(journalentries.contains(selectedJournalDate.toString())){ // fetch the journal entries that have been written from the database
-                    val entry:String = "Fetched from database"
-                    intent.putExtra("Journal_Entry_fetched", entry)
+                intent.putExtra("SELECTED_DATE", selectedJournalDate.toString())
+                intent.putExtra("GOOGLE_ID", googleUserIdd)
+                if (googleUserIdd != null && journalentries.contains(selectedJournalDate.toString())) {
+                    fetchJournalEntry(googleUserIdd!!, selectedJournalDate.toString(), intent)
+                } else {
+                    Log.e("MainActivity", "User ID is null or the array doesn't have the date, cannot fetch journal entry")
+                    startActivity(intent)
                 }
                 startActivity(intent)
             } else {
@@ -229,5 +238,63 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         startActivity(intent)
         finish() // Close MainActivity
     }
+
+    private fun fetchJournalEntry(userId: String, date: String, intent: Intent) {
+        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/journal/?date=$date&userID=$userId"
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    if (responseBody.isNotEmpty()) {
+                        intent.putExtra("Journal_Entry_fetched", responseBody)
+                        intent.putExtra("Pre_existing journal", true)
+                    } else {
+                        Log.d("Journal Fetch", "No entry found for this date")
+                    }
+                } else {
+                    Log.e("Journal Fetch", "Failed to fetch journal entry: ${response.code}")
+                }
+                startActivity(intent)
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("Journal Fetch", "Error fetching journal entry", e)
+                startActivity(intent)
+            }
+        })
+    }
+
+    private fun saveJournalEntries() {
+        val sharedPreferences = getSharedPreferences("JournalPrefs", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        // Convert journalentries set to a comma-separated string
+        val journalEntriesString = journalentries.joinToString(",")
+
+        // Save it in SharedPreferences
+        editor.putString("journal_entries", journalEntriesString)
+        editor.apply()
+    }
+
+    private fun loadJournalEntries() {
+        val sharedPreferences = getSharedPreferences("JournalPrefs", MODE_PRIVATE)
+
+        // Get the saved string, or an empty string if no data is found
+        val journalEntriesString = sharedPreferences.getString("journal_entries", "")
+
+        // If the string is not empty, convert it back to a set
+        if (!journalEntriesString.isNullOrEmpty()) {
+            val dates = journalEntriesString.split(",")  // Split by comma
+            journalentries.clear()  // Clear the current set
+            journalentries.addAll(dates)  // Add the loaded entries to the set
+        }
+    }
+
 
 }
