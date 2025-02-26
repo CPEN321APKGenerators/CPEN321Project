@@ -40,5 +40,44 @@ export const JournalRoutes = [
             query("date").exists().isISO8601(),
             query("userID").exists().isString()
         ]
+    },
+    {
+        method: "post",
+        route: "/api/journal/media",
+        action: controller.postJournalMedia,
+        validation: [
+            body("date").exists().isISO8601(),
+            body("userID").exists().isString(),
+            body("media").isArray()
+        ]
+    },
+    {
+        method: "delete",
+        route: "/api/journal/media",
+        action: controller.deleteJournalMedia,
+        validation: [
+            query("date").exists().isISO8601(),
+            query("userID").exists().isString(),
+            query("media").exists().isString()
+        ]
+    },
+    {
+        method: "get",
+        route: "/api/journal/media",
+        action: controller.getJournalMedia,
+        validation: [
+            query("date").exists().isISO8601(),
+            query("userID").exists().isString()
+        ]
+    },
+    {
+        method: "get",
+        route: "/api/journal/file",
+        action: controller.getJournalFile,
+        validation: [
+            query("userID").exists().isString(),
+            query("format").exists().isIn(['pdf', 'csv']),
+            query("googleToken").exists().isString()
+        ]
     }
 ];

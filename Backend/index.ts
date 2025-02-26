@@ -85,6 +85,9 @@ app.get('/server-time', (req, res) => {
 app.get('/name', (req, res) => {
     res.json({ firstName: "FirstName", lastName: "Lastname" });
 });
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
     
 client.connect().then( () => {
     console.log("MongoDB Client connected")
