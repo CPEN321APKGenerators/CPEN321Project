@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -54,7 +55,7 @@ class Journal_entries : AppCompatActivity() {
     private var selectedDate: String? = null
     private val REQUEST_CODE_STORAGE_PERMISSION = 101
     private val REQUEST_CODE_CAMERA_PERMISSION = 102
-    private val isPaidUser = true  // Replace this later with a database check
+    private var isPaidUser = false
     private lateinit var chatContainer: LinearLayout
     private lateinit var chatScrollView: ScrollView
     private lateinit var chatInput: EditText
@@ -87,50 +88,74 @@ class Journal_entries : AppCompatActivity() {
         selectedDate = intent.getStringExtra("SELECTED_DATE") ?: ""
         journaldatetext.text = "Journal Entry for $selectedDate"
         userID = intent.getStringExtra("GOOGLE_ID")
+
         val entrytext = intent.getStringExtra("Journal_Entry_fetched") ?: ""
-        if(entrytext.isNotEmpty()) {
+        if (entrytext.isNotEmpty()) {
             val json = JSONObject(entrytext)
             val journalObject = json.getJSONObject("journal")
             val text = journalObject.getString("text")
             journalentrytext.setText(text)
             val mediaArray = journalObject.getJSONArray("media")
             if (mediaArray.length() > 0) {
-                val base64Image = mediaArray.getString(0)  // Get the first image (adjust if multiple)
+                val base64Image =
+                    mediaArray.getString(0)  // Get the first image (adjust if multiple)
                 val bitmap = decodeBase64ToBitmap(base64Image)
                 journalImageview.setImageBitmap(bitmap) // Set the image in ImageView
                 journalImageview.visibility = View.VISIBLE
             }
+        } else {
+            journalentrytext.visibility = View.INVISIBLE
+            save_entry.visibility = View.INVISIBLE
+//            editentry.visibility = View.INVISIBLE
         }
-        val journalexisted = intent.getBooleanExtra("Pre_existing journal",false)
+
+        val journalexisted = intent.getBooleanExtra("Pre_existing journal", false)
 
         journalentrytext.isEnabled = false
 
-        backtocalendar.setOnClickListener(){
+        backtocalendar.setOnClickListener() {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
             finish()
         }
 
-        editentry.setOnClickListener(){
-            journalentrytext.isEnabled = true
-            journalentrytext.requestFocus()
+        editentry.setOnClickListener() {
+            if (journalentrytext.visibility == View.VISIBLE) {
+                journalentrytext.isEnabled = true
+                journalentrytext.requestFocus()
+            } else{
+                Toast.makeText(this, "Write a Journal to begin editing", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        deleteentry.setOnClickListener(){
+        deleteentry.setOnClickListener() {
             showdeleteconformationpopup()
         }
 
-        save_entry.setOnClickListener(){
-            if(!journalexisted){
+        save_entry.setOnClickListener() {
+            if (!journalexisted) {
                 saveentry()
             } else {
                 updateJournalEntry()
             }
         }
 
-        add_image.setOnClickListener(){
-            showUploadOptions()
+        Userpaid { isPaid ->
+            isPaidUser = isPaid
+            if (isPaidUser) {
+                Log.d("User Status", "User is a paid user")
+            } else {
+                Log.d("User Status", "User is NOT a paid user")
+            }
+        }
+
+        add_image.setOnClickListener() {
+            if (isPaidUser) {
+                showUploadOptions()
+            } else {
+                Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         chatContainer = findViewById(R.id.chatContainer)
@@ -146,7 +171,38 @@ class Journal_entries : AppCompatActivity() {
                 chatInput.text.clear()
             }
         }
+
+        share_entry.setOnClickListener(){
+            //TODO
+        }
     }
+
+    private fun Userpaid(callback: (Boolean) -> Unit) {
+
+        val request = Request.Builder()
+            .url("$BASE_URL/api/profile/isPaid/?userID=$userID")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    val paidUser = responseBody.toBoolean() // Convert response to boolean
+                    callback(paidUser) // Send result to callback
+                } else {
+                    Log.e("User Paid Fetch", "Failed to fetch user status: ${response.code}")
+                    callback(false) // Assume false if request fails
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("User Paid Fetch", "Error fetching user status", e)
+                callback(false) // Assume false on failure
+            }
+        })
+    }
+
 
     private fun sendMessageToChatbot(message: String) {
         val json = JSONObject()
@@ -162,7 +218,11 @@ class Journal_entries : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext, "Failed to connect to chatbot", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Failed to connect to chatbot",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -230,23 +290,35 @@ class Journal_entries : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext, "Failed to save journal!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Failed to save journal!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        Toast.makeText(applicationContext, "Journal saved successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Journal saved successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
-                        Toast.makeText(applicationContext, "Error: ${response.body?.string()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Error: ${response.body?.string()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
         })
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.putExtra("added_date",selectedDate.toString())
+        intent.putExtra("added_date", selectedDate.toString())
         startActivity(intent)
         finish()
     }
@@ -317,16 +389,25 @@ class Journal_entries : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext, "Failed to update journal!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Failed to update journal!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        Toast.makeText(applicationContext, "Journal updated!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, "Journal updated!", Toast.LENGTH_SHORT)
+                            .show()
                     } else {
-                        Toast.makeText(applicationContext, "Error updating journal!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Error updating journal!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -334,7 +415,7 @@ class Journal_entries : AppCompatActivity() {
 
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.putExtra("added_date",selectedDate.toString())
+        intent.putExtra("added_date", selectedDate.toString())
         startActivity(intent)
         finish()
     }
@@ -348,16 +429,25 @@ class Journal_entries : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext, "Failed to delete journal!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Failed to delete journal!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        Toast.makeText(applicationContext, "Journal deleted!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, "Journal deleted!", Toast.LENGTH_SHORT)
+                            .show()
                     } else {
-                        Toast.makeText(applicationContext, "Error deleting journal!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Error deleting journal!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -366,7 +456,7 @@ class Journal_entries : AppCompatActivity() {
         // Close activity and go back to main screen
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.putExtra("deleted_date",selectedDate.toString())
+        intent.putExtra("deleted_date", selectedDate.toString())
         startActivity(intent)
         finish()
     }
@@ -388,7 +478,8 @@ class Journal_entries : AppCompatActivity() {
 
     private fun requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED
+        ) {
 
             ActivityCompat.requestPermissions(
                 this,
@@ -402,7 +493,8 @@ class Journal_entries : AppCompatActivity() {
 
     private fun requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED
+        ) {
 
             ActivityCompat.requestPermissions(
                 this,
@@ -426,9 +518,14 @@ class Journal_entries : AppCompatActivity() {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openMediaPicker()
                 } else {
-                    Toast.makeText(this, "Permission Denied! Cannot access gallery.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Permission Denied! Cannot access gallery.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+
             REQUEST_CODE_CAMERA_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openCamera()
