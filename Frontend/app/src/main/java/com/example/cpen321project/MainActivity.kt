@@ -75,10 +75,13 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             }
         }
 
-        googleUserIdd = intent.getStringExtra("GoogleUserID") ?:
-        getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("GoogleUserID", null)
+        googleUserIdd = intent.getStringExtra("GoogleUserID") ?: getSharedPreferences(
+            "AppPreferences",
+            MODE_PRIVATE
+        ).getString("GoogleUserID", null)
         Log.d("MainActivity", "Google User ID: $googleUserId")
 
+        loadJournalEntries()
         val addDate = intent.getStringExtra("added_date") ?: ""
         if (addDate.isNotEmpty()) {
             journalentries.add(addDate)
@@ -91,17 +94,16 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             saveJournalEntries()  // Save after updating the set
         }
 
-        loadJournalEntries()
         initWidgets()
         selectedDate = LocalDate.now()
         setMonthView()
 
-        findViewById<Button>(R.id.Last_month_button).setOnClickListener(){
+        findViewById<Button>(R.id.Last_month_button).setOnClickListener() {
             selectedDate = selectedDate.minusMonths(1)
             setMonthView()
         }
 
-        findViewById<Button>(R.id.Next_month_button).setOnClickListener(){
+        findViewById<Button>(R.id.Next_month_button).setOnClickListener() {
             selectedDate = selectedDate.plusMonths(1)
             setMonthView()
         }
@@ -127,8 +129,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         monthYearText.text = monthYearFromDate(selectedDate)
         val daysInMonth = daysInMonthArray(selectedDate)
 
-        val calendarAdapter = CalendarAdapter(daysInMonth, selectedDate, journalentries,this)
-        val layoutManager = GridLayoutManager(applicationContext,7)
+        val calendarAdapter = CalendarAdapter(daysInMonth, selectedDate, journalentries, this)
+        val layoutManager = GridLayoutManager(applicationContext, 7)
         calendarRecyclerView.layoutManager = layoutManager
         calendarRecyclerView.adapter = calendarAdapter
     }
@@ -142,11 +144,11 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
         val dayOfWeek = firstofMonth.dayOfWeek.value
 
-        for(i in 1..42){
-            if(i<= dayOfWeek || i> daysInMonth + dayOfWeek){
+        for (i in 1..42) {
+            if (i <= dayOfWeek || i > daysInMonth + dayOfWeek) {
                 daysInMonthArray.add("")
-            } else{
-                daysInMonthArray.add((i-dayOfWeek).toString())
+            } else {
+                daysInMonthArray.add((i - dayOfWeek).toString())
             }
         }
         return daysInMonthArray
@@ -172,12 +174,16 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                 if (googleUserIdd != null && journalentries.contains(selectedJournalDate.toString())) {
                     fetchJournalEntry(googleUserIdd!!, selectedJournalDate.toString(), intent)
                 } else {
-                    Log.e("MainActivity", "User ID is null or the array doesn't have the date, cannot fetch journal entry")
+                    Log.e(
+                        "MainActivity",
+                        "User ID is null or the array doesn't have the date, cannot fetch journal entry"
+                    )
                     startActivity(intent)
                 }
                 startActivity(intent)
             } else {
-                Toast.makeText(this, "Cannot add a journal for future dates!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Cannot add a journal for future dates!", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -185,7 +191,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private fun storeFcmTokenInBackend(fcmToken: String, userID: String) {
         Log.d(TAG, "storing fcm token for ${userID}")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
-        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/fcmtoken"
+        val url =
+            "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/fcmtoken"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val currentZone = ZoneId.systemDefault()
         val zonedDateTime = ZonedDateTime.now(currentZone)
@@ -242,7 +249,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     }
 
     private fun fetchJournalEntry(userId: String, date: String, intent: Intent) {
-        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/journal/?date=$date&userID=$userId"
+        val url =
+            "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/journal/?date=$date&userID=$userId"
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
