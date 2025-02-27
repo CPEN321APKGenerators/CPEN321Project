@@ -61,7 +61,7 @@ class Journal_entries : AppCompatActivity() {
     private lateinit var chatInput: EditText
     private lateinit var sendChatButton: Button
     private val client = OkHttpClient()
-    private val chatbotUrl = "https://postman-echo.com/post" //actual bot address
+    private val chatbotUrl = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com:5005/webhooks/rest/webhook"
     private val BASE_URL = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com"
     private var userID: String? = null
 
