@@ -1,4 +1,7 @@
-#action_endpoint:
-#  url: "http://localhost:5055/webhook"
+# switch to using container name instead of the external EC2 URL ~ Docker
 action_endpoint:
-  url: "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com:5005/webhook"
+  url: "http://rasa-actions:5055/webhook"
+
+rest:
+  cors: "*"
+  headers: {}
