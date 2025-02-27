@@ -2,6 +2,7 @@ package com.example.cpen321project
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
@@ -24,6 +25,25 @@ import okhttp3.Response
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import com.example.cpen321project.BuildConfig.WEB_CLIENT_ID
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.PasswordCredential
+import androidx.credentials.PublicKeyCredential
+import androidx.credentials.exceptions.GetCredentialException
+import com.example.cpen321project.MainActivity.Companion
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import java.security.MessageDigest
+import java.util.UUID
 
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -34,6 +54,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
     private var googleUserIdd: String? = null
+    private val activityScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
         private const val TAG = "MainActivity"
@@ -48,8 +69,9 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleIDtoken", null)
 
-        if (googleUserId.isNullOrEmpty()) {
-            // If not authenticated, redirect to LoginActivity
+
+        if (googleUserId.isNullOrEmpty() || (googleidToken != null && isIdTokenExpired(googleidToken)) ) {
+            // If not authenticated or token expired, redirect to LoginActivity
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish() // Prevents going back to MainActivity without authentication
@@ -305,6 +327,25 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             journalentries.addAll(dates)  // Add the loaded entries to the set
         }
     }
+
+    fun isIdTokenExpired(idToken: String): Boolean {
+        val parts = idToken.split(".")
+        if (parts.size != 3) return true  // Invalid token
+
+        try {
+            val payload = String(Base64.decode(parts[1], Base64.URL_SAFE))
+            val jsonObject = JSONObject(payload)
+            val exp = jsonObject.getLong("exp")  // Expiration time in seconds
+
+            // Convert to milliseconds and compare with current time
+            return exp * 1000 < System.currentTimeMillis()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse ID token", e)
+            return true
+        }
+    }
+
+
 
 
 }
