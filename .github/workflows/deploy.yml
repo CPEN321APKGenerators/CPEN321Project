@@ -54,6 +54,16 @@ jobs:
                     docker-compose --env-file .env build
                     docker-compose --env-file .env up -d
 
+          - name: Install Stripe CLI
+            run: |
+              curl -s https://api.github.com/repos/stripe/stripe-cli/releases/latest \
+              | grep "browser_download_url.*linux_x86_64.tar.gz" \
+              | cut -d '"' -f 4 \
+              | wget -i -
+              tar -xvf stripe_*.tar.gz
+              sudo mv stripe /usr/local/bin/
+              stripe version  # Verify the installation
+          
           - name: Set up Stripe Webhook
             working-directory: ./Backend
             run: stripe listen
