@@ -7,4 +7,5 @@
     <string name="save_entry_button">Save Entry</string>
     <string name="write_your_journal_entry_here_hint">Write your journal entry here...</string>
     <string name="title_activity_checkout">CheckoutActivity</string>
+    <string name="analytics_button">Analytics</string>
 </resources>

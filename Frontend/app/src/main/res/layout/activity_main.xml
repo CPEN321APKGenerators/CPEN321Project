@@ -145,7 +145,14 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/calenderrecycleView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="550dp"
         android:background="@color/material_dynamic_primary95" />
+
+    <Button
+        android:id="@+id/analytics_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/analytics_button" />
+
 
 </LinearLayout>

@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
     private var googleUserIdd: String? = null
+    private lateinit var analytics_button: Button
 
     companion object {
         private const val TAG = "MainActivity"
@@ -117,7 +118,11 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             logOut()
         }
 
+        analytics_button = findViewById(R.id.analytics_button)
 
+        analytics_button.setOnClickListener(){
+            //TODO
+        }
     }
 
     private fun initWidgets() {
