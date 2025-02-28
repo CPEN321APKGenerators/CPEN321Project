@@ -104,8 +104,6 @@ export class UserController {
             activities_tracking,
             googleToken
         } = req.body;
-        await client.db("cpen321journal").collection("journals").deleteMany({});
-        await client.db("cpen321journal").collection("users").deleteMany({});
 
         var verifiedGoogleNumID;
     
