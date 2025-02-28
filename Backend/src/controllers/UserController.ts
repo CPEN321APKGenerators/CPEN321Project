@@ -118,7 +118,6 @@ export class UserController {
         try {
             const response = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${googleToken}`);
             verifiedGoogleNumID = response.data.sub;
-            next();
         } catch (error) {
             return res.status(403).json({ message: "Invalid Google token" });
         }

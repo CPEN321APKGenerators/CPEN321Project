@@ -116,7 +116,7 @@ class LoginActivity : AppCompatActivity() {
                             .apply()
 
                         // post a new user
-                        callCreateUser(googleUserId)
+                        callCreateUser(googleUserId, googleIdTokenCredential.idToken)
 
                         // Redirect to MainActivity
                         val intent = Intent(this, MainActivity::class.java)
@@ -144,13 +144,14 @@ class LoginActivity : AppCompatActivity() {
         Log.e(TAG, "Error getting credentials")
     }
 
-    private fun callCreateUser(userID: String) {
+    private fun callCreateUser(userID: String, googleToken: String) {
         Log.d(TAG, "creating user ${userID}")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val json = JSONObject()
         json.put("userID", userID)
+        json.put("googleToken", googleToken)
 
         val client = OkHttpClient()
         val requestBody = RequestBody.create(
