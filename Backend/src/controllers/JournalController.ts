@@ -14,11 +14,34 @@ const isValidBase64 = (str: string) => {
     return /^data:image\/(png|jpeg|jpg);base64,[A-Za-z0-9+/=]+$/.test(str);
 };
 
+async function getGoogleNumID(userID: string): Promise<string | null> {
+    try {
+        // Access the users collection
+        const collection = client.db("cpen321journal").collection("users");
+
+        // Find the user by userID
+        const user = await collection.findOne({ userID });
+
+        // Check if user exists and return googleNumID
+        if (user && user.googleNumID) {
+            return user.googleNumID;
+        } else {
+            return ""; // If no user or googleNumID is found
+        }
+    } catch (error) {
+        console.error("Error retrieving googleNumID:", error);
+        throw error;
+    }
+}
 
 export class JournalController {
     async postJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, text, media, googleNumID } = req.body;
-    
+        const { date, userID, text, media } = req.body;
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
         // Derive Key for Encryption
         const key = await deriveKey(googleNumID);
     
@@ -67,7 +90,16 @@ export class JournalController {
     
 
     async getJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, googleNumID } = req.query;
+        const { date, userID } = req.query;
+
+        if (typeof userID !== 'string') {
+            return res.status(400).json({ error: "Invalid userID" });
+        }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
 
         const key = await deriveKey(googleNumID as string);
 
@@ -89,7 +121,12 @@ export class JournalController {
     
 
     async putJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, text, media, googleNumID } = req.body;
+        const { date, userID, text, media } = req.body;
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
     
         const key = await deriveKey(googleNumID);
     
@@ -121,10 +158,15 @@ export class JournalController {
     }
 
     async postJournalMedia(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, media, googleNumID } = req.body;
+        const { date, userID, media } = req.body;
     
         if (!media || !Array.isArray(media) || media.length === 0) {
             return res.status(400).json({ message: "No media provided" });
+        }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
         }
     
         const key = await deriveKey(googleNumID);
@@ -191,7 +233,16 @@ export class JournalController {
     
 
     async getJournalMedia(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, googleNumID } = req.query;
+        const { date, userID } = req.query;
+
+        if (typeof userID !== 'string') {
+            return res.status(400).json({ error: "Invalid userID" });
+        }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
     
         const key = await deriveKey(googleNumID as string);
     
@@ -209,7 +260,16 @@ export class JournalController {
     
 
     async getJournalFile(req: Request, res: Response, next: NextFunction) {
-        const { userID, format, googleNumID } = req.query;
+        const { userID, format } = req.query;
+
+        if (typeof userID !== 'string') {
+            return res.status(400).json({ error: "Invalid userID" });
+        }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
     
         // Validate Format
         if (!['pdf', 'csv'].includes(format as string)) {

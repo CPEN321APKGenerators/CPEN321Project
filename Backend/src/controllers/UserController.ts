@@ -3,6 +3,7 @@ import { client } from "../../services";
 import { ObjectId } from "mongodb";
 import admin from "firebase-admin";
 import { DateTime } from "luxon";
+import axios from 'axios';
 
 // Initialize Firebase Admin SDK (Ensure serviceAccountKey.json is properly configured)
 if (!admin.apps.length) {
@@ -57,8 +58,6 @@ const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
 };
 
 
-
-
 export class UserController {
     async getUserProfile(req: Request, res: Response, next: NextFunction) {
         const { userID } = req.query;
@@ -84,7 +83,8 @@ export class UserController {
                 userReminderTime: user.userReminderTime || [],
                 createdAt: user.createdAt || "",
                 fcmToken: user.fcmToken || "",
-                timeOffset: user.timeOffset || ""
+                timeOffset: user.timeOffset || "",
+                googleNumID: user.googleNumID || ""
             };
     
             return res.status(200).json(profile);
@@ -101,11 +101,26 @@ export class UserController {
             userID, 
             isPaid, 
             preferred_name, 
-            activities_tracking 
+            activities_tracking,
+            googleToken
         } = req.body;
+
+        var verifiedGoogleNumID;
     
         if (!userID) {
             return res.status(400).json({ error: "userID is required" });
+        }
+
+        if (!googleToken) {
+            return res.status(400).json({ message: "Missing googleToken or googleNumID" });
+        }
+    
+        try {
+            const response = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${googleToken}`);
+            verifiedGoogleNumID = response.data.sub;
+            next();
+        } catch (error) {
+            return res.status(403).json({ message: "Invalid Google token" });
         }
     
         // Input Validation
@@ -147,6 +162,7 @@ export class UserController {
                 if (isPaid !== undefined) updatedFields.isPaid = isPaid;
                 if (preferred_name !== undefined) updatedFields.preferred_name = preferred_name;
                 if (activities_tracking !== undefined) updatedFields.activities_tracking = activities_tracking;
+                if (verifiedGoogleNumID !== undefined) updatedFields.googleNumID = verifiedGoogleNumID;
     
                 await client.db("cpen321journal").collection("users").updateOne(
                     { userID },
@@ -168,7 +184,8 @@ export class UserController {
                     preferred_name: preferred_name || "",
                     activities_tracking: activities_tracking || [],
                     createdAt: new Date(),
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
+                    googleNumID: verifiedGoogleNumID
                 };
     
                 const result = await client.db("cpen321journal").collection("users").insertOne(newUser);

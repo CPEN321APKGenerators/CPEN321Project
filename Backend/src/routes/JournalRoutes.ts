@@ -12,7 +12,6 @@ export const JournalRoutes = [
         validation: [
             body("date").exists().isISO8601(),
             body("userID").exists().isString(),
-            body("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
@@ -24,7 +23,6 @@ export const JournalRoutes = [
         validation: [
             query("date").exists().isISO8601(),
             query("userID").exists().isString(),
-            query("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
@@ -37,7 +35,6 @@ export const JournalRoutes = [
             body("date").exists().isISO8601(),
             body("userID").exists().isString(),
             body("text").exists().isString(),
-            body("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
@@ -49,7 +46,6 @@ export const JournalRoutes = [
         validation: [
             query("date").exists().isISO8601(),
             query("userID").exists().isString(),
-            query("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
@@ -62,7 +58,6 @@ export const JournalRoutes = [
             body("date").exists().isISO8601(),
             body("userID").exists().isString(),
             body("media").isArray(),
-            body("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
@@ -75,7 +70,6 @@ export const JournalRoutes = [
             query("date").exists().isISO8601(),
             query("userID").exists().isString(),
             query("media").exists().isString(),
-            query("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
@@ -87,7 +81,6 @@ export const JournalRoutes = [
         validation: [
             query("date").exists().isISO8601(),
             query("userID").exists().isString(),
-            query("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
@@ -99,7 +92,6 @@ export const JournalRoutes = [
         validation: [
             query("userID").exists().isString(),
             query("format").exists().isIn(['pdf', 'csv']),
-            query("googleNumID").exists().isString(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]
