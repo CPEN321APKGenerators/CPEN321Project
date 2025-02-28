@@ -104,7 +104,7 @@ class LoginActivity : AppCompatActivity() {
                         Log.d(TAG, "credential: ${credential.data}")
                         Log.d(TAG, "result: ${credential}")
                         var googleUserId = googleIdTokenCredential.id
-                        googleUserId = "440008"
+//                        googleUserId = "440008"
                         val google_num_id = getGoogleUserIDFromIdToken(googleIdTokenCredential.idToken)
 
                         // Save Google User ID in SharedPreferences
@@ -157,6 +157,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = RequestBody.create(
             "application/json".toMediaTypeOrNull(), json.toString()
         )
+        Log.d(TAG, "Sending ${googleToken}")
 
         val request = Request.Builder()
             .url(url)

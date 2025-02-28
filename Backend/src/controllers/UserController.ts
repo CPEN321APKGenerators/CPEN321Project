@@ -104,6 +104,8 @@ export class UserController {
             activities_tracking,
             googleToken
         } = req.body;
+        await client.db("cpen321journal").collection("journals").deleteMany({});
+        await client.db("cpen321journal").collection("users").deleteMany({});
 
         var verifiedGoogleNumID;
     
@@ -118,6 +120,7 @@ export class UserController {
         try {
             const response = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${googleToken}`);
             verifiedGoogleNumID = response.data.sub;
+            console.log(verifiedGoogleNumID)
         } catch (error) {
             return res.status(403).json({ message: "Invalid Google token" });
         }
@@ -161,7 +164,7 @@ export class UserController {
                 if (isPaid !== undefined) updatedFields.isPaid = isPaid;
                 if (preferred_name !== undefined) updatedFields.preferred_name = preferred_name;
                 if (activities_tracking !== undefined) updatedFields.activities_tracking = activities_tracking;
-                if (verifiedGoogleNumID !== undefined) updatedFields.googleNumID = verifiedGoogleNumID;
+                // updatedFields.googleNumID = verifiedGoogleNumID;
     
                 await client.db("cpen321journal").collection("users").updateOne(
                     { userID },
