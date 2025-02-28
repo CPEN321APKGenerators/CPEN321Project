@@ -38,7 +38,6 @@ services:
     command:
       - run
       - --enable-api
-      - --cors "*"
       - --debug
     depends_on:
       - mongo

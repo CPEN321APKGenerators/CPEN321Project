@@ -1,6 +1,2 @@
 action_endpoint:
-  url: "http://rasa-actions:5055/webhook"  
-
-rest:
-  cors: "*"
-  headers: {}
+  url: "http://rasa-actions:5055/webhook"
