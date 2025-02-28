@@ -64,6 +64,7 @@ class Journal_entries : AppCompatActivity() {
     private val chatbotUrl = "https://postman-echo.com/post" //actual bot address
     private val BASE_URL = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com"
     private var userID: String? = null
+    private var user_google_token: String?= null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +89,7 @@ class Journal_entries : AppCompatActivity() {
         selectedDate = intent.getStringExtra("SELECTED_DATE") ?: ""
         journaldatetext.text = "Journal Entry for $selectedDate"
         userID = intent.getStringExtra("GOOGLE_ID")
+        user_google_token = intent.getStringExtra("GOOGLE_TOKEN")
 
         val entrytext = intent.getStringExtra("Journal_Entry_fetched") ?: ""
         if (entrytext.isNotEmpty()) {
@@ -173,8 +175,16 @@ class Journal_entries : AppCompatActivity() {
         }
 
         share_entry.setOnClickListener(){
-            //TODO
+            get_downloadurl()
         }
+    }
+
+    private fun get_downloadurl() {
+        Copylink_clipboard()
+    }
+
+    private fun Copylink_clipboard() {
+        TODO("Not yet implemented")
     }
 
     private fun Userpaid(callback: (Boolean) -> Unit) {

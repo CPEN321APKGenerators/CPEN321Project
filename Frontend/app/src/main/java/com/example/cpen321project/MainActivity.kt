@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var monthYearText: TextView
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
-    private var googleUserIdd: String? = null
     private lateinit var analytics_button: Button
     private val activityScope = CoroutineScope(Dispatchers.Main)
 
@@ -98,7 +97,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             }
         }
 
-        googleUserIdd = intent.getStringExtra("GoogleUserID") ?: getSharedPreferences(
+        var googleUserIdd = intent.getStringExtra("GoogleUserID") ?: getSharedPreferences(
             "AppPreferences",
             MODE_PRIVATE
         ).getString("GoogleUserID", null)
@@ -192,14 +191,19 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             val dayNumber = dayText.toInt()
             val selectedJournalDate = selectedDate.withDayOfMonth(dayNumber)
+            val googleidtoken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+                .getString("GoogleIDtoken", null)
+            val googleuserId = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+                .getString("GoogleUserID", null)
 
             // Allow only past or current dates
             if (!selectedJournalDate.isAfter(LocalDate.now())) {
                 val intent = Intent(this, Journal_entries::class.java)
                 intent.putExtra("SELECTED_DATE", selectedJournalDate.toString())
-                intent.putExtra("GOOGLE_ID", googleUserIdd)
-                if (googleUserIdd != null && journalentries.contains(selectedJournalDate.toString())) {
-                    fetchJournalEntry(googleUserIdd!!, selectedJournalDate.toString(), intent)
+                intent.putExtra("GOOGLE_ID", googleuserId)
+                intent.putExtra("GOOGLE_TOKEN", googleidtoken)
+                if (googleuserId != null && journalentries.contains(selectedJournalDate.toString())) {
+                    fetchJournalEntry(googleuserId, selectedJournalDate.toString(), intent)
                 } else {
                     Log.e(
                         "MainActivity",
