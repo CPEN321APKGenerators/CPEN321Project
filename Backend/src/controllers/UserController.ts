@@ -104,21 +104,23 @@ export class UserController {
             activities_tracking,
             googleToken
         } = req.body;
-
+    
         var verifiedGoogleNumID;
     
+        // Check Required Fields
         if (!userID) {
             return res.status(400).json({ error: "userID is required" });
         }
-
+    
         if (!googleToken) {
-            return res.status(400).json({ message: "Missing googleToken or googleNumID" });
+            return res.status(400).json({ message: "Missing googleToken" });
         }
     
+        // Verify Google Token
         try {
             const response = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${googleToken}`);
             verifiedGoogleNumID = response.data.sub;
-            console.log(verifiedGoogleNumID)
+            console.log("Verified Google NumID: ", verifiedGoogleNumID);
         } catch (error) {
             return res.status(403).json({ message: "Invalid Google token" });
         }
@@ -156,13 +158,13 @@ export class UserController {
             if (existingUser) {
                 // User exists, update the provided fields only
                 const updatedFields: any = {
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
+                    googleNumID: verifiedGoogleNumID // Always update googleNumID
                 };
     
                 if (isPaid !== undefined) updatedFields.isPaid = isPaid;
                 if (preferred_name !== undefined) updatedFields.preferred_name = preferred_name;
                 if (activities_tracking !== undefined) updatedFields.activities_tracking = activities_tracking;
-                // updatedFields.googleNumID = verifiedGoogleNumID;
     
                 await client.db("cpen321journal").collection("users").updateOne(
                     { userID },
@@ -185,7 +187,7 @@ export class UserController {
                     activities_tracking: activities_tracking || [],
                     createdAt: new Date(),
                     updatedAt: new Date(),
-                    googleNumID: verifiedGoogleNumID
+                    googleNumID: verifiedGoogleNumID   // Set googleNumID when creating a new user
                 };
     
                 const result = await client.db("cpen321journal").collection("users").insertOne(newUser);
