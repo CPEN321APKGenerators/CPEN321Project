@@ -2,6 +2,9 @@ package com.example.cpen321project
 
 import android.Manifest
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -175,17 +178,72 @@ class Journal_entries : AppCompatActivity() {
         }
 
         share_entry.setOnClickListener(){
-            get_downloadurl()
+            showFormatSelectionDialog()
         }
     }
 
-    private fun get_downloadurl() {
-        Copylink_clipboard()
+    private fun showFormatSelectionDialog() {
+        val formats = arrayOf("PDF", "CSV")
+
+        AlertDialog.Builder(this)
+            .setTitle("Choose file format")
+            .setItems(formats) { _, which ->
+                val selectedFormat = formats[which].lowercase()
+                get_downloadurl(selectedFormat)
+            }
+            .show()
     }
 
-    private fun Copylink_clipboard() {
-        TODO("Not yet implemented")
+    private fun get_downloadurl(format: String) {
+
+        val url = "$BASE_URL/api/journal/file?userID=$userID&format=$format&googleToken=$user_google_token"
+
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .addHeader("Authorization", "Bearer $user_google_token")
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, "Failed to retrieve file URL!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+                    val jsonResponse = JSONObject(responseBody ?: "{}")
+                    val downloadURL = jsonResponse.optString("downloadURL", "")
+
+                    if (downloadURL.isNotEmpty()) {
+                        runOnUiThread {
+                            copyToClipboard(downloadURL)
+                        }
+                    } else {
+                        runOnUiThread {
+                            Toast.makeText(applicationContext, "Failed to get file URL!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(applicationContext, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
     }
+
+    private fun copyToClipboard(downloadURL: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("File URL", downloadURL)
+        clipboard.setPrimaryClip(clip)
+
+        Toast.makeText(this, "File URL copied to clipboard!", Toast.LENGTH_SHORT).show()
+    }
+
 
     private fun Userpaid(callback: (Boolean) -> Unit) {
 
@@ -295,6 +353,7 @@ class Journal_entries : AppCompatActivity() {
         val request = Request.Builder()
             .url("$BASE_URL/api/journal")
             .post(requestBody)
+            .addHeader("Authorization", "Bearer $user_google_token")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -394,6 +453,7 @@ class Journal_entries : AppCompatActivity() {
         val request = Request.Builder()
             .url("$BASE_URL/api/journal")
             .put(requestBody)
+            .addHeader("Authorization", "Bearer $user_google_token")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -434,6 +494,7 @@ class Journal_entries : AppCompatActivity() {
         val request = Request.Builder()
             .url("$BASE_URL/api/journal?date=$selectedDate&userID=$userID")  // Replace with actual user ID
             .delete()
+            .addHeader("Authorization", "Bearer $user_google_token")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
