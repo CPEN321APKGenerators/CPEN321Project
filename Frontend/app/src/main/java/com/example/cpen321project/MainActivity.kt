@@ -175,6 +175,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     }
 
     override fun onItemClick(position: Int, dayText: String) {
+        val googleUserIdd = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
         if (dayText.isNotEmpty()) {
             val message = "Selected Date $dayText ${monthYearFromDate(selectedDate)}"
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -264,12 +266,15 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     }
 
     private fun fetchJournalEntry(userId: String, date: String, intent: Intent) {
+        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleIDtoken", null)
         val url =
             "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/journal/?date=$date&userID=$userId"
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
             .get()
+            .addHeader("Authorization", "Bearer $googleidToken")
             .build()
 
         client.newCall(request).enqueue(object : Callback {

@@ -17,7 +17,8 @@ export const UserRoutes = [
         route: "/api/profile",
         action: controller.createOrUpdateUserProfile,
         validation: [
-            body("userID").exists().isString()
+            body("userID").exists().isString(),
+            body("googleToken").exists()
         ]
     },
     {
