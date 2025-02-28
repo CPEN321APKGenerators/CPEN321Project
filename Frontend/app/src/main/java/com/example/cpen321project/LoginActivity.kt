@@ -36,6 +36,7 @@ import java.security.MessageDigest
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
+import android.util.Base64
 
 class LoginActivity : AppCompatActivity() {
 
@@ -60,6 +61,7 @@ class LoginActivity : AppCompatActivity() {
             Log.d("auth", "WEB CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
             Log.d(TAG, "Sign in button clicked")
             Log.d(TAG, "WEB CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
+
 
             val credentialManager = CredentialManager.create(this)
             val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
@@ -103,12 +105,14 @@ class LoginActivity : AppCompatActivity() {
                         Log.d(TAG, "result: ${credential}")
                         var googleUserId = googleIdTokenCredential.id
                         googleUserId = "440008"
+                        val google_num_id = getGoogleUserIDFromIdToken(googleIdTokenCredential.idToken)
 
                         // Save Google User ID in SharedPreferences
                         getSharedPreferences("AppPreferences", MODE_PRIVATE)
                             .edit()
                             .putString("GoogleUserID", googleUserId)
                             .putString("GoogleIDtoken", googleIdTokenCredential.idToken)
+                            .putString("google_num_id", google_num_id)
                             .apply()
 
                         // post a new user
@@ -179,4 +183,28 @@ class LoginActivity : AppCompatActivity() {
         })
 
     }
+
+    fun getGoogleUserIDFromIdToken(idToken: String): String? {
+        // Split the token into Header, Payload, and Signature
+        val parts = idToken.split(".")
+        if (parts.size != 3) {
+            // Invalid ID Token
+            return null
+        }
+
+        try {
+            // Decode the Payload (2nd part) from Base64 URL Safe format
+            val payload = String(Base64.decode(parts[1], Base64.URL_SAFE))
+            val jsonObject = JSONObject(payload)
+
+            // Extract the 'sub' claim which is the Google User ID
+            val google_num_id = jsonObject.getString("sub")
+            Log.d(TAG, "google num id: ${google_num_id}")
+            return google_num_id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
 }

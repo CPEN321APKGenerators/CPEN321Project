@@ -1,5 +1,6 @@
-import { body, query } from "express-validator";
+import { body, query, header } from "express-validator";
 import { JournalController } from "../controllers/JournalController";
+import { verifyGoogleToken } from "../middlewares/authentication_functions";
 
 const controller = new JournalController();
 
@@ -10,8 +11,11 @@ export const JournalRoutes = [
         action: controller.postJournal,
         validation: [
             body("date").exists().isISO8601(),
-            body("userID").exists().isString()
-        ]
+            body("userID").exists().isString(),
+            body("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     },
     {
         method: "get",
@@ -19,8 +23,11 @@ export const JournalRoutes = [
         action: controller.getJournal,
         validation: [
             query("date").exists().isISO8601(),
-            query("userID").exists().isString()
-        ]
+            query("userID").exists().isString(),
+            query("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     },
     {
         method: "put",
@@ -29,8 +36,11 @@ export const JournalRoutes = [
         validation: [
             body("date").exists().isISO8601(),
             body("userID").exists().isString(),
-            body("text").exists().isString()
-        ]
+            body("text").exists().isString(),
+            body("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     },
     {
         method: "delete",
@@ -38,8 +48,11 @@ export const JournalRoutes = [
         action: controller.deleteJournal,
         validation: [
             query("date").exists().isISO8601(),
-            query("userID").exists().isString()
-        ]
+            query("userID").exists().isString(),
+            query("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     },
     {
         method: "post",
@@ -48,8 +61,11 @@ export const JournalRoutes = [
         validation: [
             body("date").exists().isISO8601(),
             body("userID").exists().isString(),
-            body("media").isArray()
-        ]
+            body("media").isArray(),
+            body("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     },
     {
         method: "delete",
@@ -58,8 +74,11 @@ export const JournalRoutes = [
         validation: [
             query("date").exists().isISO8601(),
             query("userID").exists().isString(),
-            query("media").exists().isString()
-        ]
+            query("media").exists().isString(),
+            query("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     },
     {
         method: "get",
@@ -67,8 +86,11 @@ export const JournalRoutes = [
         action: controller.getJournalMedia,
         validation: [
             query("date").exists().isISO8601(),
-            query("userID").exists().isString()
-        ]
+            query("userID").exists().isString(),
+            query("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     },
     {
         method: "get",
@@ -77,7 +99,9 @@ export const JournalRoutes = [
         validation: [
             query("userID").exists().isString(),
             query("format").exists().isIn(['pdf', 'csv']),
-            query("googleToken").exists().isString()
-        ]
+            query("googleNumID").exists().isString(),
+            header("authorization").exists().withMessage("Authorization header is required")
+        ],
+        middlewares: [verifyGoogleToken]
     }
 ];
