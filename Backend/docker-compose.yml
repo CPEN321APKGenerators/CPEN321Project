@@ -1,5 +1,4 @@
-version: '3' 
-
+version: '3'
 services:
   mongo:
     image: mongo:latest
@@ -10,52 +9,35 @@ services:
     volumes:
       - mongo_data:/data/db
 
-  app:
-    build:
-      context: .
-      dockerfile: dockerfile
-      args:
-        - PORT=${PORT}
+  rasa:
+    image: rasa/rasa:latest
+    container_name: rasa_bot
     restart: always
-    container_name: cpen321_app
-    environment:
-      - DB_URI=${DB_URI}
-      - PORT=${PORT}
+    volumes:
+      - ./rasa_bot:/app
     ports:
-      - "${PORT}:${PORT}"
+      - "5005:5005"
+    command:
+      - run
+      - --enable-api
+      - --cors "*"
+      - --debug
     depends_on:
       - mongo
-    command: npm start
+      - rasa-actions
 
-  # rasa:
-  #   image: rasa/rasa:latest
-  #   container_name: rasa_bot
-  #   restart: always
-  #   volumes:
-  #     - ./Backend/rasa_bot:/app
-  #   ports:
-  #     - "5005:5005"
-  #   command:
-  #     - run
-  #     - --enable-api
-  #     - --cors "*"
-  #     - --debug
-  #   depends_on:
-  #     - mongo
+  rasa-actions:
+    image: rasa/rasa-sdk:latest
+    container_name: rasa_action_server
+    restart: always
+    volumes:
+      - ./rasa_bot/actions:/app/actions
+    ports:
+      - "5055:5055"
+    command:
+      - start
+    depends_on:
+      - rasa
 
-  # rasa-actions:
-  #   image: rasa/rasa-sdk:latest
-  #   container_name: rasa_action_server
-  #   restart: always
-  #   volumes:
-  #     - ./Backend/rasa_bot/actions:/app/actions
-  #   ports:
-  #     - "5055:5055"
-  #   command:
-  #     - start
-  #   depends_on:
-  #     - rasa
-
-volumes: 
-  mongo_data: 
-
+volumes:
+  mongo_data:
