@@ -6,55 +6,115 @@ import path from "path";
 import axios from 'axios';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
+import { deriveKey, encryptData, decryptData } from "../utils/crypto_functions";
 
+const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
 const isValidBase64 = (str: string) => {
     return /^data:image\/(png|jpeg|jpg);base64,[A-Za-z0-9+/=]+$/.test(str);
 };
 
+async function getGoogleNumID(userID: string): Promise<string | null> {
+    try {
+        // Access the users collection
+        const collection = client.db("cpen321journal").collection("users");
+
+        // Find the user by userID
+        const user = await collection.findOne({ userID });
+
+        // Check if user exists and return googleNumID
+        if (user && user.googleNumID) {
+            return user.googleNumID;
+        } else {
+            return ""; // If no user or googleNumID is found
+        }
+    } catch (error) {
+        console.error("Error retrieving googleNumID:", error);
+        throw error;
+    }
+}
 
 export class JournalController {
     async postJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, text, media } = req.body; // media is an array of Base64 strings
-        
-        // Check for existing entry
-        const existing = await client.db("cpen321journal").collection("journals")
+        const { date, userID, text, media } = req.body;
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
+        // Derive Key for Encryption
+        const key = await deriveKey(googleNumID);
+    
+        // Check for Existing Entry
+        const existingEntry = await client.db("cpen321journal").collection("journals")
             .findOne({ date, userID });
-        
-        if (existing) {
-            return res.status(400).json({ 
-                message: "Journal entry already exists for this date" 
-            });
+    
+        // Encrypt Text
+        let encryptedText;
+        if (text) {
+            encryptedText = await encryptData(text, key);
+        } else {
+            // Keep Existing Text if not provided
+            encryptedText = existingEntry ? existingEntry.text : "";
         }
     
-        // Create new entry with Base64 images
-        const result = await client.db("cpen321journal").collection("journals")
-            .insertOne({
-                date,
-                userID,
-                text: text || "",
-                media: media || [], // Store Base64 images here
-                createdAt: new Date()
-            });
+        // Encrypt Media
+        let encryptedMedia;
+        if (media) {
+            encryptedMedia = await Promise.all(media.map(async (item: string) => await encryptData(item, key)));
+        } else {
+            // Keep Existing Media if not provided
+            encryptedMedia = existingEntry ? existingEntry.media : [];
+        }
     
-        res.status(201).json({ 
-            message: "New journal entry created successfully with images!" 
+        // Update or Insert Journal Entry
+        const result = await client.db("cpen321journal").collection("journals")
+            .updateOne(
+                { date, userID },          // Filter by date and userID
+                { 
+                    $set: {
+                        text: encryptedText, 
+                        media: encryptedMedia,
+                        updatedAt: new Date()
+                    }
+                }, 
+                { upsert: true }           // Create a new document if none exists
+            );
+    
+        res.status(200).json({ 
+            message: result.upsertedCount > 0 
+                ? "New journal entry created successfully with encrypted text and images!" 
+                : "Existing journal entry updated successfully!"
         });
     }
-
+    
 
     async getJournal(req: Request, res: Response, next: NextFunction) {
         const { date, userID } = req.query;
-        
-        // Ensure strings are used for date and userID
+
+        if (typeof userID !== 'string') {
+            return res.status(400).json({ error: "Invalid userID" });
+        }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
+
+        const key = await deriveKey(googleNumID as string);
+
         const entry = await client.db("cpen321journal").collection("journals")
-            .findOne({ date: date as string, userID: userID as string });
+            .findOne({ date, userID });
+
+        console.log("entry: ", entry)
+
+        if (entry) {
+            entry.text = entry.text ? await decryptData(entry.text, key) : "";
+            entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
+        }
 
         res.status(200).json({
-            journal: entry ? { 
-                text: entry.text, 
-                media: entry.media // Return Base64 images
-            } : { text: "", media: [] }
+            journal: entry ? { text: entry.text, media: entry.media } : { text: "", media: [] }
         });
     }
 
@@ -62,17 +122,28 @@ export class JournalController {
 
     async putJournal(req: Request, res: Response, next: NextFunction) {
         const { date, userID, text, media } = req.body;
-        
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
+    
+        const key = await deriveKey(googleNumID);
+    
+        const encryptedText = text ? await encryptData(text, key) : "";
+        const encryptedMedia = media ? await Promise.all(media.map(async (item: string) => await encryptData(item, key))) : [];
+    
         const result = await client.db("cpen321journal").collection("journals")
             .updateOne(
                 { date, userID },
-                { $set: { text: text, media: media || [] } }
+                { $set: { text: encryptedText, media: encryptedMedia } }
             );
     
         res.status(200).json({ 
             update_success: result.modifiedCount > 0 
         });
     }
+    
     
 
     async deleteJournal(req: Request, res: Response, next: NextFunction) {
@@ -92,21 +163,21 @@ export class JournalController {
         if (!media || !Array.isArray(media) || media.length === 0) {
             return res.status(400).json({ message: "No media provided" });
         }
-    
-        // Validate that each media item is in Base64 format
-        for (const item of media) {
-            if (!isValidBase64(item)) {
-                return res.status(400).json({ message: "Invalid media format" });
-            }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
         }
     
-        // Check if an entry already exists
+        const key = await deriveKey(googleNumID);
+    
+        const encryptedMedia = await Promise.all(media.map(async (item: string) => await encryptData(item, key)));
+    
         const existing = await client.db("cpen321journal").collection("journals")
             .findOne({ date, userID });
     
         if (existing) {
-            // If entry exists, merge new media with existing media
-            const updatedMedia = [...existing.media, ...media];
+            const updatedMedia = [...existing.media, ...encryptedMedia];
             
             await client.db("cpen321journal").collection("journals")
                 .updateOne(
@@ -114,19 +185,21 @@ export class JournalController {
                     { $set: { media: updatedMedia } }
                 );
         } else {
-            // If no entry exists, create a new one
             await client.db("cpen321journal").collection("journals")
                 .insertOne({
                     date,
                     userID,
                     text: "",
-                    media: media,
+                    media: encryptedMedia,
                     createdAt: new Date()
                 });
         }
+
+        console.log("encrypted: ", encryptedMedia)
     
         res.status(201).json({ success: true });
     }
+    
     
 
     async deleteJournalMedia(req: Request, res: Response, next: NextFunction) {
@@ -161,8 +234,18 @@ export class JournalController {
 
     async getJournalMedia(req: Request, res: Response, next: NextFunction) {
         const { date, userID } = req.query;
+
+        if (typeof userID !== 'string') {
+            return res.status(400).json({ error: "Invalid userID" });
+        }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
     
-        // Check if the journal entry exists
+        const key = await deriveKey(googleNumID as string);
+    
         const entry = await client.db("cpen321journal").collection("journals")
             .findOne({ date, userID });
     
@@ -170,31 +253,33 @@ export class JournalController {
             return res.status(404).json({ message: "Journal entry not found" });
         }
     
+        entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
+    
         res.status(200).json({ media: entry.media || [] });
-    }    
+    }
+    
 
     async getJournalFile(req: Request, res: Response, next: NextFunction) {
-        const { userID, format, googleToken } = req.query;
+        const { userID, format } = req.query;
+
+        if (typeof userID !== 'string') {
+            return res.status(400).json({ error: "Invalid userID" });
+        }
+
+        const googleNumID = await getGoogleNumID(userID);
+        if (!googleNumID) {
+            return res.status(404).json({ error: "User not found or googleNumID is missing" });
+        }
     
-        // 1. Validate Format
+        // Validate Format
         if (!['pdf', 'csv'].includes(format as string)) {
             return res.status(400).json({ message: "Invalid format. Only 'pdf' or 'csv' are accepted." });
         }
     
-        // 2. Verify Google Token
-        try {
-            const response = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${googleToken}`);
-            const googleUserID = response.data.sub;
-            console.log(googleUserID)
-            
-            // if (googleUserID !== userID) {
-            //     return res.status(403).json({ message: "Unauthorized access." });
-            // }
-        } catch (error) {
-            return res.status(403).json({ message: "Invalid Google token." });
-        }
+        // Derive Key
+        const key = await deriveKey(googleNumID as string);
     
-        // 3. Fetch All Journal Entries for the User
+        // Fetch All Journal Entries for the User
         const journals = await client.db("cpen321journal").collection("journals")
             .find({ userID }).toArray();
     
@@ -202,7 +287,13 @@ export class JournalController {
             return res.status(404).json({ message: "No journal entries found for this user." });
         }
     
-        // 4. Generate File Based on Format
+        // Decrypt Text and Media
+        for (const entry of journals) {
+            entry.text = entry.text ? await decryptData(entry.text, key) : "";
+            entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
+        }
+    
+        // Generate File Based on Format
         const filename = `${uuidv4()}.${format}`;
         const filePath = path.join(__dirname, `../../public/${filename}`);
     
@@ -215,11 +306,11 @@ export class JournalController {
         } else if (format === 'pdf') {
             const pdfDoc = await PDFDocument.create();
             const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-        
+    
             for (const entry of journals) {
                 const page = pdfDoc.addPage();
                 const { width, height } = page.getSize();
-        
+    
                 // Add Date and Text
                 page.drawText(`Date: ${entry.date}`, {
                     x: 50,
@@ -228,7 +319,7 @@ export class JournalController {
                     font: timesRomanFont,
                     color: rgb(0, 0, 0)
                 });
-        
+    
                 page.drawText(`Text: ${entry.text}`, {
                     x: 50,
                     y: height - 100,
@@ -236,14 +327,14 @@ export class JournalController {
                     font: timesRomanFont,
                     color: rgb(0, 0, 0)
                 });
-        
+    
                 // Embed each image
                 let imageY = height - 150;
                 for (const [index, mediaItem] of entry.media.entries()) {
                     // Decode Base64
-                    const base64Data = mediaItem.split(',')[1];  // Get Base64 data part
+                    const base64Data = mediaItem.split(',')[1];
                     const imageBuffer = Buffer.from(base64Data, 'base64');
-        
+    
                     // Embed the image
                     let embeddedImage;
                     if (mediaItem.startsWith('data:image/png')) {
@@ -251,10 +342,10 @@ export class JournalController {
                     } else if (mediaItem.startsWith('data:image/jpeg') || mediaItem.startsWith('data:image/jpg')) {
                         embeddedImage = await pdfDoc.embedJpg(imageBuffer);
                     }
-        
+    
                     if (embeddedImage) {
                         const imageDims = embeddedImage.scale(0.25);
-        
+    
                         // Draw the image on the page
                         page.drawImage(embeddedImage, {
                             x: 50,
@@ -262,7 +353,7 @@ export class JournalController {
                             width: imageDims.width,
                             height: imageDims.height
                         });
-        
+    
                         // Adjust Y position for next image
                         imageY -= imageDims.height + 20;
                     } else {
@@ -278,17 +369,15 @@ export class JournalController {
                     }
                 }
             }
-        
+    
             const pdfBytes = await pdfDoc.save();
             fs.writeFileSync(filePath, pdfBytes);
         }
-        // 5. Return Download URL
+    
+        // Return Download URL
         const downloadURL = `${req.protocol}://${req.get('host')}/public/${filename}`;
         res.status(200).json({ filename, downloadURL });
-        
-    }    
-
+    }
     
 }
-
 

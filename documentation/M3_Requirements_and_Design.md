@@ -306,6 +306,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Request Body**:
             {
                 "userID": "string",
+                "googleToken": "string",
                 "isPaid": "boolean (optional)",
                 "preferred_name": "string (optional)",
                 "activities_tracking": ["string (optional)"]
@@ -358,6 +359,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
     - **Interfaces**: 
         1. POST /api/journal
             - **Purpose**: Create a new journal entry for a specific user on a given date.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Body**:
             {
                 "date": "string (ISO8601 format)",
@@ -380,6 +382,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
         2. GET /api/journal
             - **Purpose**: Retrieve a journal entry for a specific user on a given date.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Parameters**:
                 - date: Required, ISO8601 formatted string.
                 - userID: Required, string.
@@ -404,6 +407,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
         3. PUT /api/journal
             - **Purpose**: Update an existing journal entry for a specific user on a given date.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Body**:
             {
                 "date": "string (ISO8601 format)",
@@ -420,6 +424,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - Status Code: 500 Internal Server Error
         4. DELETE /api/journal
             - **Purpose**: Delete a journal entry for a specific user on a given date.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Parameters**:
                 date: Required, ISO8601 formatted string.
                 userID: Required, string.
@@ -432,6 +437,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - Status Code: 500 Internal Server Error
         5. POST /api/journal/media
             - **Purpose**: Adds images to an existing journal entry. If no entry exists, a new one is created.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Body**:
             {
                 "date": "string (ISO8601 format)",
@@ -451,6 +457,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 - Status Code: 500 Internal Server Error
         6. DELETE /api/journal/media
             - **Purpose**: Deletes a specific media item from a journal entry.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Parameters**:
                 date: Required, ISO8601 formatted string.
                 userID: Required, string.
@@ -469,6 +476,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 - Status Code: 500 Internal Server Error
         7. GET /api/journal/media
             - **Purpose**: Retrieves all media of a journal entry on a specific date.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Parameters**:
                 - date: Required, ISO8601 formatted string.
                 - userID: Required, string.
@@ -482,10 +490,10 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 - Status Code: 500 Internal Server Error
         8. GET /api/journal/file
             - **Purpose**: Generates a file (PDF or CSV) containing all journal entries for a user.
+            - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Parameters**:
                 - date: Required, ISO8601 formatted string.
                 - format: Required, either "pdf" or "csv".
-                - googleToken: Required, string. Google ID token for user verification.
             - **Response**: 
                 - Status Code: 200 OK
                 Response Body:

@@ -36,6 +36,7 @@ import java.security.MessageDigest
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
+import android.util.Base64
 
 class LoginActivity : AppCompatActivity() {
 
@@ -60,6 +61,7 @@ class LoginActivity : AppCompatActivity() {
             Log.d("auth", "WEB CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
             Log.d(TAG, "Sign in button clicked")
             Log.d(TAG, "WEB CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
+
 
             val credentialManager = CredentialManager.create(this)
             val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
@@ -102,17 +104,19 @@ class LoginActivity : AppCompatActivity() {
                         Log.d(TAG, "credential: ${credential.data}")
                         Log.d(TAG, "result: ${credential}")
                         var googleUserId = googleIdTokenCredential.id
-                        googleUserId = "440008"
+//                        googleUserId = "440008"
+                        val google_num_id = getGoogleUserIDFromIdToken(googleIdTokenCredential.idToken)
 
                         // Save Google User ID in SharedPreferences
                         getSharedPreferences("AppPreferences", MODE_PRIVATE)
                             .edit()
                             .putString("GoogleUserID", googleUserId)
                             .putString("GoogleIDtoken", googleIdTokenCredential.idToken)
+                            .putString("google_num_id", google_num_id)
                             .apply()
 
                         // post a new user
-                        callCreateUser(googleUserId)
+                        callCreateUser(googleUserId, googleIdTokenCredential.idToken)
 
                         // Redirect to MainActivity
                         val intent = Intent(this, MainActivity::class.java)
@@ -140,18 +144,20 @@ class LoginActivity : AppCompatActivity() {
         Log.e(TAG, "Error getting credentials")
     }
 
-    private fun callCreateUser(userID: String) {
+    private fun callCreateUser(userID: String, googleToken: String) {
         Log.d(TAG, "creating user ${userID}")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val json = JSONObject()
         json.put("userID", userID)
+        json.put("googleToken", googleToken)
 
         val client = OkHttpClient()
         val requestBody = RequestBody.create(
             "application/json".toMediaTypeOrNull(), json.toString()
         )
+        Log.d(TAG, "Sending ${googleToken}")
 
         val request = Request.Builder()
             .url(url)
@@ -179,4 +185,28 @@ class LoginActivity : AppCompatActivity() {
         })
 
     }
+
+    fun getGoogleUserIDFromIdToken(idToken: String): String? {
+        // Split the token into Header, Payload, and Signature
+        val parts = idToken.split(".")
+        if (parts.size != 3) {
+            // Invalid ID Token
+            return null
+        }
+
+        try {
+            // Decode the Payload (2nd part) from Base64 URL Safe format
+            val payload = String(Base64.decode(parts[1], Base64.URL_SAFE))
+            val jsonObject = JSONObject(payload)
+
+            // Extract the 'sub' claim which is the Google User ID
+            val google_num_id = jsonObject.getString("sub")
+            Log.d(TAG, "google num id: ${google_num_id}")
+            return google_num_id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
 }

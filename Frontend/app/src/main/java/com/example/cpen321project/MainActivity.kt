@@ -25,18 +25,6 @@ import okhttp3.Response
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import com.example.cpen321project.BuildConfig.WEB_CLIENT_ID
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.PasswordCredential
-import androidx.credentials.PublicKeyCredential
-import androidx.credentials.exceptions.GetCredentialException
-import com.example.cpen321project.MainActivity.Companion
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -186,6 +174,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     }
 
     override fun onItemClick(position: Int, dayText: String) {
+        val googleUserIdd = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
         if (dayText.isNotEmpty()) {
             val message = "Selected Date $dayText ${monthYearFromDate(selectedDate)}"
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -280,12 +270,15 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     }
 
     private fun fetchJournalEntry(userId: String, date: String, intent: Intent) {
+        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleIDtoken", null)
         val url =
             "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/journal/?date=$date&userID=$userId"
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
             .get()
+            .addHeader("Authorization", "Bearer $googleidToken")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
