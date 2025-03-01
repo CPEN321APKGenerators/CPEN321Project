@@ -6,26 +6,16 @@ stories:
   steps:
   - intent: greet
   - action: utter_greet
-  - action: utter_ask_journal_or_wellness
-  - intent: start_journal
+  - action: utter_ask_journal
+  - intent: start
   - action: utter_journaling_prompt
   - intent: journal_provided
   - slot_was_set:
       - journal_entry
   - action: utter_journal_confirmation
-  - action: utter_follow_up
+  - action: utter_journal_follow_up
   - intent: affirm
-  - action: utter_journaling_prompt
+  - action: utter_out_of_scope
+  - action: utter_ask_continue
   - intent: deny
   - action: utter_goodbye
-
-- story: User provides wellness log
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - action: utter_ask_journal_or_wellness  
-  - intent: start_wellness_log
-  - action: health_form
-  - active_loop: health_form  
-  - active_loop: null
-  - action: utter_slots_values  
