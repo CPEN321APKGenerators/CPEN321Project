@@ -37,7 +37,7 @@
     <ScrollView
         android:id="@+id/chatScrollView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="600dp"
         android:fillViewport="true"
         android:background="#EEEEEE"
         android:padding="8dp">
@@ -76,7 +76,7 @@
     <EditText
         android:id="@+id/journalEntryInput"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="600dp"
         android:background="@android:drawable/editbox_background"
         android:gravity="top"
         android:hint="@string/write_your_journal_entry_here_hint"

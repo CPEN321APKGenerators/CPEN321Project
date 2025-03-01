@@ -174,8 +174,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     }
 
     override fun onItemClick(position: Int, dayText: String) {
-        val googleUserIdd = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
         if (dayText.isNotEmpty()) {
             val message = "Selected Date $dayText ${monthYearFromDate(selectedDate)}"
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -192,8 +190,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                 intent.putExtra("SELECTED_DATE", selectedJournalDate.toString())
                 intent.putExtra("GOOGLE_ID", googleuserId)
                 intent.putExtra("GOOGLE_TOKEN", googleidtoken)
-                if (googleuserId != null && journalentries.contains(selectedJournalDate.toString())) {
-                    fetchJournalEntry(googleuserId, selectedJournalDate.toString(), intent)
+                if (googleuserId != null && journalentries.contains(selectedJournalDate.toString()) && googleidtoken !=null) {
+                    fetchJournalEntry(googleuserId, googleidtoken, selectedJournalDate.toString(), intent)
                 } else {
                     Log.e(
                         "MainActivity",
@@ -201,7 +199,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                     )
                     startActivity(intent)
                 }
-                startActivity(intent)
+//                startActivity(intent)
             } else {
                 Toast.makeText(this, "Cannot add a journal for future dates!", Toast.LENGTH_SHORT)
                     .show()
@@ -269,9 +267,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         finish() // Close MainActivity
     }
 
-    private fun fetchJournalEntry(userId: String, date: String, intent: Intent) {
-        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleIDtoken", null)
+    private fun fetchJournalEntry(userId: String, googleidToken: String, date: String, intent: Intent) {
         val url =
             "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/journal/?date=$date&userID=$userId"
         val client = OkHttpClient()
@@ -299,7 +295,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Journal Fetch", "Error fetching journal entry", e)
-                startActivity(intent)
+//                startActivity(intent)
             }
         })
     }

@@ -157,106 +157,106 @@ export class JournalController {
         });
     }
 
-    async postJournalMedia(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, media } = req.body;
+    // async postJournalMedia(req: Request, res: Response, next: NextFunction) {
+    //     const { date, userID, media } = req.body;
     
-        if (!media || !Array.isArray(media) || media.length === 0) {
-            return res.status(400).json({ message: "No media provided" });
-        }
+    //     if (!media || !Array.isArray(media) || media.length === 0) {
+    //         return res.status(400).json({ message: "No media provided" });
+    //     }
 
-        const googleNumID = await getGoogleNumID(userID);
-        if (!googleNumID) {
-            return res.status(404).json({ error: "User not found or googleNumID is missing" });
-        }
+    //     const googleNumID = await getGoogleNumID(userID);
+    //     if (!googleNumID) {
+    //         return res.status(404).json({ error: "User not found or googleNumID is missing" });
+    //     }
     
-        const key = await deriveKey(googleNumID);
+    //     const key = await deriveKey(googleNumID);
     
-        const encryptedMedia = await Promise.all(media.map(async (item: string) => await encryptData(item, key)));
+    //     const encryptedMedia = await Promise.all(media.map(async (item: string) => await encryptData(item, key)));
     
-        const existing = await client.db("cpen321journal").collection("journals")
-            .findOne({ date, userID });
+    //     const existing = await client.db("cpen321journal").collection("journals")
+    //         .findOne({ date, userID });
     
-        if (existing) {
-            const updatedMedia = [...existing.media, ...encryptedMedia];
+    //     if (existing) {
+    //         const updatedMedia = [...existing.media, ...encryptedMedia];
             
-            await client.db("cpen321journal").collection("journals")
-                .updateOne(
-                    { date, userID },
-                    { $set: { media: updatedMedia } }
-                );
-        } else {
-            await client.db("cpen321journal").collection("journals")
-                .insertOne({
-                    date,
-                    userID,
-                    text: "",
-                    media: encryptedMedia,
-                    createdAt: new Date()
-                });
-        }
+    //         await client.db("cpen321journal").collection("journals")
+    //             .updateOne(
+    //                 { date, userID },
+    //                 { $set: { media: updatedMedia } }
+    //             );
+    //     } else {
+    //         await client.db("cpen321journal").collection("journals")
+    //             .insertOne({
+    //                 date,
+    //                 userID,
+    //                 text: "",
+    //                 media: encryptedMedia,
+    //                 createdAt: new Date()
+    //             });
+    //     }
 
-        console.log("encrypted: ", encryptedMedia)
+    //     console.log("encrypted: ", encryptedMedia)
     
-        res.status(201).json({ success: true });
-    }
-    
-    
-
-    async deleteJournalMedia(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, media } = req.query;
-    
-        if (!media || typeof media !== "string") {
-            return res.status(400).json({ message: "Invalid or no media specified for deletion" });
-        }
-    
-        // Retrieve the journal entry
-        const entry = await client.db("cpen321journal").collection("journals")
-            .findOne({ date, userID });
-    
-        if (!entry) {
-            return res.status(404).json({ message: "Journal entry not found" });
-        }
-    
-        // Filter out the specified media
-        const updatedMedia = entry.media.filter((item: string) => item !== media);
-    
-        // Update the document with the new media array
-        const result = await client.db("cpen321journal").collection("journals")
-            .updateOne(
-                { date, userID },
-                { $set: { media: updatedMedia } }
-            );
-    
-        res.status(200).json({ delete_success: result.modifiedCount > 0 });
-    }
+    //     res.status(201).json({ success: true });
+    // }
     
     
 
-    async getJournalMedia(req: Request, res: Response, next: NextFunction) {
-        const { date, userID } = req.query;
+    // async deleteJournalMedia(req: Request, res: Response, next: NextFunction) {
+    //     const { date, userID, media } = req.query;
+    
+    //     if (!media || typeof media !== "string") {
+    //         return res.status(400).json({ message: "Invalid or no media specified for deletion" });
+    //     }
+    
+    //     // Retrieve the journal entry
+    //     const entry = await client.db("cpen321journal").collection("journals")
+    //         .findOne({ date, userID });
+    
+    //     if (!entry) {
+    //         return res.status(404).json({ message: "Journal entry not found" });
+    //     }
+    
+    //     // Filter out the specified media
+    //     const updatedMedia = entry.media.filter((item: string) => item !== media);
+    
+    //     // Update the document with the new media array
+    //     const result = await client.db("cpen321journal").collection("journals")
+    //         .updateOne(
+    //             { date, userID },
+    //             { $set: { media: updatedMedia } }
+    //         );
+    
+    //     res.status(200).json({ delete_success: result.modifiedCount > 0 });
+    // }
+    
+    
 
-        if (typeof userID !== 'string') {
-            return res.status(400).json({ error: "Invalid userID" });
-        }
+    // async getJournalMedia(req: Request, res: Response, next: NextFunction) {
+    //     const { date, userID } = req.query;
 
-        const googleNumID = await getGoogleNumID(userID);
-        if (!googleNumID) {
-            return res.status(404).json({ error: "User not found or googleNumID is missing" });
-        }
+    //     if (typeof userID !== 'string') {
+    //         return res.status(400).json({ error: "Invalid userID" });
+    //     }
+
+    //     const googleNumID = await getGoogleNumID(userID);
+    //     if (!googleNumID) {
+    //         return res.status(404).json({ error: "User not found or googleNumID is missing" });
+    //     }
     
-        const key = await deriveKey(googleNumID as string);
+    //     const key = await deriveKey(googleNumID as string);
     
-        const entry = await client.db("cpen321journal").collection("journals")
-            .findOne({ date, userID });
+    //     const entry = await client.db("cpen321journal").collection("journals")
+    //         .findOne({ date, userID });
     
-        if (!entry) {
-            return res.status(404).json({ message: "Journal entry not found" });
-        }
+    //     if (!entry) {
+    //         return res.status(404).json({ message: "Journal entry not found" });
+    //     }
     
-        entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
+    //     entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
     
-        res.status(200).json({ media: entry.media || [] });
-    }
+    //     res.status(200).json({ media: entry.media || [] });
+    // }
     
 
     async getJournalFile(req: Request, res: Response, next: NextFunction) {
