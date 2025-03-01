@@ -27,33 +27,6 @@ services:
       - mongo
     command: npm start
 
-  rasa:
-    image: rasa/rasa:latest
-    container_name: rasa_bot
-    restart: always
-    volumes:
-      - ./Backend/rasa_bot:/app  
-    ports:
-      - "5005:5005"
-    command:
-      - run
-      - --enable-api
-      - --debug
-    depends_on:
-      - mongo
-
-  rasa-actions:
-    image: rasa/rasa-sdk:latest
-    container_name: rasa_action_server
-    restart: always
-    volumes:
-      - ./Backend/rasa_bot/actions:/app/actions  
-    ports:
-      - "5055:5055"
-    command:
-      - start
-    depends_on:
-      - rasa
 
 volumes: 
   mongo_data:
