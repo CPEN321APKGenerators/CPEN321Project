@@ -310,11 +310,17 @@ class Journal_entries : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
                 if (responseData != null) {
-                    val responseJson = JSONObject(responseData)
-                    val botMessage = responseJson.getString("reply")
+                    val responseArray = JSONArray(responseData)  // Parse response as JSONArray
+                    val botMessages = StringBuilder()
+
+                    for (i in 0 until responseArray.length()) {
+                        val messageObject = responseArray.getJSONObject(i)  // Get each JSON object
+                        val botMessage = messageObject.getString("text")  // Extract text
+                        botMessages.append(botMessage).append("\n")  // Append to a string
+                    }
 
                     runOnUiThread {
-                        addChatMessage("Bot: $botMessage", false)
+                        addChatMessage("Bot: ${botMessages.toString().trim()}", false)
                     }
                 }
             }
