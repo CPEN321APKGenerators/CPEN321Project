@@ -34,7 +34,7 @@ services:
     volumes:
       - ./Backend/rasa_bot:/app  
     ports:
-      - "5005:5005"
+      - "5006:5005"
     command:
       - run
       - --enable-api
