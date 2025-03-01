@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                     )
                     startActivity(intent)
                 }
-                startActivity(intent)
+//                startActivity(intent)
             } else {
                 Toast.makeText(this, "Cannot add a journal for future dates!", Toast.LENGTH_SHORT)
                     .show()
@@ -295,7 +295,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Journal Fetch", "Error fetching journal entry", e)
-                startActivity(intent)
+//                startActivity(intent)
             }
         })
     }

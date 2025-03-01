@@ -88,6 +88,10 @@ class Journal_entries : AppCompatActivity() {
         add_image = findViewById(R.id.addimageButton)
         save_entry = findViewById(R.id.Saveentrybutton)
         journalImageview = findViewById(R.id.journalImageView)
+        chatContainer = findViewById(R.id.chatContainer)
+        chatScrollView = findViewById(R.id.chatScrollView)
+        chatInput = findViewById(R.id.chatInput)
+        sendChatButton = findViewById(R.id.sendChatButton)
 
         selectedDate = intent.getStringExtra("SELECTED_DATE") ?: ""
         journaldatetext.text = "Journal Entry for $selectedDate"
@@ -108,10 +112,24 @@ class Journal_entries : AppCompatActivity() {
                 journalImageview.setImageBitmap(bitmap) // Set the image in ImageView
                 journalImageview.visibility = View.VISIBLE
             }
+            // Show journal UI
+            journalentrytext.visibility = View.VISIBLE
+            save_entry.visibility = View.VISIBLE
+
+            // Hide chatbot UI
+            chatScrollView.visibility = View.GONE
+            chatInput.visibility = View.GONE
+            sendChatButton.visibility = View.GONE
         } else {
-            journalentrytext.visibility = View.INVISIBLE
-            save_entry.visibility = View.INVISIBLE
-//            editentry.visibility = View.INVISIBLE
+            // Hide journal UI
+            journalentrytext.visibility = View.GONE
+            save_entry.visibility = View.GONE
+            journalImageview.visibility = View.GONE
+
+            // Show chatbot UI
+            chatScrollView.visibility = View.VISIBLE
+            chatInput.visibility = View.VISIBLE
+            sendChatButton.visibility = View.VISIBLE
         }
 
         val journalexisted = intent.getBooleanExtra("Pre_existing journal", false)
@@ -162,11 +180,6 @@ class Journal_entries : AppCompatActivity() {
                 Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_SHORT).show()
             }
         }
-
-        chatContainer = findViewById(R.id.chatContainer)
-        chatScrollView = findViewById(R.id.chatScrollView)
-        chatInput = findViewById(R.id.chatInput)
-        sendChatButton = findViewById(R.id.sendChatButton)
 
         sendChatButton.setOnClickListener {
             val message = chatInput.text.toString().trim()
