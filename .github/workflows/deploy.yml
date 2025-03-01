@@ -1,66 +1,60 @@
 name: Deploy to EC2
 
 on:
-  push:
-    branches:
-      - main
-
+    push:
+        branches:
+            - main
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Copy files to EC2
-        uses: appleboy/scp-action@v0.1.2
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          source: "."
-          target: "/home/ubuntu/cpen321journal"
-        
-      - name: Rebuild and Deploy
-        uses: appleboy/ssh-action@v0.1.2
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            # Start a new session for each command for multiple sessions support
-            set -e  # Exit on error
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+            
+          - name: Copy files to EC2
+            uses: appleboy/scp-action@master
+            with:
+                host: ${{secrets.EC2_HOST}}
+                username: ${{secrets.EC2_USER}}
+                key: ${{secrets.EC2_KEY}}
+                source: "."
+                target: "/home/ubuntu/cpen321journal"
+            
+          - name: Rebuild and Deploy
+            uses: appleboy/ssh-action@master
+            with:
+                host: ${{secrets.EC2_HOST}}
+                username: ${{secrets.EC2_USER}}
+                key: ${{secrets.EC2_KEY}}
+                script: |
+                    cd /home/ubuntu/cpen321journal/Backend
 
+                    # Create the config directory
+                    mkdir -p config
 
-            echo "Creating config directory"
-            mkdir -p /home/ubuntu/cpen321journal/Backend/src/config
-            echo "Config directory created"
+                    # Write the JSON file directly on EC2
+                    echo '${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}' > src/config/cpen321project-c324e-firebase-adminsdk.json
+                    echo '${{ secrets.STRIPE_SECRET }}' > src/config/cpen321project-stripe-secret.txt
+                    echo '${{ secrets.SERVER_SECRET }}' > src/config/serverSecret.txt
 
+                    # Give permissions to the JSON file
+                    chmod 600 src/config/cpen321project-c324e-firebase-adminsdk.json
+                    chmod 600 src/config/cpen321project-stripe-secret.txt
+                    chmod 600 src/config/serverSecret.txt
 
-            echo "Writing secrets to config files"
-            echo '${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}' > /home/ubuntu/cpen321journal/Backend/src/config/cpen321project-c324e-firebase-adminsdk.json
-            echo '${{ secrets.STRIPE_SECRET }}' > /home/ubuntu/cpen321journal/Backend/src/config/cpen321project-stripe-secret.txt
-            echo '${{ secrets.SERVER_SECRET }}' > /home/ubuntu/cpen321journal/Backend/src/config/serverSecret.txt
-            chmod 600 /home/ubuntu/cpen321journal/Backend/src/config/*
+                    # Write secrets into - env
+                    cat > .env <<EOF
+                    PORT=${{secrets.PROD_PORT}}
+                    DB_URI=${{secrets.PROD_DB_URI}}
+                    EOF
 
+                    # Give -env permissions
+                    chmod 600 .env
 
-            echo "Writing environment variables to .env file"
-            cat > /home/ubuntu/cpen321journal/Backend/.env <<EOF
-            PORT=${{ secrets.PROD_PORT }}
-            DB_URI=${{ secrets.PROD_DB_URI }}
-            EOF
-            chmod 600 /home/ubuntu/cpen321journal/Backend/.env
-
-
-            echo "Stopping existing container and rebuilding"
-            cd /home/ubuntu/cpen321journal/Backend
-            docker-compose down
-            docker-compose --env-file .env build
-            docker-compose --env-file .env up -d
-            echo "Deployment complete!"
-        new_session: true  
-
-
+                    # Build and run container
+                    docker-compose down
+                    docker-compose --env-file .env build
+                    docker-compose --env-file .env up -d
 
           # - name: Install Stripe CLI
           #   run: |
