@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         monthYearText.text = monthYearFromDate(selectedDate)
         val daysInMonth = daysInMonthArray(selectedDate)
 
-        val calendarAdapter = CalendarAdapter(daysInMonth, selectedDate, journalentries, this)
+        val calendarAdapter = CalendarAdapter(this, daysInMonth, selectedDate, journalentries, this)
         val layoutManager = GridLayoutManager(applicationContext, 7)
         calendarRecyclerView.layoutManager = layoutManager
         calendarRecyclerView.adapter = calendarAdapter

@@ -1,12 +1,14 @@
 package com.example.cpen321project
 
+import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
 
-class CalendarAdapter (private val dayOfMonth: ArrayList<String>,private val selectedDate:LocalDate,private val journalEntries: Set<String>, private val onItemListener: OnItemListener): RecyclerView.Adapter<CalendarViewHolder>() {
+class CalendarAdapter (private val context: Context, private val dayOfMonth: ArrayList<String>, private val selectedDate:LocalDate, private val journalEntries: Set<String>, private val onItemListener: OnItemListener): RecyclerView.Adapter<CalendarViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -26,8 +28,6 @@ class CalendarAdapter (private val dayOfMonth: ArrayList<String>,private val sel
         val dayText = dayOfMonth[position]
         holder.dayOfMonth.text = dayText
 
-        // Set default color
-//        holder.dayOfMonth.setBackgroundColor(Color.WHITE)
 
         if (dayText.isNotEmpty()) {
             val dayNumber = dayText.toInt()
@@ -56,7 +56,7 @@ class CalendarAdapter (private val dayOfMonth: ArrayList<String>,private val sel
             holder.itemView.setOnClickListener {
                 if (!currentDate.isAfter(LocalDate.now())) { // Allow clicks only on past and current dates
                     onItemListener.onItemClick(position, dayText)
-                }
+                } else Toast.makeText(context,"Cannot add a journal for future dates!",Toast.LENGTH_SHORT).show()
             }
         }
     }
