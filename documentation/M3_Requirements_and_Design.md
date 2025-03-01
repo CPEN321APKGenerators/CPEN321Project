@@ -1,16 +1,21 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-<!-- Leave blank for M3 -->
+
+| date    | modified section(s) | rationale for the modification|
+| -------- | ---------------- |--------------|
+| Feb. 12th  |  Functional Requirements, Databases, Designs Specification| Correct the errors mentioned in our Milestone 3 grading|
+| Feb. 25th | Designs Specification    | Updated function interface agreement of user and journal sections based on the actual implementation |
+| Feb. 28th    | Designs Specification   | Added authorization header checks for users, hence the update |
 
 ## 2. Project Description
-Journal - Therapy with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
+Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
 
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram** 
 ![alt text](images/usecases.png)
-(TO CHANGE)
+google auth?
 
 ### **3.2. Actors Description**
 1. **Users**: The primary actor of the application. "Users" can authenticate, manage entries, perform sentiment analysis, update their profile, and make payments.
@@ -269,6 +274,7 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response**:
             - Status Code: 201 Created
                 Response Body:
+                ```
                 {
                     "isPaid": "boolean",
                     "reminderSetting": "object",
@@ -277,13 +283,17 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                     "userReminderTime": ["string"],
                     "createdAt": "string",
                     "fcmToken": "string",
-                    "timeOffset": "string"
+                    "timeOffset": "string",
+                    "googleNumID": "string"
                 }
+                ```
             - Status Code: 404 Not Found
             Response Body:
+            ```
             {
                 "error": "User not found"
             }
+            ```
             - Status Code: 500 Internal Server Error
         2. Get /api/profile/isPaidUser
             - **Purpose**: Check if a user is a paid member.
@@ -291,19 +301,24 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response**:
             - Status Code: 200 OK
                 Response Body:
+            ```
             {
                 "isPaid": "boolean"
             }
+            ```
             - Status Code: 404 Not Found
             Response Body:
+            ```
             {
                 "error": "User not found"
             }
+            ```
             - Status Code: 500 Internal Server Error
 
         3. POST /api/profile
             - **Purpose**: Create or update a user profile.
             - **Request Body**:
+            ```
             {
                 "userID": "string",
                 "googleToken": "string",
@@ -311,33 +326,41 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                 "preferred_name": "string (optional)",
                 "activities_tracking": ["string (optional)"]
             }
+            ```
             - **Response**:
                 - Status Code: 201 Created or 200 OK
                     Response Body:
+                    ```
                     {
                         "message": "User profile created/updated successfully",
                         "updatedFields": "object"
                     }
+                    ```
                 - Status Code: 500 Internal Server Error
         4. POST /api/profile/fcmtoken
             - **Purpose**: Store or update a user's FCM (Firebase Cloud Messaging) token.
             - **Request Body**:
+            ```
             {
                 "userID": "string",
                 "fcmToken": "string",
                 "timeOffset": "string"
             }
+            ```
             - **Response**:
                 - Status Code: 200 OK
                     Response Body:
+                    ```
                     {
                         "success": true
                     }
+                    ```
                 - Status Code: 500 Internal Server Errors
         
         5. POST /api/profile/reminder
             - **Purpose**: Change or update a user's reminder settings.
             - **Request Body**:
+            ```
             {
                 "userID": "string",
                 "updated_reminder": {
@@ -345,39 +368,48 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
                     "time": "string (HH:mm)"
                 }
             }
+            ```
             (Note: Weekday field uses integers 1-7 to represent weekdays from Monday to Sunday)
             - **Response**:
             - Status Code: 200 OK
                 Response Body:
+                ```
                 {
                     "update_success": true
                 }
+                ```
             - Status Code: 500 Internal Server Errors
 
-2. **Manage Journaling (Journal Entries management)**
+2. **Journaling Management**
     - **Purpose**: Handles the management (create, edit, delete, export) of the Journal. Also handles the addition of media to the journal.
     - **Interfaces**: 
         1. POST /api/journal
             - **Purpose**: Create a new journal entry for a specific user on a given date.
             - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Body**:
+            ```
             {
                 "date": "string (ISO8601 format)",
                 "userID": "string" (required),
                 "text": "string (optional)",
                 "media": ["string (Base64 encoded images) (optional)"]
             }
+            ```
             - **Response**:
                 - Status Code: 201 Created
                     Response Body:
+                    ```
                     {
                         "message": "New journal entry created successfully with images!"
                     }
+                    ```
                 - Status Code: 400 Bad Request
                     Response Body:
+                    ```
                     {
                         "message": "Journal entry already exists for this date"
                     }
+                    ```
                 - Status Code: 500 Internal Server Error
 
         2. GET /api/journal
@@ -389,38 +421,46 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response**: 
                 - Status Code: 200 OK
                 Response Body:
+                ```
                 {
                     "journal": {
                         "text": "string",
                         "media": ["string (Base64 encoded images)"]
                     }
                 }
+                ```
                 - Status Code: 404 Not Found
                 Response Body:
+                ```
                 {
                     "journal": {
                         "text": "",
                         "media": []
                     }
                 }
+                ```
                 - Status Code: 500 Internal Server Error
 
         3. PUT /api/journal
             - **Purpose**: Update an existing journal entry for a specific user on a given date.
             - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Body**:
+            ```
             {
                 "date": "string (ISO8601 format)",
                 "userID": "string",
                 "text": "string (optional)",
                 "media": ["string (Base64 encoded images) (optional)"]
             }
+            ```
             - **Response**:
             - Status Code: 200 OK
                 Response Body:
+                ```
                 {
                     "update_success": true
                 }
+                ```
             - Status Code: 500 Internal Server Error
         4. DELETE /api/journal
             - **Purpose**: Delete a journal entry for a specific user on a given date.
@@ -431,29 +471,37 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response**:
             - Status Code: 200 OK
                 Response Body:
+                ```
                 {
                     "delete_success": true
                 }
+                ```
             - Status Code: 500 Internal Server Error
         5. POST /api/journal/media
             - **Purpose**: Adds images to an existing journal entry. If no entry exists, a new one is created.
             - **Headers**: Authorization (Header): Required, in the format Bearer \<googleToken>.
             - **Request Body**:
+            ```
             {
                 "date": "string (ISO8601 format)",
                 "userID": "string",
                 "media": ["string (Base64 encoded images) (optional)"]
             }
+            ```
             - **Response**:
                 - Status Code: 201 Created
                     Response Body:
+                    ```
                     {
                         "success": true
                     }
+                    ```
                 - Status Code: 400 Bad Request
                     Response Body:
+                    ```
                     { "message": "No media provided" }
                     { "message": "Invalid media format" }
+                    ```
                 - Status Code: 500 Internal Server Error
         6. DELETE /api/journal/media
             - **Purpose**: Deletes a specific media item from a journal entry.
@@ -465,14 +513,20 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response**:
                 - Status Code: 200 OK
                     Response Body:
+                    ```
                     { "delete_success": true } - If the media was deleted.
                     { "delete_success": false } - If the media was not found.
+                    ```
                 - Status Code: 400 Bad Request
                     Response Body:
+                    ```
                     { "message": "Invalid or no media specified for deletion" }
+                    ```
                 - Status Code: 404 Not Found
                     Response Body:
+                    ```
                     { "message": "Journal entry not found" }
+                    ```
                 - Status Code: 500 Internal Server Error
         7. GET /api/journal/media
             - **Purpose**: Retrieves all media of a journal entry on a specific date.
@@ -483,10 +537,14 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response**: 
                 - Status Code: 200 OK
                 Response Body:
+                ```
                 { "media": [strings of Base64 encoded images] }
+                ```
                 - Status Code: 404 Not Found
                 Response Body:
+                ```
                 { "message": "Journal entry not found" }
+                ```
                 - Status Code: 500 Internal Server Error
         8. GET /api/journal/file
             - **Purpose**: Generates a file (PDF or CSV) containing all journal entries for a user.
@@ -497,20 +555,28 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response**: 
                 - Status Code: 200 OK
                 Response Body:
+                ```
                 {
                     "filename": "generated-file-name.pdf",
                     "downloadURL": "https://our_ec2_instance.com/public/generated-file-name.pdf"
                 }
+                ```
                 - Status Code: 400 Bad Request
                 Response Body:
+                ```
                 { "message": "Invalid format. Only 'pdf' or 'csv' are accepted." }
+                ```
                 - Status Code: 403 Forbidden
                 Response Body:
+                ```
                 { "message": "Invalid Google token." }
                 { "message": "Unauthorized access." }
+                ```
                 - Status Code: 404 Not Found
                 Response Body:
+                ```
                 { "message": "No journal entries found for this user." }
+                ```
                 - Status Code: 500 Internal Server Error
 3. **Analysis & Sentiment Tracking**
     - **Purpose**: Analyze and tracks the user's mood to get a trend over a certain period of time
@@ -521,17 +587,103 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
             - **Response Body**: return the user's sentiment date within the specified period.
         2. POST /api/analytics/suggestion
             - **Purpose**: Get a suggestion based on the user's trend within a week
-            - **Request Body**: username
+            - **Request Body**:
+            ```
+            {
+                "userID": "string"
+            }
+            ```
             - **Response Body**: the chatbot's suggestion.
+4. **Treasury**
+    -  **Purpose**: Allows users to securely make payments through Stripe within the application, while ensuring a seamless and secure transaction flow.
+    - **Interfaces**:
+        1. POST /api/payment-sheet
+            - **Purpose**: Create a PaymentIntent and associated Ephemeral Key for a customer, enabling the user to initiate a payment through Stripe.
+            - **Request Body**:
+            ```
+            {
+                "userID": "string"
+            }
+            ```
+            - **Response**:
+            - Status Code: 200 OK
+                Response Body:
+                ```
+                {
+                "paymentIntent": "string", Client secret for the PaymentIntent
+                "ephemeralKey": "string", Secret for the Ephemeral Key
+                "customer": "string", Customer ID created in Stripe
+                "publishableKey": "string", Publishable key for Stripe SDK
+                "userID": "string" The userID passed in the request
+                }
+                ```
+            - Status Code: 400 Bad Request
+                Response Body:
+                ```
+                {
+                "message": "Invalid request data"
+                }
+                ```
+            - Status Code: 500 Internal Server Errors
+                Response Body:
+                ```
+                {
+                "message": "Failed to create PaymentIntent"
+                }
+                ```
+        2. POST /webhook
+            - **Purpose**: Handle Stripe Webhook events to process payment results and update the user’s payment status in the database.
+            - **Request Body**:
+                - Stripe sends the event payload, which varies depending on the event type.
+                For payment_intent.succeeded:
+            ```
+            {
+            "id": "evt_1XYZ...",
+            "object": "event",
+            "type": "payment_intent.succeeded",
+            "data": {
+                "object": {
+                "id": "pi_1XYZ...",
+                "amount": 1099,
+                "currency": "cad",
+                "metadata": {
+                    "userID": "string"
+                }
+                }
+            }
+            }
+            ```
+            - **Response**:
+            - Status Code: 200 OK
+                Response Body:
+                ```
+                {
+                "message": "Webhook event processed successfully"
+                }
+                ```
+            - Status Code: 400 Bad Request
+                Response Body:
+                ```
+                {
+                "message": "Invalid event format"
+                }
+                ```
+            - Status Code: 500 Internal Server Errors
+                Response Body:
+                ```
+                {
+                "message": "Failed to process event"
+                }
+                ```
+
 
 
 ### **4.2. Databases**
-1. **[MessageDB]**
-    - **Purpose**: Stores user journal entries along with sentiment scores.
-2. **[AWS_S3]**
-    - **Purpose**: Stores media files (images, videos, audio) uploaded in journal entries. 
-3. **[UserDB]**
-    - **Purpose**: Stores user profile along with reminder settings. 
+1. **Journals (MongoDB Collection)**
+    - **Purpose**: Stores user journal entries and images in data url formats.
+2. **Users (MongoDB Collection)**
+    - **Purpose**: Stores user profile along with reminder settings.
+3. 
 
 
 ### **4.3. External Modules**
@@ -576,7 +728,6 @@ Journal - Therapy with the Bot is an unique journaling and mental health compani
 
 ### **4.5. Dependencies Diagram** 
 ![alt text](images/dependency.png)
-(feel free to change it in google drive)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. **[Authentication]**
