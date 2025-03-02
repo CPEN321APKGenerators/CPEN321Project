@@ -7,6 +7,87 @@ import axios from 'axios';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { deriveKey, encryptData, decryptData } from "../utils/crypto_functions";
+import {z} from "zod";
+const OPEN_AI_API_KEY = process.env.OPEN_AI_API_KEY || "";
+
+const prompt  = "PLEASE FILL IN PROMPT DESCRIBING IO, SHOWN BY EMOTIONS AND TRACKING SCHEMA AND GIVE DIRECTIONS FOR ANALYSIS. FOR NOW ALSO ASK FOR AN OVERALL SCORE";
+
+const activityStrings: string[]= []
+export const emotionsStrings: string[] = ["Joy", "Sadness", "Anger", "Fear", "Graditude", "Neutral", "Resilience", "SelfAcceptance", "Stress", "SenseOfPurpose"];
+const emotionAndActivitySchema = z.object({
+    overallScore: z.number().max(100).min(0),
+    emotion: z.object({
+        Joy: z.number().max(1).min(0),
+        Sadness: z.number().max(1).min(0),
+        Anger: z.number().max(1).min(0),
+        Fear: z.number().max(1).min(0),
+        Graditude: z.number().max(1).min(0),
+        Neutral: z.number().max(1).min(0),
+        Resilience: z.number().max(1).min(0),
+        SelfAcceptance: z.number().max(1).min(0),
+        Stress: z.number().max(1).min(0),
+        SenseOfPurpose: z.number().max(1).min(0),
+    }),
+    activity: z.record(
+        z.object({
+            weight : z.number().min(0).max(1),
+        })
+    ).refine((activityStats) => {
+        const activities = Object.keys(activityStats);
+        return activities.every((activity) => activities.includes(activity));
+    }, {
+        message: "Invalid key(s) detected",
+    })
+});
+
+async function getEmbeddings(entry: string, activitiesTracking: {
+    name: string, 
+    averageValue: number, 
+    unit: string}[]
+) : Promise<{ ovarallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } }> {
+    activityStrings.push(...activitiesTracking.map((activity) => activity.name));
+    var responseFormatCorrect = false;
+    var retries = 0;
+    var parsedResponse: z.infer<typeof emotionAndActivitySchema> | null = null;
+    while(!responseFormatCorrect && retries < 3){
+        const response = await axios.post(
+            "https://api.openai.com/v1/chat/completions",
+            {
+            model: "gpt-4-turbo",
+            messages: [{ role: "user", content: `${entry} \n ${prompt} \n ${activitiesTracking} \n ${emotionsStrings}`  }],
+            response_format: "json",
+            },
+            {
+            headers: {
+                Authorization: `Bearer ${OPEN_AI_API_KEY}`,
+                "Content-Type": "application/json",
+            },
+            }
+        );
+        const parseResult = emotionAndActivitySchema.safeParse(response.data);
+        if(parseResult.success){
+            parsedResponse = parseResult.data;
+            responseFormatCorrect = true;
+        } else {
+            retries++;
+        }
+    }
+    if(!responseFormatCorrect || !parsedResponse){
+        throw new Error("Failed to parse response from OpenAI API");
+    }
+
+    var stats: { ovarallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } } = {ovarallScore: NaN, emotions: {}, activities: {} };
+    const emotionStats = parsedResponse.emotion;
+    for(const emotion of Object.keys(emotionStats)){
+        stats.emotions[emotion] = emotionStats[emotion as keyof typeof emotionStats];
+    }
+    stats.activities = {};
+    for(const activity in parsedResponse.activity){
+        stats.activities[activity] = parsedResponse.activity[activity].weight;
+    }
+
+    return stats;
+}
 
 const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
@@ -42,6 +123,10 @@ export class JournalController {
         if (!googleNumID) {
             return res.status(404).json({ error: "User not found or googleNumID is missing" });
         }
+        const user = await client.db("cpen321journal").collection("users").findOne({ userID });
+        if(!user){
+            return res.status(404).json({ error: "User not found" });
+        }
         // Derive Key for Encryption
         const key = await deriveKey(googleNumID);
     
@@ -67,7 +152,7 @@ export class JournalController {
             encryptedMedia = existingEntry ? existingEntry.media : [];
         }
 
-        // const emotionAndActivityWeights = await some external API call;
+        const entryStats = await getEmbeddings(text, user.activities_tracking);
 
         // Update or Insert Journal Entry
         const result = await client.db("cpen321journal").collection("journals")
@@ -77,6 +162,7 @@ export class JournalController {
                     $set: {
                         text: encryptedText, 
                         media: encryptedMedia,
+                        stats: entryStats,
                         updatedAt: new Date()
                     }
                 }, 

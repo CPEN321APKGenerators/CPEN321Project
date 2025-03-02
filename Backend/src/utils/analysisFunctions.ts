@@ -222,7 +222,7 @@ export async function unpackPastWeekStats(
         const statDate = new Date(date);
         statDate.setDate(date.getDate() - i);
         dates.push(statDate);
-        const entry = await client.db("cpen-321-journal").collection("journals").findOne({ userID: userID, date: statDate });
+        const entry = await client.db("cpen321journal").collection("journals").findOne({ userID: userID, date: statDate });
         if (!entry && !prevEntry) {
             for (const activity of Object.keys(activityStats)) {
                 activityStats[activity].push(NaN);

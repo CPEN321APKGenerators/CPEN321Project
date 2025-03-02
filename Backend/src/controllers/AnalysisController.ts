@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { client } from "../../services";
 import { getWeekSummary, unpackPastWeekStats } from "../utils/analysisFunctions";
+import { emotionsStrings } from "./JournalController";
 
 export class AnalyticsController {
     async getAnalytics(req: Request, res: Response, next: NextFunction) {
@@ -10,8 +11,9 @@ export class AnalyticsController {
         const emotionStats: { [key: string]: number[] } = {};
         const activityStats: {[key: string]: number[]} = {};
 
-        // TODO: Decide on the tracked emotions
-        emotionStats["Happiness"] = [];
+        for (const emotion of emotionsStrings) {
+            emotionStats[emotion] = [];
+        }
 
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
@@ -23,7 +25,7 @@ export class AnalyticsController {
         }
 
         try {
-            const user = await client.db("cpen-321-journal").collection("users").findOne({ userID });
+            const user = await client.db("cpen321journal").collection("users").findOne({ userID });
             if (!user) {
                 return res.status(404).json({ error: "User not found-" });
             }
