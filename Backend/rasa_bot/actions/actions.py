@@ -13,11 +13,11 @@ class ActionSaveJournalEntry(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict) -> List[Dict[str, Any]]:
         journal_entry = tracker.get_slot("journal_entry")
         current_date = datetime.now().strftime('%Y-%m-%d') 
-        user_id = "1" #temp 
+        user_id = "1" #temp
         
         if journal_entry and user_id:
             response = self.save_journal_entry(user_id, journal_entry, current_date)
-            if response.status_code == 200:
+            if response and response.status_code == 200:
                 dispatcher.utter_message(text="Your journal entry has been saved successfully!")
             else:
                 dispatcher.utter_message(text="There was an error saving your journal entry.")
@@ -36,7 +36,9 @@ class ActionSaveJournalEntry(Action):
         try:
             # Send POST request to backend API
             response = requests.post(url, json=data)
+            if response.status_code != 200:
+                logging.error(f"Failed to save journal entry. Status code: {response.status_code}")
             return response
-        except Exception as e:
-            logging.error(f"Failed to save journal entry: {e}")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request failed: {e}")
             return None
