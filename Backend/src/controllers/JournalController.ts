@@ -53,15 +53,18 @@ async function getEmbeddings(entry: string, activitiesTracking: {
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
-            model: "gpt-4-turbo",
-            messages: [{ role: "user", content: `${entry} \n ${prompt} \n ${activitiesTracking} \n ${emotionsStrings}`  }],
-            response_format: "json",
+                model: "gpt-4o",  // Updated to GPT-4o
+                messages: [{ 
+                    role: "user", 
+                    content: `${entry} \n ${prompt} \n ${activitiesTracking} \n ${emotionsStrings}`  
+                }],
+                response_format: "json",
             },
             {
-            headers: {
-                Authorization: `Bearer ${OPEN_AI_API_KEY}`,
-                "Content-Type": "application/json",
-            },
+                headers: {
+                    Authorization: `Bearer ${OPEN_AI_API_KEY}`,
+                    "Content-Type": "application/json",
+                },
             }
         );
         const parseResult = emotionAndActivitySchema.safeParse(response.data);
