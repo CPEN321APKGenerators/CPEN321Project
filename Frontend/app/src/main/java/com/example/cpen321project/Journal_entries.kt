@@ -40,6 +40,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -123,13 +124,14 @@ class Journal_entries : AppCompatActivity() {
         } else {
             // Hide journal UI
             journalentrytext.visibility = View.GONE
-            save_entry.visibility = View.GONE
+//            save_entry.visibility = View.GONE
             journalImageview.visibility = View.GONE
 
             // Show chatbot UI
             chatScrollView.visibility = View.VISIBLE
             chatInput.visibility = View.VISIBLE
             sendChatButton.visibility = View.VISIBLE
+            save_entry.visibility = View.VISIBLE
         }
 
         val journalexisted = intent.getBooleanExtra("Pre_existing journal", false)
@@ -139,8 +141,7 @@ class Journal_entries : AppCompatActivity() {
         backtocalendar.setOnClickListener() {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(intent)
-            finish()
+            fetchJournalEntry(intent)
         }
 
         editentry.setOnClickListener() {
@@ -193,6 +194,25 @@ class Journal_entries : AppCompatActivity() {
         share_entry.setOnClickListener(){
             showFormatSelectionDialog()
         }
+
+        journalImageview.setOnClickListener(){
+            showdeletiondialog()
+        }
+    }
+
+    private fun showdeletiondialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Image")
+            .setMessage("Are you sure you want to delete this image?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteImageFromJournal()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteImageFromJournal() {
+        journalImageview.setImageDrawable(null)
     }
 
     private fun showFormatSelectionDialog() {
@@ -269,8 +289,14 @@ class Journal_entries : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string() ?: ""
-                    val paidUser = responseBody.toBoolean() // Convert response to boolean
-                    callback(paidUser) // Send result to callback
+                    try {
+                        val jsonObject = JSONObject(responseBody) // Parse JSON
+                        val paidUser = jsonObject.optBoolean("isPaid", false) // Extract "isPaid"
+                        callback(paidUser) // Send result to callback
+                    } catch (e: JSONException) {
+                        Log.e("User Paid Fetch", "Failed to parse JSON response", e)
+                        callback(false) // Assume false if parsing fails
+                    }
                 } else {
                     Log.e("User Paid Fetch", "Failed to fetch user status: ${response.code}")
                     callback(false) // Assume false if request fails
@@ -507,6 +533,55 @@ class Journal_entries : AppCompatActivity() {
         intent.putExtra("added_date", selectedDate.toString())
         startActivity(intent)
         finish()
+    }
+
+    private fun fetchJournalEntry(intent: Intent) {
+
+        val request = Request.Builder()
+            .url("$BASE_URL/api/journal?date=$selectedDate&userID=$userID")
+            .get()
+            .addHeader("Authorization", "Bearer $user_google_token")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+
+                    if (!responseBody.isNullOrEmpty()) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val journalObject = jsonResponse.getJSONObject("journal")
+                            val text = journalObject.getString("text")
+                            val mediaArray = journalObject.getJSONArray("media")
+
+                            // Check if there is any text or media saved
+                            if (text.isNotEmpty() || mediaArray.length() > 0) {
+                                runOnUiThread {
+                                    intent.putExtra("added_date", selectedDate)
+                                    startActivity(intent)
+                                    finish()
+                                }
+                            } else {
+                                Log.d("Journal Entry", "No journal entry found for this date")
+                                startActivity(intent)
+                                finish()
+                            }
+                        } catch (e: JSONException) {
+                            Log.e("Journal Fetch", "Error parsing JSON", e)
+                        }
+                    } else {
+                        Log.d("Journal Entry", "Empty response from server")
+                    }
+                } else {
+                    Log.e("Journal Fetch", "Failed to fetch journal entry: ${response.code}")
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("Journal Fetch", "Error fetching journal entry", e)
+            }
+        })
     }
 
     private fun deleteJournalEntry() {

@@ -27,76 +27,71 @@ google auth?
 
 1. **Manage Journals Entries**
     - **Overview**:
-    1. Calender View On the Front End: A Calendar with indicator to mark days that contain journal entries and days without.
-    2. Click On Specific Day: If day has been journaled, 3 buttons appear Edit, Export, Delete. If day has not been journaled, Create button appears.
+    1. Create entries: The new entries are created on the date that is either on the past or present. Both the primary and secondary user is able to do this task
+    2. Edit entries: The entries that exist are modified in any way the user pleases. Both the primary and secondary user is able to do this task.
+    3. Export journal: All the entries that exists in the databases are converted to the format user wants and user is able to use url to download it. Both the primary and secondary user is able to do this task
+    4. Delete entry: The user is able to clear their journal entry. Both the primary and secondary user is able to do this task
 
     - **Detailed Flow for Each Independent Scenario**:
     1. **Create**
         - **Description**: Create a Journal Entry
         - **Primary actor(s)**: User, Paid User
         - **Main success scenario**: 
-        1. The user clicks on the Create button for the specified day.
-        2. A chatview box opens with a chatbot welcoming the user by name.
-        3. The chatbot ensures a structured and meaningful entry.
-        4. The user input responses are saved on the backend.
+        1. The user clicks on a unhighlighted date
+        2. The user is prompted to chat with the RASA bot
+        3. The user is prompted to journal
+        4. The user types and replies their journal entry to the chatbot
+        5. The user presses back button to save their changes
+        5. The calendar view is updated to highlight the day indicating it is journaled
         - **Failure scenario(s)**: 
-        - 1a. User clicks the Create button, but nothing happens
-            - 1a1.  The system displays an error message & prompts the user to try again.
-        - 2a. The chatbox fails to load.
-            - 1a1.  The system displays an error message & prompts the user to try again.    
-        - 3a. Chatbot fails to guide the user through structured journaling.
-            - 3a1.  The chatbot displays an error message.
-        - 4a. Entry submission fails due to a backend/database error.
-            - 4a1. The system notifies that the entry was not saved.
-            - 4a2: The system provides an option to retry saving.
+        - 1a. User clicks on the future date
+            - 1.a1 The future date is unclickEnable
+            - 1.a2 A toast is generated that says "Cannot add a journal for future dates!" as a prompt to the user
+        - 2a. The Chatbot does not prompt the user to write the journal and loses connection
+            - 2.a1 The system displays the error and prompts the user to try again
     
     2. **Edit**
         - **Description**: Edit an existing journal entry.
         - **Primary actor(s)**:  User, Paid User
         - **Main success scenario**: 
-        1. The user selects a date that already has a journal entry and click the edit button.
+        1. The user selects a highlighted date.
         2. The saved journal entry is loaded.
-        3. The user has the ability to modify the text.
-        4. The updated entry is saved.
+        3. The user then clicks edit button to modify the text.
+        4. The user then clicks on save button to save the journal entry
         - **Failure scenario(s)**: 
-        - 1a. User clicks the Edit button, but nothing happens.
-            - 1a1.  The system displays an error message & prompts the user to try again.
-        - 2a. The entry fails to load.
-            - 2a1.  The system displays an error message & prompts the user to try again.
-        - 4a.  The  Modified changes fail to save.
-            - 4a1. The system prompts the user to retry.
+        - 1a. The saved journal entry fails to load.
+            - 1a1. The system displays the error saying failed to fetch and prompts the user to retry
+        - 4a. The journal entry fails to be saved
+            - 4a1. The system displays the error saying failed to save and displays the error.
 
     3. **Export**
-        - **Description**: Export A Journal Entry as PDF or CSV file.
+        - **Description**: Export all the Journal Entries as PDF or CSV file.
         - **Primary actor(s)**:  User, Paid User
         - **Main success scenario**:
-        1. The user selects a date that already has a journal entry and click the export button.
+        1. The user selects a highlighted date that already has a journal entry 
+        2. The user clicks the export button.
         2. The chatbot asks for the preferred export format PDF or CSV.
         3. The user selects a format.
-        4. The user selected file format is generated and the user downloads it.
+        4. The download url link is copied to user's clipboard.
         - **Failure scenario(s)**:
-        - 1a. User clicks the Export button, but nothing happens.
-            - 1a1.  The system displays an error message & prompts the user to try again.
-        - 3a.  User selects the format, but the file is not downloaded successfully.
-            - 3a1. A system message informs the user about the failed download.
-            - 3a2. The system provides an option to retry.
+        - 2a. User clicks the Export button, but nothing happens.
+            - 2a1.  The system displays an error message & prompts the user to try again.
+        - 4a. The url of the download is not copied to clipboard
+            - 4a1. The system displays the error message and prompts the user to try again
 
     4. **Delete**
         - **Description**: Delete a journal entry.
         - **Primary actor(s)**:  User, Paid User
         - **Main success scenario**:
-        1. The user selects a date with an existing journal entry.
+        1. The user selects a highlighted date with journal entry.
         2. The Delete button is clicked.
         3. The system asks if a user would like to proceed?
-        4. The user confirms, and the entry is permanently removed from the db.
+        4. The user confirms, and the entry is permanently removed.
         5. The calendar view updates to remove the journaled indicator.
         - **Failure scenario(s)**:
-        - 2a. User clicks the Delete button, but nothing happens.
-            - 2a1.  The system displays an error message & prompts the user to try again.
         - 4a. User confirms deletion, but the journal entry is not removed from the database.
             - 4a1.  The system notifies the user about the issue and suggests retrying.
         - 5a. The calendar view does not update after deletion.
-            - 5a1. he system attempts a UI refresh.
             - 5a2. If unsuccessful, the user is asked to reload the page manually.
 
 
@@ -191,6 +186,7 @@ google auth?
                 3. The system prompts user to select media from device or capture a new photo using the device's camera
                 4. The user selects one of the following option
                 5. The media is uploaded
+                6. The user clicks the save entry button to save the picture
             - **Failure scenario(s)**:
                 - 4a. User selects an unsupported file format
                     - 3a1. An error message is displayed: "Unsupported file format: Please select a following file format: JPG, PNG, JPEG"
@@ -207,10 +203,11 @@ google auth?
             - **Primary actor(s)**: Paid User
             - **Main success scenario**:
                 1. The user selects a journal entry containing attached media
-                2. The user selects the media they want remove
-                3. System displays a pop-up: "Are you sure you want to remove this media?"
+                2. The user clicks on the media
+                3. System displays a pop-up: "do you want to delete"
                 4. The user confirms their choice
                 5. The system removes the media from the journal entry
+                6. The user clicks on the save entry button
             - **Failure scenario(s)**:
                 - 2a. Media is already deleted or missing
                     - 5a1. The system displays an error: "File not found"
