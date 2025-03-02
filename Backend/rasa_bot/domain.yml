@@ -9,6 +9,7 @@ intents:
   - thankyou
   - out_of_scope
   - start
+  - journal_provided
 
 responses:
   utter_greet:
@@ -40,6 +41,8 @@ slots:
     type: text
     mappings:
       - type: from_text
+        intent: journal_provided
+
 
 session_config:
   session_expiration_time: 60

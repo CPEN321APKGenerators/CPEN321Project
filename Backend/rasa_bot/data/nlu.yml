@@ -88,4 +88,5 @@ nlu:
 - intent: start
   examples: |
     - start 
+    - journal
   
