@@ -3,16 +3,17 @@ import { client } from "../../services";
 import { ObjectFlags } from "typescript";
 import { last } from "pdf-lib";
 
-const emotionIncreaseThreshold = 0.4;
-const emotionDecreaseThreshold = 0.2;
-const activityIncreaseFactor = 0.4;
-const activityDecreaseFactor = 0.4;
+const emotionIncreaseThreshold = 0.17;
+const emotionDecreaseThreshold = 0.17;
+const activityIncreaseFactor = 0.9;
+const activityDecreaseFactor = 0.9;
+
 
 const trendMap :{[key: string]: string[]} = {
-    pprelationship: ["rises", "rises"],
-    nnrelationship: ["falls", "falls"],
-    pnrelationship: ["rises", "falls"],
-    nprelationship: ["falls", "rises"]
+    pprelationship: ["rise", "rise"],
+    nnrelationship: ["fall", "fall"],
+    pnrelationship: ["rise", "fall"],
+    nprelationship: ["fall", "rise"]
 }
 
 export class RelationshipMap {
@@ -123,13 +124,12 @@ export class RelationshipLog {
             var absAvgDateDelay = Math.abs(this.avgDateDelay);
         }
         else{
-            const display = `${activity} ${trendDescriptions[0]} while ${emotion} ${trendDescriptions[1]} at around the same time with ${occurences} notable occurences.`;
+            const display = `${activity} ${trendDescriptions[0]}s while ${emotion} ${trendDescriptions[1]}s at around the same time with ${occurences} notable occurence(s).`;
             return {activity, emotion, display};
         }
 
 
-        const display: string = `${firstTrend} tends to ${firstDescription} while ${secondTrend} ${secondDescription} 
-                                after with an average delay of ${absAvgDateDelay} days with ${occurences} notable occurences.`;
+        const display: string = `${firstTrend} tends to ${firstDescription} while ${secondTrend} ${secondDescription}s after with an average delay of ${absAvgDateDelay} day(s) with ${occurences} notable occurence(s).`;
         return {activity, emotion, display};
     }
 }
@@ -187,13 +187,18 @@ export function getWeekSummary(
         const date = dates[i];
         const poppedEmotionStats = popMapFront(emotionStats);
         const poppedActivityStats = popMapFront(activityStats);
+        popMapFront(emotionQueue);
+        popMapFront(activityQueue);
         pushMapBack(emotionQueue, poppedEmotionStats);
         pushMapBack(activityQueue, poppedActivityStats);
-
+        dateQueue.shift();
+        dateQueue.push(date);
+        
         deleteOldRelations(relationshipMap, dateQueue, emotionTrends, activityTrends)
         createNewRelations(relationshipMap, dateQueue, emotionQueue, activityQueue, emotionTrends, activityTrends, activityAverages);
-    
+        
     }
+
     const summary = relationshipMap.summarizeRelationships();
     return summary;
 
@@ -213,11 +218,11 @@ export async function unpackPastWeekStats(
         activityStats[activityName] = [];
     }
     var prevEntry: boolean = false;
-    for (let i = 0; i < 7; i++) {
+    for (let i = 6; i >= 0; i--) {
         const statDate = new Date(date);
         statDate.setDate(date.getDate() - i);
         dates.push(statDate);
-        const entry = await client.db("cpen321journal").collection("journals").findOne({ userID, date: statDate });
+        const entry = await client.db("cpen-321-journal").collection("journals").findOne({ userID: userID, date: statDate });
         if (!entry && !prevEntry) {
             for (const activity of Object.keys(activityStats)) {
                 activityStats[activity].push(NaN);
@@ -243,10 +248,11 @@ export async function unpackPastWeekStats(
                 const emotionStat = entry.stats.emotions[emotion] || NaN;
                 emotionStats[emotion].push(emotionStat);
             }
+            prevEntry = true;
         }
     }
 }
-export function getRelType(emotionTrend: number, activityTrend: number): string {
+export function getRelType(activityTrend: number, emotionTrend: number): string {
     if(emotionTrend === 0 || activityTrend === 0){
         return ""
     }
@@ -387,8 +393,6 @@ function deleteOldRelations(
     let endingEmotionTrends: any[] = [];
     let ongoingEmotionTrends: any[] = [];
 
-    dateQueue.shift();
-
     for (const activity of Object.keys(activityTrends)) {
         const activityTrendArr = activityTrends[activity];
         if (activityTrendArr.length === 6) {
@@ -498,10 +502,12 @@ function markNewRelationships(
 ): void {
     for (const [activity, activityTrend] of newActivityTrends) {
         for (const [emotion, emotionTrend, emotionIndex] of recentEmotionTrends) {
+            const startDate = new Date(latestDate);
+            startDate.setDate(latestDate.getDate() - emotionIndex + 1);
             relationshipMap.addRelationCount(
                 activity, 
                 emotion, 
-                new Date(latestDate.setDate(latestDate.getDate() - emotionIndex + 1)), 
+                startDate, 
                 latestDate, 
                 -emotionIndex + 1, 
                 getRelType(emotionTrend, activityTrend)
@@ -509,10 +515,12 @@ function markNewRelationships(
         }
 
         for (const [emotion, emotionTrend, emotionIndex] of ongoingEmotionTrends) {
+            const startDate = new Date(latestDate);
+            startDate.setDate(latestDate.getDate() - emotionIndex + 1);
             relationshipMap.addRelationCount(
                 activity, 
                 emotion, 
-                new Date(latestDate.setDate(latestDate.getDate() - emotionIndex + 1)), 
+                startDate, 
                 latestDate, 
                 -emotionIndex + 1, 
                 getRelType(emotionTrend, activityTrend)
@@ -523,7 +531,7 @@ function markNewRelationships(
             relationshipMap.addRelationCount(
                 activity, 
                 emotion, 
-                latestDate, 
+                new Date(latestDate), 
                 latestDate, 
                 0, 
                 getRelType(emotionTrend, activityTrend)
@@ -533,10 +541,12 @@ function markNewRelationships(
     // No nested loop for new emotions, new activities since it would repeat the same relationship
     for (const [emotion, emotionTrend] of newEmotionTrends) {
         for (const [activity, activityTrend, activityIndex] of recentActivityTrends) {
+            const startDate = new Date(latestDate);
+            startDate.setDate(latestDate.getDate() - activityIndex + 1);
             relationshipMap.addRelationCount(
                 activity, 
                 emotion, 
-                new Date(latestDate.setDate(latestDate.getDate() - activityIndex + 1)),
+                startDate,
                 latestDate, 
                 activityIndex - 1, 
                 getRelType(emotionTrend, activityTrend)
@@ -544,10 +554,12 @@ function markNewRelationships(
         }
 
         for (const [activity, activityTrend, activityIndex] of ongoingActivityTrends) {
+            const startDate = new Date(latestDate);
+            startDate.setDate(latestDate.getDate() - activityIndex + 1);
             relationshipMap.addRelationCount(
                 activity, 
                 emotion, 
-                new Date(latestDate.setDate(latestDate.getDate() - activityIndex + 1)), 
+                startDate, 
                 latestDate, 
                 activityIndex - 1, 
                 getRelType(emotionTrend, activityTrend)

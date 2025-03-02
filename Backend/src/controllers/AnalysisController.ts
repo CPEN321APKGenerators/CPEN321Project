@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { client } from "../../services";
-import fs from "fs";
-import path from "path";
 import { getWeekSummary, unpackPastWeekStats } from "../utils/analysisFunctions";
 
 export class AnalyticsController {
@@ -13,7 +11,7 @@ export class AnalyticsController {
         const activityStats: {[key: string]: number[]} = {};
 
         // TODO: Decide on the tracked emotions
-        // emotionStats.keys = trackedEmotions;
+        emotionStats["Happiness"] = [];
 
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
@@ -25,14 +23,22 @@ export class AnalyticsController {
         }
 
         try {
-            const user = await client.db("cpen321journal").collection("users").findOne({ userID });
+            const user = await client.db("cpen-321-journal").collection("users").findOne({ userID });
             if (!user) {
-                return res.status(404).json({ error: "User not found" });
+                return res.status(404).json({ error: "User not found-" });
             }
-            const activities = user.activities_trackings || {};
-            unpackPastWeekStats(userID, date, activities, dates, emotionStats, activityStats);
-            const summary = getWeekSummary(dates, activities, emotionStats, activityStats);
+            const activities = user.activities_tracking || {};
 
+            await unpackPastWeekStats(userID, date, activities, dates, emotionStats, activityStats);
+            let summary :{activity: string, emotion: string, display: string}[];
+            const emotionStatsCopy = JSON.parse(JSON.stringify(emotionStats));
+            const activityStatsCopy = JSON.parse(JSON.stringify(activityStats));
+            if(activities){
+                summary = getWeekSummary(dates, activities, emotionStatsCopy, activityStatsCopy);
+            }
+            else{
+                summary = [];
+            }
             return res.status(200).json({emotionStats, activityStats, summary});
         } catch (error) {
             return next(error);
