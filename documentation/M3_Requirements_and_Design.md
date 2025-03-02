@@ -7,6 +7,7 @@
 | Feb. 12th  |  Functional Requirements, Databases, Designs Specification| Correct the errors mentioned in our Milestone 3 grading|
 | Feb. 25th | Designs Specification    | Updated function interface agreement of user and journal sections based on the actual implementation |
 | Feb. 28th    | Designs Specification   | Added authorization header checks for users, hence the update |
+| Mar. 1st | Functional Requirements| Updated based on implementation |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
@@ -143,16 +144,44 @@ google auth?
             - **Description**: The user can update the app's reminder settings to notify the user to write journals.
             - **Primary actor(s)**: User, Paid User
             - **Main success scenario**:
-                1. User clicks on the profile icon.
-                2. System display the user profile and reminder settings to the user.
-                3. User changes the reminder settings and click update.
-                3. Update success message is displayed on the app.
+                    1. User clicks on the profile icon.
+                    2. System display the user profile and the current reminder settings to the user. (For new users, the current reminder settings are set to all none for weekdays, and it will display current time on the user's device)
+                    3. User changes the reminder settings and click "Save Settings".
+                    4. Update success message is displayed on the app.
             - **Failure scenario(s)**:
                 - 2a. System fails to retrieve user data.
                     - 2a1. An error message is displayed for retrieving user data
                     - 2a2. System prompts user to retry
                 - 3a. Failure to change reminder settings
-                    - 3a1. An error message is logged for update reminder settings
+                    - 3a1. An error message is displayed for failue to  update reminder settings
+        2. **Update Preferred Name**:
+            - **Description**: The user can update their preferred name to be called inside the Journal app.
+            - **Primary actor(s)**: User, Paid User
+            - **Main success scenario**:
+                    1. User clicks on the profile icon.
+                    2. System display the user profile and preferred name to the user.
+                    3. User changes their Preferred Name and click "Save Settings".
+                    3. Update success message is displayed on the app.
+            - **Failure scenario(s)**:
+                - 2a. System fails to retrieve user data.
+                    - 2a1. An error message is displayed for retrieving user data
+                    - 2a2. System prompts user to retry
+                - 3a. Failure to change preferred name of the user
+                    - 3a1. An error message is logged for failure to update preferred name
+        3. **Update Activities Tracking**:
+            - **Description**: The user can update the app's activity tracking settings to notify the user to write journals.
+            - **Primary actor(s)**: User, Paid User
+            - **Main success scenario**:
+                    1. User clicks on the profile icon.
+                    2. System display the user profile and activity tracking settings to the user.
+                    3. User changes the activities tracking settings and click update. (this change action includes add, edit/delete by holding on to an activity)
+                    3. Update success message is displayed on the app.
+            - **Failure scenario(s)**:
+                - 2a. System fails to retrieve user data.
+                    - 2a1. An error message is displayed for retrieving user data
+                    - 2a2. System prompts user to retry
+                - 3a. Failure to change activity tracking settings
+                    - 3a1. An error message is logged for failure to update activities tracking settings
 
 4. **Authentication** 
     - **Overview**:
@@ -160,16 +189,19 @@ google auth?
     
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Authenticate User**:
-            - **Description**: The actor authenticates using their google account
+            - **Description**: The actor authenticates using their Google account
             - **Primary actor(s)**: User, Paid User
             - **Main success scenario**:
-                1. User presses "Sign-in" button
-                2. User is prompted to type in the google account information (Email followed by password)
-                3. User is authenticated
+                1. User presses "Log in" button
+                2. User is prompted to type in their google account information (Email followed by password); Or if user has typed in their google account information previously, they will be prompted to choose an account to log in
+                3. User is authenticated and enters the calendar view page
             - **Failure scenario(s)**:
                 - 2a. User types in wrong information
                     - 2a1. The authentication API displays an error message telling the user of the error and potential solution.
                     - 2a2. The authentication pop up prompts the user to try again
+                - 3a. User typed in correct information, but failed to authenticate at the server side
+                    - 3a1. User will remain at the log in view; An error message is displayed for authenticating the user
+                    - 3a2. System prompts user to retry authentication
     
 5. **Manage Media** 
     - **Overview**:
@@ -221,21 +253,32 @@ google auth?
 
 3. **Upgrade Account** 
     - **Overview**:
-        1. Upgrade account using third-party payment method: The user is able to upgrade their membership to get the perks. They would be a paid user after they upgrade the account.
+        1. Upgrade account using Stripe's payment method: The user is able to upgrade their membership to attach images to their journals. They would be a paid user after they upgrade the account.
     
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Upgrade account using third-party payment method**:
-            - **Description**: User should be able to use third-party payment option to upgrade privileges of their account to enable adding photos and videos to journal entries.
+            - **Description**: User should be able to use Stripe's payment option to upgrade account status of their account to enable adding images to journal entries.
             - **Primary actor(s)**: User
             - **Main success scenario**:
-                1. User goes through third-party payment system
-                2. The payment is approved by their financial institution
-                3. The user is notified their account has its privileges elevated. It will also mention the perks that come with it and a short set of instructions.
+                1. User clicks "Profile" button, enters their profile page view
+                2. User clicks "Upgrade" button beside "Account status: Free"
+                3. A payment sheet from Stripe is displayed on the profile page, and user is prompted to select their desired payment method and enter their payment information.
+                4. The payment is approved by Stripe, and a green check mark is displayed at the bottom of the payment sheet
+                5. The user's account status has been upgraded to "Premium".
+                It will also mention the perks that come with it and a short set of instructions.
             - **Failure scenario(s)**:
-                - 2a. There is an error with the third-party payment and it returns as not completed.
-                    - 2a1. The user is notified of the transaction failure and the type high-level error if that is returned.
-                - 3a. The account fails to upgrade
-                    - 3a1. The system prompts the user to call 123-456-7890
+                - 1a. The server failed to retrieve user's profile
+                    - 1a1. An error message is displayed
+                    - 1a2. The system prompts the user to check internet connectivity and retry
+                - 2a. The server failed to retrieve the payment-sheet resources
+                    - 2a1. An error message is displayed
+                    - 2a2. The system prompts the user to try upgrade their account after several hours
+                - 3a. There is an error with the third-party payment and it returns as not completed.
+                    - 3a1. The user is notified of the transaction failure and the type high-level error if that is returned.
+                    - 3a2. The system prompts the user to check their account, and prompts the user to call customer service 123-456-7890 if there is any financial lost.
+                    to call 123-456-7890
+                - 4a. The user's account fails to upgrade
+                    - 4a1. The system prompts the user to call customer service 123-456-7890 for support.
 
 
 ### **3.4. Screen Mockups**
