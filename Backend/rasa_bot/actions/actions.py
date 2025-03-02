@@ -13,6 +13,7 @@ class ActionSaveJournalEntry(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict) -> List[Dict[str, Any]]:
         journal_entry = tracker.get_slot("journal_entry")
         current_date = datetime.now().strftime('%Y-%m-%d') 
+        current_date = "2025-03-02" #temp
         user_id = "amodghimera2345@gmail.com" #temp
         
         if journal_entry and user_id:
