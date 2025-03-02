@@ -561,6 +561,8 @@ class ProfileManagement : AppCompatActivity() {
     private fun sendUserProfile(preferredName: String, activities: List<Activity>) {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
+        val googleidtoken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleIDtoken", null)
         val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
 
         // Construct JSON body
@@ -577,6 +579,7 @@ class ProfileManagement : AppCompatActivity() {
             activitiesArray.put(activityJson)
         }
         json.put("activities_tracking", activitiesArray)
+        json.put("googleToken", googleidtoken)
 
         val client = OkHttpClient()
         val requestBody = RequestBody.create(
@@ -597,6 +600,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(this@ProfileManagement, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
                     }
                 } else {
+
                     Log.e("UserProfile", "Failed to update user profile")
                     runOnUiThread {
                         Toast.makeText(this@ProfileManagement, "Failed to update profile", Toast.LENGTH_SHORT).show()
