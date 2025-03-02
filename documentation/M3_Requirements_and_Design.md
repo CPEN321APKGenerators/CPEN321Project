@@ -737,10 +737,7 @@ google auth?
 2. **Stripe - Third-party payment**
     - **Purpose**: Manage a secure payment transactions using Stripe. 
     - **Rationale**: Stripe has developer-friendly APIs and is easy to learn. The alternative was Paypal which is supposedly less flexible for developers.
-    - **Interfaces**:
-        1. POST /api/payment
-            - **Request Body**: Amount, Card
-            - **Response Body**: Transaction Status
+    - **Interfaces**: The Stripe API is integrated in the Treasury component of our app, with logic to update the user database if the server webhook receives a payment succeeded event.
 3. **Sentiment Analysis - Openai API**
     - **Purpose**: Analyzes user's journal entry to determine sentiment.
     - **Rationale**: Most of the group has used the openai API previously. It is very simple to learn as well. 
