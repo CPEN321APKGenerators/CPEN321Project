@@ -373,7 +373,7 @@ class Journal_entries : AppCompatActivity() {
         }
     }
 
-    private fun saveentry() { // Need to save the entry to the database
+    private fun saveentry() {
         val journalText = journalentrytext.text.toString().trim()
         if ((journalText.isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
             Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
