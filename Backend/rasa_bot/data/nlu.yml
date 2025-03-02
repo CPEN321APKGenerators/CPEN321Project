@@ -22,6 +22,7 @@ nlu:
 
 - intent: affirm
   examples: |
+    - yea
     - yes
     - yeah
     - sure
@@ -39,14 +40,34 @@ nlu:
 
 - intent: journal_provided
   examples: |
-    - today was great!
-
-- intent: bot_challenge
-  examples: |
-    - are you a bot?
-    - are you real?
-    - who made you?
-    - what are you?
+    - today * 
+    - I * 
+    - a 
+    - b 
+    - c 
+    - d
+    - e
+    - f 
+    - g
+    - h
+    - i
+    - j 
+    - k 
+    - l 
+    - m 
+    - n
+    - o
+    - p 
+    - q
+    - r
+    - s
+    - t
+    - u 
+    - v 
+    - w
+    - x
+    - y 
+    - z 
 
 - intent: inform
   examples: |
@@ -64,44 +85,8 @@ nlu:
     - thanks a lot
     - many thanks
 
-- intent: out_of_scope
+- intent: start
   examples: |
-    - what’s the weather like?
-    - tell me a joke
-    - who won the football match?
-    - what's your name?
-
-- intent: ask_lower_stress
-  examples: |
-    - How can I lower my stress?
-    - What can I do to relax?
-    - I'm feeling anxious. What should I do?
-
-- intent: ask_eat_healthy
-  examples: |
-    - yes, I did.
-    - yes.
-
-- intent: ask_exercise
-  examples: |
-    - yes, I did.
-    - yes. 
-
-- intent: start_journal
-  examples: |
-    - I want to write in my journal
-    - I want to reflect
-    - Let me journal something
-    - Let me write down my thoughts
-    - I need to write something
-    - I feel like journaling
+    - start 
     - journal
-
-- intent: start_wellness_log
-  examples: |
-    - Yes, let's do a wellness check-in
-    - Sure, ask me the questions
-    - Let's log my habits
-    - Yes, I'm ready to answer
-    - Let's start my wellness log
-    - wellness
+  
