@@ -44,7 +44,6 @@ Routes.forEach((route) => {
         async (req: Request, res: Response, next: NextFunction) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                console.log(req.body, errors)
                 /* If there are validation errors, send a response with the error messages */
                 return res.status(400).send({ errors: errors.array() });
             }
