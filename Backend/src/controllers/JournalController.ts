@@ -57,7 +57,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
     var retries = 0;
     var parsedResponse: z.infer<typeof emotionAndActivitySchema> | null = null;
     
-    while(!responseFormatCorrect && retries < 3) {
+    while(!responseFormatCorrect && retries < 1) {
         try {
             console.log(`${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${JSON.stringify(emotionsStrings)} \n Activities: ${JSON.stringify(activitiesTracking)}`)
             const response = await axios.post(
@@ -78,8 +78,10 @@ async function getEmbeddings(entry: string, activitiesTracking: {
                 }
             );
 
-            console.log(response.data)
-            const parseResult = emotionAndActivitySchema.safeParse(response.data);
+            const responseContent = response.data.choices[0].message.content;
+            console.log(responseContent);
+
+            const parseResult = emotionAndActivitySchema.safeParse(responseContent);
             if(parseResult.success) {
                 parsedResponse = parseResult.data;
                 responseFormatCorrect = true;
