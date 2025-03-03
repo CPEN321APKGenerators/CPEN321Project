@@ -211,7 +211,7 @@ export async function unpackPastWeekStats(
     dates: Date[],
     emotionStats: { [key: string]: Number[] },
     activityStats: { [key: string]: Number[] }
-): Promise<void> {
+): Promise<number> {
 
     for(const activity of activities){
         const activityName = (activity as {name: string}).name;
@@ -219,6 +219,8 @@ export async function unpackPastWeekStats(
     }
 
     var prevEntry: boolean = false;
+    var overallScoreSum = 0;
+    var totalDays = 0
     for (let i = 6; i >= 0; i--) {
         const statDate = new Date(date);
         statDate.setDate(date.getDate() - i);
@@ -249,9 +251,17 @@ export async function unpackPastWeekStats(
                 const emotionStat = entry.stats.emotions[emotion] || NaN;
                 emotionStats[emotion].push(emotionStat);
             }
+            if(entry.stats.overallScore){
+                totalDays++;
+                overallScoreSum += entry.stats.overallScore;
+            }
             prevEntry = true;
         }
     }
+    if(totalDays === 0){
+        return NaN;
+    }
+    return overallScoreSum/totalDays;
 }
 export function getRelType(activityTrend: number, emotionTrend: number): string {
     if(emotionTrend === 0 || activityTrend === 0){

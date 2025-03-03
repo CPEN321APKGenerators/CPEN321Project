@@ -31,7 +31,7 @@ export class AnalyticsController {
             }
             const activities = user.activities_tracking || [];
 
-            await unpackPastWeekStats(userID, date, activities, dates, emotionStats, activityStats);
+            const overallScore = await unpackPastWeekStats(userID, date, activities, dates, emotionStats, activityStats);
             let summary :{activity: string, emotion: string, display: string}[];
             const emotionStatsCopy = JSON.parse(JSON.stringify(emotionStats));
             const activityStatsCopy = JSON.parse(JSON.stringify(activityStats));
@@ -41,7 +41,7 @@ export class AnalyticsController {
             else{
                 summary = [];
             }
-            return res.status(200).json({emotionStats, activityStats, summary});
+            return res.status(200).json({emotionStats, activityStats, overallScore, summary});
         } catch (error) {
             return next(error);
         }
