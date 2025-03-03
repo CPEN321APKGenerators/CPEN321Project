@@ -50,56 +50,61 @@ const emotionAndActivitySchema = z.object({
 async function getEmbeddings(entry: string, activitiesTracking: {
     name: string, 
     averageValue: number, 
-    unit: string}[]
-) : Promise<{ ovarallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } }> {
+    unit: string}[] 
+) : Promise<{ overallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } }> {
     activityStrings.push(...activitiesTracking.map((activity) => activity.name));
     var responseFormatCorrect = false;
     var retries = 0;
     var parsedResponse: z.infer<typeof emotionAndActivitySchema> | null = null;
-    console.log(` ${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${emotionsStrings} \n Activities: ${activitiesTracking.toString()}`)
-    while(!responseFormatCorrect && retries < 3){
-        const response = await axios.post(
-            "https://api.openai.com/v1/chat/completions",
-            {
-                model: "gpt-4o",
-                messages: [{ 
-                    role: "user", 
-                    content: ` ${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${JSON.stringify(emotionsStrings)} \n Activities: ${JSON.stringify(activitiesTracking)}`  
-                }],
-                response_format: "json",
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${OPEN_API_KEY}`,
-                    "Content-Type": "application/json",
+    
+    while(!responseFormatCorrect && retries < 3) {
+        try {
+            const response = await axios.post(
+                "https://api.openai.com/v1/chat/completions",
+                {
+                    model: "gpt-4", // Correct model name
+                    messages: [{ 
+                        role: "user", 
+                        content: `${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${JSON.stringify(emotionsStrings)} \n Activities: ${JSON.stringify(activitiesTracking)}`
+                    }],
+                    max_tokens: 500, // Example parameter
                 },
+                {
+                    headers: {
+                        Authorization: `Bearer ${OPEN_API_KEY}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            
+            const parseResult = emotionAndActivitySchema.safeParse(response.data);
+            if(parseResult.success) {
+                parsedResponse = parseResult.data;
+                responseFormatCorrect = true;
+            } else {
+                retries++;
+                console.log("Error parsing response:", parseResult.error);
             }
-        );
-        const parseResult = emotionAndActivitySchema.safeParse(response.data);
-        if(parseResult.success){
-            parsedResponse = parseResult.data;
-            responseFormatCorrect = true;
-        } else {
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error("Error making API request:", error.response || error.message);
+            } else {
+                console.error("Error making API request:", error);
+            }
             retries++;
         }
     }
-    if(!responseFormatCorrect || !parsedResponse){
-        throw new Error("Failed to parse response from OpenAI API");
+    if (parsedResponse) {
+        console.log("SUCESS PARSED RESPONSE");
+        const { overallScore, emotion, activity } = parsedResponse;
+        const formattedActivities = Object.fromEntries(
+            Object.entries(activity).map(([key, value]) => [key, value.weight])
+        );
+        return { overallScore, emotions: emotion, activities: formattedActivities };
+    } else {
+        throw new Error("Failed to parse response from API");
     }
-    console.log(parsedResponse)
-    var stats: { ovarallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } } = {ovarallScore: NaN, emotions: {}, activities: {} };
-    const emotionStats = parsedResponse.emotion;
-    for(const emotion of Object.keys(emotionStats)){
-        stats.emotions[emotion] = emotionStats[emotion as keyof typeof emotionStats];
-    }
-    stats.activities = {};
-    for(const activity in parsedResponse.activity){
-        stats.activities[activity] = parsedResponse.activity[activity].weight;
-    }
-
-    return stats;
 }
-
 const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
 const isValidBase64 = (str: string) => {
