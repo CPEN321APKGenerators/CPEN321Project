@@ -43,3 +43,5 @@ class ActionSaveJournalEntry(Action):
         except requests.exceptions.RequestException as e:
             logging.error(f"Request failed: {e}")
             return None
+
+
