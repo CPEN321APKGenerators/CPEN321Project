@@ -147,7 +147,7 @@ class LoginActivity : AppCompatActivity() {
     private fun callCreateUser(userID: String, googleToken: String) {
         Log.d(TAG, "creating user ${userID}")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
-        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
+        val url = "https://cpen321project-journal.duckdns.org/api/profile"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val json = JSONObject()
         json.put("userID", userID)

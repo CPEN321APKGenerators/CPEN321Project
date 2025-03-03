@@ -212,7 +212,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         Log.d(TAG, "storing fcm token for ${userID}")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
         val url =
-            "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/fcmtoken"
+            "https://cpen321project-journal.duckdns.org/api/profile/fcmtoken"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val currentZone = ZoneId.systemDefault()
         val zonedDateTime = ZonedDateTime.now(currentZone)
@@ -270,7 +270,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
     private fun fetchJournalEntry(userId: String, googleidToken: String, date: String, intent: Intent) {
         val url =
-            "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/journal/?date=$date&userID=$userId"
+            "https://cpen321project-journal.duckdns.org/api/journal/?date=$date&userID=$userId"
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)

@@ -150,7 +150,7 @@ class ProfileManagement : AppCompatActivity() {
         paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
 
 //        "http://10.0.2.2:3001/api/payment-sheet".httpPost()
-        "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/payment-sheet".httpPost()
+        "https://cpen321project-journal.duckdns.org/api/payment-sheet".httpPost()
             .header("Content-Type" to "application/json")
             .body(jsonBody.toString())
             .responseJson { _, _, result ->
@@ -336,7 +336,7 @@ class ProfileManagement : AppCompatActivity() {
     private fun sendReminderSettings(weekdays: List<Int>, time: String) {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
-        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile/reminder"
+        val url = "https://cpen321project-journal.duckdns.org/api/profile/reminder"
 //        val url = "http://10.0.2.2:3001/api/profile/reminder"
 
         // Construct the JSON body with updated structure
@@ -413,7 +413,7 @@ class ProfileManagement : AppCompatActivity() {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
         Log.d(TAG, "get user profile $userID")
-        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile?userID=$userID"
+        val url = "https://cpen321project-journal.duckdns.org/api/profile?userID=$userID"
 
         val client = OkHttpClient()
         val request = Request.Builder()
@@ -563,7 +563,7 @@ class ProfileManagement : AppCompatActivity() {
             .getString("GoogleUserID", null)
         val googleidtoken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleIDtoken", null)
-        val url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com/api/profile"
+        val url = "https://cpen321project-journal.duckdns.org/api/profile"
 
         // Construct JSON body
         val json = JSONObject()
