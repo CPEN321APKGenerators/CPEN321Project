@@ -25,7 +25,8 @@
     "stripe": "^17.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/json2csv": "^5.0.7",
