@@ -219,16 +219,20 @@ export class JournalController {
         if (!googleNumID) {
             return res.status(404).json({ error: "User not found or googleNumID is missing" });
         }
-    
+        const user = await client.db("cpen321journal").collection("users").findOne({ userID });
+        if(!user){
+            return res.status(404).json({ error: "User not found" });
+        }
+        
         const key = await deriveKey(googleNumID);
-    
+        const entryStats = await getEmbeddings(text, user.activities_tracking);
         const encryptedText = text ? await encryptData(text, key) : "";
         const encryptedMedia = media ? await Promise.all(media.map(async (item: string) => await encryptData(item, key))) : [];
     
         const result = await client.db("cpen321journal").collection("journals")
             .updateOne(
                 { date, userID },
-                { $set: { text: encryptedText, media: encryptedMedia } }
+                { $set: { text: encryptedText, media: encryptedMedia , stats: entryStats} }
             );
     
         res.status(200).json({ 
