@@ -56,6 +56,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
     var responseFormatCorrect = false;
     var retries = 0;
     var parsedResponse: z.infer<typeof emotionAndActivitySchema> | null = null;
+    console.log(` ${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${emotionsStrings} \n Activities: ${activitiesTracking.toString()}`)
     while(!responseFormatCorrect && retries < 3){
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
@@ -85,7 +86,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
     if(!responseFormatCorrect || !parsedResponse){
         throw new Error("Failed to parse response from OpenAI API");
     }
-
+    console.log(parsedResponse)
     var stats: { ovarallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } } = {ovarallScore: NaN, emotions: {}, activities: {} };
     const emotionStats = parsedResponse.emotion;
     for(const emotion of Object.keys(emotionStats)){
@@ -206,8 +207,6 @@ export class JournalController {
 
         const entry = await client.db("cpen321journal").collection("journals")
             .findOne({ date, userID });
-
-        console.log("entry: ", entry)
 
         if (entry) {
             entry.text = entry.text ? await decryptData(entry.text, key) : "";

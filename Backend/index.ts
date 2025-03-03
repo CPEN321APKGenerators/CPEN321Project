@@ -1,5 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
 import { MongoClient } from "mongodb";
 import { client } from "./services";
 import { JournalRoutes } from "./src/routes/JournalRoutes";
@@ -14,7 +16,7 @@ import path from 'path';
 
 const { DateTime } = require('luxon');
 
-dotenv.config();
+
 
 const app = express();
 
