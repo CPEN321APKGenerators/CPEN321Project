@@ -10,7 +10,8 @@ intents:
   - out_of_scope
   - start
   - journal_provided
-
+  - journal_entry
+  
 responses:
   utter_greet:
     - text: "Hi!"

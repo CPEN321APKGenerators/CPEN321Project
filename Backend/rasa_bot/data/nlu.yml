@@ -40,34 +40,17 @@ nlu:
 
 - intent: journal_provided
   examples: |
-    - today * 
-    - I * 
-    - a 
-    - b 
-    - c 
-    - d
-    - e
-    - f 
-    - g
-    - h
-    - i
-    - j 
-    - k 
-    - l 
-    - m 
-    - n
-    - o
-    - p 
-    - q
-    - r
-    - s
-    - t
-    - u 
-    - v 
-    - w
-    - x
-    - y 
-    - z 
+    - today I feel great
+    - I went for a run
+    - I’m stressed out
+    - today was a long day
+    - I did some yoga
+    - I’m feeling anxious
+    - * journal entry *
+    - I am thinking about my goals
+    - I need to reflect on my day
+    - * random thoughts *
+
 
 - intent: inform
   examples: |
