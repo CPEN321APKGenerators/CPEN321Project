@@ -161,8 +161,11 @@ export class JournalController {
             // Keep Existing Media if not provided
             encryptedMedia = existingEntry ? existingEntry.media : [];
         }
+        var entryStats = {};
+        if(text){
+            entryStats = await getEmbeddings(text, user.activities_tracking);
+        }
 
-        const entryStats = await getEmbeddings(text, user.activities_tracking);
 
         // Update or Insert Journal Entry
         const result = await client.db("cpen321journal").collection("journals")
@@ -231,7 +234,10 @@ export class JournalController {
         }
         
         const key = await deriveKey(googleNumID);
-        const entryStats = await getEmbeddings(text, user.activities_tracking);
+        var entryStats = {};
+        if(text){
+            entryStats = await getEmbeddings(text, user.activities_tracking);
+        }
         const encryptedText = text ? await encryptData(text, key) : "";
         const encryptedMedia = media ? await Promise.all(media.map(async (item: string) => await encryptData(item, key))) : [];
     
