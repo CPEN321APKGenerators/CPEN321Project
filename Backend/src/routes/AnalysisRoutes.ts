@@ -10,7 +10,7 @@ export const AnalysisRoutes = [
         action: controller.getAnalytics,
         validation: [
             query("userID").exists().isString(),
-            query("date").exists().isString()
+            // query("date").exists().isString()
         ]
     }
 ];
