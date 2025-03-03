@@ -768,7 +768,7 @@ google auth?
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. **[Authentication]**
-![alt text](images/Authenticate.jpg)
+![alt text](images/authenticate.jpg)
 2. **[Create]**
 ![alt text](images/create.png)
 3. **[Edit]**

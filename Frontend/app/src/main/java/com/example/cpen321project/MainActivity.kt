@@ -130,7 +130,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         analytics_button = findViewById(R.id.analytics_button)
 
         analytics_button.setOnClickListener(){
-            //TODO
+            val intent = Intent(this, AnalyticsActivity::class.java)
+            startActivity(intent)
         }
     }
 

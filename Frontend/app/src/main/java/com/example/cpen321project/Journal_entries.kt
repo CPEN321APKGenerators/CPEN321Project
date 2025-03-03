@@ -69,6 +69,7 @@ class Journal_entries : AppCompatActivity() {
     private val BASE_URL = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com"
     private var userID: String? = null
     private var user_google_token: String?= null
+    private var counter  = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -313,7 +314,12 @@ class Journal_entries : AppCompatActivity() {
 
     private fun sendMessageToChatbot(message: String) {
         val json = JSONObject()
-        json.put("message", message)
+        if (counter ==0) {
+            json.put("message", message)
+            counter ++
+        } else if(counter ==1){
+            json.put("journal_entry", message)
+        }
 
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
 
