@@ -76,10 +76,11 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation ("com.squareup.okhttp3:okhttp:4.11.0")
     implementation(libs.okhttp)
-    implementation("androidx.credentials:credentials:1.5.0-rc01")
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
     // optional - needed for credentials support from play services, for devices running
     // Android 13 and below.
-    implementation("androidx.credentials:credentials-play-services-auth:1.5.0-rc01")
+    implementation ("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.stripe:stripe-android:21.5.1")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
