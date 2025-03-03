@@ -34,6 +34,7 @@ export const UserRoutes = [
         route: "/api/profile/isPaid",
         action: controller.upgradeUser,
         validation: [
+            console.log(body("userID")),
             body("userID").exists().isString()
         ]
     },
