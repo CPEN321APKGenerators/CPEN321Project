@@ -10,7 +10,8 @@ import { deriveKey, encryptData, decryptData } from "../utils/crypto_functions";
 import {z} from "zod";
 const OPEN_AI_API_KEY = process.env.OPEN_AI_API_KEY || "";
 
-const prompt  = "PLEASE FILL IN PROMPT DESCRIBING IO, SHOWN BY EMOTIONS AND TRACKING SCHEMA AND GIVE DIRECTIONS FOR ANALYSIS. FOR NOW ALSO ASK FOR AN OVERALL SCORE";
+const prompt  = "You are evaluating journal entries from someone about their day to day. The entry of the journal is freeform, but the output is set json. You are given a list of emotions to track in the form of strings. You are also given a list of objects that represent activities to track. Each object contains the name, on average how much the user does it, and the unit for how often they do it per day. First output is an overall wellbeing score, to be based on the emotion scores, this ranges 0-100. Emotions are the second output that are to be returned by you ranging from 0 to 1. And lastly you are to return how long you think, based on entry, certain activities passed were done. If you don't think enough info is present to decide on how long it was done for, fill in the AVERAGE amount passed with the activity name.";
+const outputStructure  = "FOLLOW THIS OUTPUT FORMAT FOR THE API TO WORK CORRECTLY: {overallScore: 0-100, emotion: {Joy: 0-1, Sadness: 0-1, Anger: 0-1, Fear: 0-1, Graditude: 0-1, Neutral: 0-1, Resilience: 0-1, SelfAcceptance: 0-1, Stress: 0-1, SenseOfPurpose: 0-1}, activity: {activityName: {weight: 0}, activityName: {weight: 0}, ...}}";
 
 const activityStrings: string[]= []
 export const emotionsStrings: string[] = ["Joy", "Sadness", "Anger", "Fear", "Graditude", "Neutral", "Resilience", "SelfAcceptance", "Stress", "SenseOfPurpose"];
@@ -30,7 +31,7 @@ const emotionAndActivitySchema = z.object({
     }),
     activity: z.record(
         z.object({
-            weight : z.number().min(0).max(1),
+            weight : z.number().min(0),
         })
     ).refine((activityStats) => {
         const activities = Object.keys(activityStats);
@@ -56,7 +57,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
                 model: "gpt-4o",  // Updated to GPT-4o
                 messages: [{ 
                     role: "user", 
-                    content: `${entry} \n ${prompt} \n ${activitiesTracking} \n ${emotionsStrings}`  
+                    content: ` ${prompt} \n ${outputStructure} \n ${entry} \n ${emotionsStrings} \n ${activitiesTracking}`  
                 }],
                 response_format: "json",
             },

@@ -29,7 +29,7 @@ export class AnalyticsController {
             if (!user) {
                 return res.status(404).json({ error: "User not found-" });
             }
-            const activities = user.activities_tracking || {};
+            const activities = user.activities_tracking || [];
 
             await unpackPastWeekStats(userID, date, activities, dates, emotionStats, activityStats);
             let summary :{activity: string, emotion: string, display: string}[];

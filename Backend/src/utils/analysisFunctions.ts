@@ -217,6 +217,7 @@ export async function unpackPastWeekStats(
         const activityName = (activity as {name: string}).name;
         activityStats[activityName] = [];
     }
+
     var prevEntry: boolean = false;
     for (let i = 6; i >= 0; i--) {
         const statDate = new Date(date);

@@ -9,7 +9,8 @@ export const AnalysisRoutes = [
         route: "/api/analytics",
         action: controller.getAnalytics,
         validation: [
-            query("userID").exists().isString()
+            query("userID").exists().isString(),
+            query("date").exists().isString()
         ]
     }
 ];
