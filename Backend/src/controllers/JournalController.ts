@@ -17,10 +17,10 @@ if (!OPEN_API_KEY) {
 
 
 const prompt  = "You are evaluating journal entries from someone about their day to day. The entry of the journal is freeform, but the output is set json. You are given a list of emotions to track in the form of strings. You are also given a list of objects that represent activities to track. Each object contains the name, on average how much the user does it, and the unit for how often they do it per day. First output is an overall wellbeing score, to be based on the emotion scores, this ranges 0-100. Emotions are the second output that are to be returned by you ranging from 0 to 1. And lastly you are to return how long you think, based on entry, certain activities passed were done. If you don't think enough info is present to decide on how long it was done for, fill in the AVERAGE amount passed with the activity name.";
-const outputStructure  = "FOLLOW THIS OUTPUT FORMAT FOR THE API TO WORK CORRECTLY: {overallScore: 0-100, emotion: {Joy: 0-1, Sadness: 0-1, Anger: 0-1, Fear: 0-1, Graditude: 0-1, Neutral: 0-1, Resilience: 0-1, SelfAcceptance: 0-1, Stress: 0-1, SenseOfPurpose: 0-1}, activity: {activityName: {weight: 0}, activityName: {weight: 0}, ...}}";
+const outputStructure  = "FOLLOW THIS OUTPUT FORMAT FOR THE API TO WORK CORRECTLY: {overallScore: 0-100, emotion: {Joy: 0-1, Sadness: 0-1, Anger: 0-1, Fear: 0-1, Gratitude: 0-1, Neutral: 0-1, Resilience: 0-1, SelfAcceptance: 0-1, Stress: 0-1, SenseOfPurpose: 0-1}, activity: {activityName: {weight: 0}, activityName: {weight: 0}, ...}}";
 
 const activityStrings: string[]= []
-export const emotionsStrings: string[] = ["Joy", "Sadness", "Anger", "Fear", "Graditude", "Neutral", "Resilience", "SelfAcceptance", "Stress", "SenseOfPurpose"];
+export const emotionsStrings: string[] = ["Joy", "Sadness", "Anger", "Fear", "Gratitude", "Neutral", "Resilience", "SelfAcceptance", "Stress", "SenseOfPurpose"];
 const emotionAndActivitySchema = z.object({
     overallScore: z.number().max(100).min(0),
     emotion: z.object({
@@ -61,10 +61,10 @@ async function getEmbeddings(entry: string, activitiesTracking: {
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
-                model: "gpt-4o",  // Updated to GPT-4o
+                model: "gpt-4o",
                 messages: [{ 
                     role: "user", 
-                    content: ` ${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${emotionsStrings} \n Activities: ${activitiesTracking.toString()}`  
+                    content: ` ${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${JSON.stringify(emotionsStrings)} \n Activities: ${JSON.stringify(activitiesTracking)}`  
                 }],
                 response_format: "json",
             },
