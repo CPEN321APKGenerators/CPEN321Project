@@ -36,6 +36,8 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheetResult
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 
 const val CHANNEL_ID = "channel_id"
 
@@ -554,8 +556,56 @@ class ProfileManagement : AppCompatActivity() {
                 Log.d(TAG, "Completed")
                 findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
                 findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
+                //postrequest to make the user paid
+                User_paid_to_premium()
             }
         }
+    }
+
+    private fun User_paid_to_premium() {
+        val client = OkHttpClient()
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
+        val json = JSONObject().apply {
+            put("userID", userID)
+        }
+
+        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("https://cpen321project-journal.duckdns.org/api/profile/isPaid")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(
+                        applicationContext,
+                        "Payment update failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(
+                            applicationContext,
+                            "Payment saved successfully!, You are a premium user",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            applicationContext,
+                            "Error: ${response.body?.string()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        })
     }
 
     private fun sendUserProfile(preferredName: String, activities: List<Activity>) {

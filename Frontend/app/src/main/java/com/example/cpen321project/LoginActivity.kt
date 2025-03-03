@@ -1,22 +1,20 @@
 package com.example.cpen321project
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.cpen321project.BuildConfig.WEB_CLIENT_ID
-import android.content.Intent
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
-import androidx.credentials.PasswordCredential
-import androidx.credentials.PublicKeyCredential
 import androidx.credentials.exceptions.GetCredentialException
-import com.example.cpen321project.MainActivity.Companion
+import com.example.cpen321project.BuildConfig.WEB_CLIENT_ID
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -32,11 +30,6 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
-import java.security.MessageDigest
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.UUID
-import android.util.Base64
 
 class LoginActivity : AppCompatActivity() {
 
@@ -58,14 +51,14 @@ class LoginActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.loginButton).setOnClickListener() {
-            Log.d("auth", "WEB CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
+            Log.d("auth", "WEB CLIENT ID: $WEB_CLIENT_ID")
             Log.d(TAG, "Sign in button clicked")
-            Log.d(TAG, "WEB CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
+            Log.d(TAG, "WEB CLIENT ID: $WEB_CLIENT_ID")
 
 
             val credentialManager = CredentialManager.create(this)
             val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
-                .Builder(BuildConfig.WEB_CLIENT_ID)
+                .Builder(WEB_CLIENT_ID)
                 .setNonce("")
                 .build()
 
