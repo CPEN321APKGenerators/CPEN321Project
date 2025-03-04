@@ -43,6 +43,23 @@ slots:
     mappings:
       - type: from_text
         intent: journal_provided
+  user_id:
+    type: text
+    mappings:
+      - type: from_text
+        intent: journal_provided  
+
+  google_token:
+    type: text
+    mappings:
+      - type: from_text
+        intent: journal_provided  
+
+  entry_date:
+    type: text
+    mappings:
+      - type: from_text
+        intent: journal_provided  
 
 
 session_config:
