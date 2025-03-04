@@ -8,7 +8,7 @@
 | Feb. 25th | Designs Specification    | Updated function interface agreement of user and journal sections based on the actual implementation |
 | Feb. 28th    | Designs Specification   | Added authorization header checks for users, hence the update |
 | Mar. 1st | Functional Requirements| Updated based on implementation |
-| Mar. 2nd | Non-functional requiresments | Updated based on implementation |
+| Mar. 2nd | Non-functional requiresments, Sequence Diagram, Dependency Diagram  | Updated based on implementation |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
@@ -719,11 +719,10 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 
 
 ### **4.2. Databases**
-1. **Journals (MongoDB Collection)**
+1. **Journals DB (MongoDB Collection)**
     - **Purpose**: Stores user journal entries and images in data url formats.
-2. **Users (MongoDB Collection)**
+2. **Users DB (MongoDB Collection)**
     - **Purpose**: Stores user profile along with reminder settings.
-3. 
 
 
 ### **4.3. External Modules**
@@ -745,6 +744,11 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
         1. POST /api/sentiment
             - **Request Body**: journal entry
             - **Response Body**: Sentiment score
+4. **Firebase Cloud Messaging (FCM) - Reminder System**
+    - **Purpose**: Sends push notifications to remind users about journal entries.
+    - **Rationale**: Firebase Cloud Messaging is free and easy to integrate with both Android and backend services.
+    - **Interfaces**: The FCM is integrated in the User component of our app, with /api/profile and /api/profile/reminder to sent when a user sets a reminder for journal entries. The reminder is triggered based on user's device time's selected days and time preferences stored in the database in both server time and user time.
+        
 
 ### **4.4. Frameworks**
 1. **Docker**
@@ -756,10 +760,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 3. **AWS EC2**
     - **Purpose**: Cloud hosting
     - **Reason**: Enables scalable and cost-effective for hosting backend services. It is also introduced in our tutorial, so all group members are familiar with it.
-4. **Kubernetes**
-    - **Purpose**: Container orchestration
-    - **Reason**: Helps manage and scale containers efficiently across multiple nodes.
-5. **RASA**
+4. **RASA**
     - **Purpose**: Chatbot for guided journaling.
     - **Reason**: Enables structured journaling by dynamically adjusting responses based on user input.
 
