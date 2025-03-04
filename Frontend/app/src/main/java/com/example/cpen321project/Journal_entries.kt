@@ -69,7 +69,7 @@ class Journal_entries : AppCompatActivity() {
     private val BASE_URL = "https://cpen321project-journal.duckdns.org"
     private var userID: String? = null
     private var user_google_token: String?= null
-    private var counter  = 0
+    private var journal_flag: Boolean=false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -313,12 +313,18 @@ class Journal_entries : AppCompatActivity() {
 
 
     private fun sendMessageToChatbot(message: String) {
-        val json = JSONObject()
-        if (counter ==0) {
-            json.put("message", message)
-            counter ++
-        } else if(counter ==1){
-            json.put("journal_entry", message)
+        val json =JSONObject()
+        if(journal_flag) {
+           json.apply {
+                put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
+                put("userID", userID)
+                put("google_token", user_google_token)
+                put("message", message)
+            }
+        } else {
+            json.apply {
+                put("message", message)
+            }
         }
 
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
@@ -349,6 +355,10 @@ class Journal_entries : AppCompatActivity() {
                         val messageObject = responseArray.getJSONObject(i)  // Get each JSON object
                         val botMessage = messageObject.getString("text")  // Extract text
                         botMessages.append(botMessage).append("\n")  // Append to a string
+
+                        if (messageObject.has("Journalentry")) {
+                            journal_flag = messageObject.getBoolean("Journalentry")
+                        }
                     }
 
                     runOnUiThread {
