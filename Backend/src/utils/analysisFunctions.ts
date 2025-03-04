@@ -224,9 +224,11 @@ export async function unpackPastWeekStats(
     for (let i = 6; i >= 0; i--) {
         const statDate = new Date(date);
         statDate.setDate(date.getDate() - i);
-        console.log(statDate)
+        const formattedDate = statDate.toISOString().split('T')[0];
+        console.log(statDate);
+        console.log(formattedDate)
         dates.push(statDate);
-        const entry = await client.db("cpen321journal").collection("journals").findOne({ userID: userID, date: statDate });
+        const entry = await client.db("cpen321journal").collection("journals").findOne({ userID: userID, date: formattedDate });
     
         if (!entry && !prevEntry) {
             console.log("couldn't find entry on date", statDate)
