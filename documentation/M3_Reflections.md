@@ -18,3 +18,4 @@ experiences.
 requirements and design spec that was fully generated and/or refined with the assistance of
 AI technology.
 - 35%
+- 90% (Amod)
