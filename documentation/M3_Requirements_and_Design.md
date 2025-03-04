@@ -899,6 +899,6 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
         
 ## 5. Contributions
 - Nyi Nyi (3-4 hours): Complexity design, database module, functional requirement, frameworks, Screen Mockups
-- Christine Jiang (10 hours): Functional requirement, sequence diagrams, component diagram, framework, main components
+- Christine Jiang (24 hours): Firebase cloud messaging reminder, backend for User Management, backend for journaling management, payment component, activities settings frontend, profile settings frontend, Google authentication frontend, Update Requirements and Design documentations
 - Kevin Li (4-5 hours): nonfunctional requirements, nonfunctional design, functional requirement
 - Amod Ghimire (5 hours): Functional requirement, sequence diagram, ector description, external modules
