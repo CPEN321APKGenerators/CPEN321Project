@@ -12,12 +12,12 @@ class ActionSaveJournalEntry(Action):
     
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict) -> List[Dict[str, Any]]:
         journal_entry = tracker.get_slot("journal_entry")
-        current_date = datetime.now().strftime('%Y-%m-%d') 
-        current_date = "2025-03-02" #temp
-        user_id = "amodghimera2345@gmail.com" #temp
+        entry_date = tracker.get_slot("date") 
+        user_id = tracker.get_slot("userID")
+        print(user_id, entry_date, journal_entry)
         
         if journal_entry and user_id:
-            response = self.save_journal_entry(user_id, journal_entry, current_date)
+            response = self.save_journal_entry(user_id, journal_entry, entry_date)
             if response and response.status_code == 200:
                 dispatcher.utter_message(text="Your journal entry has been saved successfully!")
             else:
@@ -26,12 +26,12 @@ class ActionSaveJournalEntry(Action):
             dispatcher.utter_message(text="No journal entry provided.")
         return []
     
-    def save_journal_entry(self, user_id: str, journal_entry: str, date: str) -> requests.Response:
+    def save_journal_entry(self, user_id: str, journal_entry: str, entry_date: str) -> requests.Response:
         url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com:5000/api/journal" 
         data = {
             "userID": user_id,  
             "text": journal_entry,
-            "date": date  
+            "date": entry_date  
         }
         
         try:
