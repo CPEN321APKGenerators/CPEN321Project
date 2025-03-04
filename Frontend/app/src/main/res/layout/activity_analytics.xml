@@ -1,53 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Analytics"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:paddingBottom="10dp"/>
-
-    <!-- Overall Score Display -->
-    <TextView
-        android:id="@+id/overallScoreText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Overall Score: -"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:layout_marginBottom="8dp"/>
-
-    <!-- Summary Display -->
-    <TextView
-        android:id="@+id/summaryTextView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Summary will be displayed here..."
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/analyticsChart"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="@android:color/white"/>
+        <!-- Top Bar Layout -->
 
-    <Button
-        android:id="@+id/refreshButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Refresh Data"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"/>
+        <Button
+            android:id="@+id/button_to_calendar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Back" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Analytics"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:paddingBottom="10dp"/>
 
-</LinearLayout>
+        <!-- Overall Score Display -->
+        <TextView
+            android:id="@+id/overallScoreText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Overall Score: -"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Summary Display -->
+        <TextView
+            android:id="@+id/summaryTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Summary will be displayed here..."
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Analytics Chart -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/analyticsChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="@android:color/white"/>
+
+        <!-- Refresh Button -->
+        <Button
+            android:id="@+id/refreshButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Refresh Data"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

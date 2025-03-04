@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cpen321project.databinding.ActivityAnalyticsBinding
-import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -38,6 +37,10 @@ class AnalyticsActivity : AppCompatActivity() {
         setupChart()
         binding.refreshButton.setOnClickListener {
             updateChartData()
+        }
+
+        binding.buttonToCalendar.setOnClickListener {
+            finish()  // Closes this activity and returns to the previous one
         }
     }
 
@@ -87,7 +90,8 @@ class AnalyticsActivity : AppCompatActivity() {
                         val valuesArray = emotionStats.getJSONArray(key)
                         val valuesList = mutableListOf<Float>()
                         for (i in 0 until valuesArray.length()) {
-                            valuesList.add(valuesArray.getDouble(i).toFloat())
+                            val value = valuesArray.optDouble(i, 0.0)
+                            valuesList.add(value.toFloat())
                         }
                         newEmotionsData[key] = valuesList
                     }
@@ -130,8 +134,16 @@ class AnalyticsActivity : AppCompatActivity() {
         chart.isDragEnabled = true
         chart.setScaleEnabled(true)
         chart.setPinchZoom(true)
-        chart.legend.isEnabled = true
+
+        // Configure Legend
+        val legend = chart.legend
+        legend.isEnabled = true
+        legend.isWordWrapEnabled = true // Wrap the legend if it's too long
+        legend.xEntrySpace = 10f // Adds space between legend items
+        legend.yEntrySpace = 5f // Adds vertical spacing
+        legend.formSize = 12f // Adjusts the size of legend symbols
     }
+
 
     private fun updateChartData() {
         val chart = binding.analyticsChart
@@ -143,7 +155,8 @@ class AnalyticsActivity : AppCompatActivity() {
         }
 
         val dataSets = mutableListOf<com.github.mikephil.charting.interfaces.datasets.ILineDataSet>()
-        val colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA, Color.CYAN)
+        val colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA, Color.CYAN,
+            Color.YELLOW, Color.DKGRAY, Color.LTGRAY, Color.BLACK, Color.WHITE)
 
         var index = 0
         for ((emotion, values) in emotionsData) {

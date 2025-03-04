@@ -314,18 +314,18 @@ class Journal_entries : AppCompatActivity() {
 
     private fun sendMessageToChatbot(message: String) {
         val json =JSONObject()
-        if(journal_flag) {
+//        if(journal_flag) {
            json.apply {
                 put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
                 put("userID", userID)
                 put("google_token", user_google_token)
                 put("message", message)
             }
-        } else {
-            json.apply {
-                put("message", message)
-            }
-        }
+//        } else {
+//            json.apply {
+//                put("message", message)
+//            }
+//        }
 
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
 
@@ -356,9 +356,9 @@ class Journal_entries : AppCompatActivity() {
                         val botMessage = messageObject.getString("text")  // Extract text
                         botMessages.append(botMessage).append("\n")  // Append to a string
 
-                        if (messageObject.has("Journalentry")) {
-                            journal_flag = messageObject.getBoolean("Journalentry")
-                        }
+//                        if (messageObject.has("Journalentry")) {
+//                            journal_flag = messageObject.getBoolean("Journalentry")
+//                        }
                     }
 
                     runOnUiThread {
