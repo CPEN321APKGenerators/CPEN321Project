@@ -8,6 +8,7 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { deriveKey, encryptData, decryptData } from "../utils/crypto_functions";
 import {z} from "zod";
+import errorMap from "zod/lib/locales/en";
 const OPEN_API_KEY = process.env.OPEN_API_KEY || "";
 
 if (!OPEN_API_KEY) {
@@ -63,7 +64,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
             const response = await axios.post(
                 "https://api.openai.com/v1/chat/completions",
                 {
-                    model: "gpt-4", // Correct model name
+                    model: "gpt-4o-mini",
                     messages: [{ 
                         role: "user", 
                         content: `${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${JSON.stringify(emotionsStrings)} \n Activities: ${JSON.stringify(activitiesTracking)}`
@@ -80,8 +81,17 @@ async function getEmbeddings(entry: string, activitiesTracking: {
 
             const responseContent = response.data.choices[0].message.content;
             console.log(responseContent);
-
-            const parseResult = emotionAndActivitySchema.safeParse(responseContent);
+            if(!responseContent){
+                throw new Error("Open API returned empty response");
+            }
+            let parsedContent;
+            try {
+                parsedContent = JSON.parse(responseContent);
+            } catch (error) {
+                console.error("Failed to parse response as JSON:", responseContent);
+                throw new Error("API response is not valid JSON");
+            }
+            const parseResult = emotionAndActivitySchema.safeParse(parsedContent);
             if(parseResult.success) {
                 parsedResponse = parseResult.data;
                 responseFormatCorrect = true;
