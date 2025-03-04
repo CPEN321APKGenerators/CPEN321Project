@@ -778,7 +778,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 ![alt text](images/delete.png)
 5. **[Export]**
 ![alt text](images/export.png)
-6. **[Analyze Sentiment]**
+6. **[Analytics Overview]**
 ![alt text](images/analysis.png)
 7. **[Payment]**
 ![alt text](images/payment.png)
@@ -805,97 +805,312 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 
 ### **4.8. Main Project Complexity Design**
 - **Description**: 
-        Based On a custom trained chatbot that is designed to guide users through structured journal entries by dynamically adjusting its questions based on user responses. 
-        It ensures that entries are meaningful, complete, and well-organized by leveraging Rasa NLU for intent classification and dialogue management.
-        The chatbot must also integrate with sentiment analysis and the backend database to store journal entries.
+        Based on weights for emotions and logs for activities out by LLM API, we can set up an analytics overview for the user of their logged progress in the past week. We graph their emotional weights and then also what we logged for their activities. Furthermore, we can look for rises and falls in their emotional weights and logged activities and on a sliding time window look for trends between activities and emotions. These trends can then be classified and returned to the user to reflect on.
 - **Why complex?**: 
-        Requires custom NLP training to recognize user intent accurately.
-        Must handle custom dialogue management, adapting dynamically to different user responses.
-        Needs context retention, meaning it must remember user input across multiple conversation turns.
-        Requires error handling and fallback mechanisms to manage incomplete or unclear entries.
-        Must integrate with sentiment analysis models to analyze the emotional tone of journal entries.
-        Requires secure and efficient storage integration with the backend for saving journal entries.
+        The process of finding and marking trends as changes in gradient of a dataset, matching them up chronologically with other gradients, filtering out slight fluctations that would be less relevant and lastly implementing routines to store this data and how it changes over time is challenging.   
 
 - **Design**:
     - **Input**: 
-        User’s journal entry responses (text or speech-to-text), 
+        ID of user along with the date
     - **Output**: 
-        A structured journal entry stored in the database.
-        A sentiment score attached to the journal entry for analytics.
+        Summary of trends seen in the past week along with stats of user's emotions, activities and an overall score that has been averaged (last three are stored at time of journal entry in db from LLM).
     - **Main computational logic**:
-        Intent Classification: Determine user response category emotion, intent.
-        Dialogue Management: Adjust responses and next questions dynamically in real time.
-        Context Retention: Maintain conversational context and Memory across user interactions.
-        Sentiment Analysis: Compute sentiment scores after post entry/completion.
-        Backend Storage: Save structured journal entries to the database along with sentiment score.
-    - **Pseudo-code**: 
+        Loading emotion and activity stats from DB from past week.
+        Finding trends within one emotion or one activity.
+        Looking within a time window and matching trends with other trends.
+        Maintaining datatype that tracks trends of different types between all activities and all emotions.
+        Categorizing type of trend seen and noting that down (++, --, -+, +-).
+
+    - **Pseudo-code**: Brief Prototype Code to Test in Python
         ```python
-        def startEntry():
-            # Initialize Journaling Session
-            sessionData = {
-                "mood": None,
-                "sleep": None,
-                "exercise": None,
-                "stress": None,
-                "goal": None,
-                "socialInteraction": None,
-                "sentimentScore": None,
-            }
+                class RelationshipLog:
+            def __init__(self):
+                self.count = 0
+                self.avg_date_delay = 0
+                self.logs = []
+            
+            def add_log(self, start_date, latest_date, date_delay):
+                self.avg_date_delay = (self.avg_date_delay * self.count + date_delay) / (self.count + 1)
+                self.logs.append({
+                    "start_date": start_date,
+                    "latest_date": latest_date,
+                    "date_delay": date_delay
+                })
+                self.count += 1
+            
+            def remove_earliest_log(self):
+                if self.logs:
+                    if self.count == 1:
+                        self.avg_date_delay = 0
+                    else:
+                        self.avg_date_delay = (self.avg_date_delay * self.count - self.logs[0]["date_delay"]) / (self.count - 1)
+                    self.logs.pop(0)
+                    self.count -= 1
 
-            # Step 1: Greet The User
-            chatbot.say("Hi! How are you doing today, ready for your daily journaling?")
-            response = user_input()
+            def get_last_log(self):
+                return self.logs[-1] if self.logs else None
 
-            if intent(response) in ["goodbye"]:
-                chatbot.say("See you tomorrow! Bye!")
+            def update_log_latest_date(self, latest_date):
+                if self.logs and self.logs[-1]["latest_date"] < latest_date:
+                    self.logs[-1]["latest_date"] = latest_date
+            
+
+        class RelationshipMap:
+            def __init__(self, activities, emotions):
+                self.map = {activity: {emotion: {   "pprelationship": RelationshipLog(),
+                                                    "nnrelationship": RelationshipLog(),
+                                                    "pnrelationship": RelationshipLog(),
+                                                    "nprelationship": RelationshipLog()} for emotion in emotions} for activity in activities}
+            
+            def add_correlation(self, activity, emotion, start_date, latest_date, date_delay, relationship_type):
+                if activity in self.map and emotion in self.map[activity] and relationship_type in self.map[activity][emotion]:
+                    relationTrack = self.map[activity][emotion][relationship_type]
+                    relationTrack.add_log(start_date, latest_date, date_delay)
+                    
+            
+            def get_correlation(self, activity, emotion):
+                return self.map.get(activity, {}).get(emotion, None)
+            
+
+        rel_type_map = {(1,1): "pprelationship", (-1,-1): "nnrelationship", (1,-1): "pnrelationship", (-1,1): "nprelationship"}
+        # Test Data
+        activities = ["Running", "Meditation", "Studying"]
+        emotions = ["Happiness", "Stress", "Fatigue"]
+
+        relationships = RelationshipMap(activities, emotions)
+
+        increaseThreshold = 0
+        decreaseThreshold = 0
+
+        def outputTrend(dataArr, trendArr):
+            if not dataArr or len(dataArr) < 2:
                 return
+            
+            for i in range(len(dataArr) - 1):
+                if (dataArr[i + 1] - dataArr[i]) > (dataArr[i] * increaseThreshold):
+                    trendArr.append(1)
+                elif abs((dataArr[i + 1] - dataArr[i])) > (dataArr[i] * decreaseThreshold):
+                    trendArr.append(-1)
+                else:
+                    trendArr.append(0)
 
-            # Step 2: Ask about Mood
-            chatbot.ask("How is your mood today? Yesterday you weren't all that feeling great.")
-            sessionData["mood"] = user_input()
+        def appendTrends():
+            for emotionStat, emotionTrendArr in zip(emotionStats, emotionTrendArrs.values()):
+                latestStats = emotionStat[-2:]
+                outputTrend(latestStats, emotionTrendArr)
+            
+            for activityStat, activityTrendArr in zip(activityStats, activityTrendArrs.values()):
+                latestStats = activityStat[-2:]
+                outputTrend(latestStats, activityTrendArr)
 
-            # Step 3: Ask about sleep
-            chatbot.ask("How much sleep did you get last night?")
-            sessionData["sleep"] = user_input()
 
-            # Step 4: Ask about exercise
-            chatbot.ask("Did you get in exercise for the day?")
-            sessionData["exercise"] = user_input()
+        def enQueueNewTrends():
+            appendTrends()
+            
+            ongoing_activity_trends = []
+            ongoing_emotion_trends = []
+            new_emotion_trends = []
+            new_activity_trends = []
+            recent_activity_trends = []
+            recent_emotion_trends = []
 
-            # Step 5: Ask about stress levels
-            chatbot.ask("Is your stress level low, medium, or high?")
-            sessionData["stress"] = user_input()
+            for activityTrendArrPair in activityTrendArrs.items():
+                activityTrendArr = activityTrendArrPair[1]
+                latestTrends = activityTrendArr[-3:]
+                if latestTrends[-1] == 0:
+                    for activityIndex in range(2,4):
+                        if latestTrends[-activityIndex] != 0:
+                            if activityIndex != 3 and latestTrends[-activityIndex] != latestTrends[-activityIndex-1]:
+                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-activityIndex], activityIndex))
+                            elif activityIndex == 3:
+                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-activityIndex], activityIndex))
 
-            # Step 6: Ask about goals for the day
-            chatbot.ask("What do you want to accomplish today?")
-            sessionData["goal"] = user_input()
+                else:
+                    ongoingIndex = 1
+                    if latestTrends[-2] != latestTrends[-1]:
+                        new_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-1]))
+                    else:
+                        while(ongoingIndex < 3 and latestTrends[-ongoingIndex] == latestTrends[-ongoingIndex-1]):
+                            ongoingIndex += 1
+                        
+                        ongoing_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-ongoingIndex], ongoingIndex))
 
-            # Step 7: Ask about social interactions for the day
-            chatbot.ask("Did you have any meaningful social interactions with anyone for the day?")
-            sessionData["goal"] = user_input()
+                    for recentIndex in range(ongoingIndex+1,4):
+                        if latestTrends[-recentIndex] != 0:
+                            if recentIndex == 3:
+                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
 
-            # Step 7: Provide a summary
-            chatbot.say("Here's your daily journaling log:\n" +
-                        "- Mood: " + sessionData['mood'] + "\n" +
-                        "- Sleep: " + sessionData['sleep'] + " hours\n" +
-                        "- Exercise: " + sessionData['exercise'] + " hours\n" +
-                        "- Stress: " + sessionData['stress'] + "\n" +
-                        "- Goal: " + sessionData['goal'] + "\n" +
-                        "- Social Interaction: " + sessionData['socialInteraction'])
+                            elif latestTrends[-recentIndex] != latestTrends[-recentIndex-1]:
+                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
 
-            #Step 8: Save To DB
-            entry = {
-                "userName": userName,
-                "date": getDate(),
-                "mood": sessionData["mood"],
-                "sleep": sessionData["sleep"],
-                "exercise": sessionData["exercise"],
-                "stress": sessionData["stress"],
-                "goal": sessionData["goal"],
-                "socialInteraction": sessionData["socialInteraction"],
-                "sentimentScore": sentimentScore
-            }
-            saveToDB(entry)
+                        
+            for emotionTrendArrPair in emotionTrendArrs.items():
+                emotionTrendArr = emotionTrendArrPair[1]
+                latestTrends = emotionTrendArr[-3:]
+                if latestTrends[-1] == 0:
+                    for emotionIndex in range(2,4):
+                        if latestTrends[-emotionIndex] != 0:
+                            if emotionIndex != 3 and latestTrends[-emotionIndex] != latestTrends[-emotionIndex-1]:
+                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-emotionIndex], emotionIndex))
+                            elif emotionIndex == 3:
+                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-emotionIndex], emotionIndex))
+
+                else:
+                    ongoingIndex = 1
+                    if latestTrends[-2] != latestTrends[-1]:
+                        new_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-1]))
+                    else:
+                        while(ongoingIndex < 3 and latestTrends[-ongoingIndex] == latestTrends[-ongoingIndex-1]):
+                            ongoingIndex += 1
+
+                        ongoing_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-ongoingIndex], ongoingIndex))
+
+                    for recentIndex in range(ongoingIndex+1,4):
+                        if latestTrends[-recentIndex] != 0:
+                            if recentIndex == 3:
+                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
+                            elif latestTrends[-recentIndex] != latestTrends[-recentIndex-1]:
+                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
+            
+            updateOngoingRelationships(ongoing_activity_trends, ongoing_emotion_trends, recent_activity_trends, recent_emotion_trends)
+            updateNewRelationships(new_activity_trends, new_emotion_trends, recent_activity_trends, recent_emotion_trends, ongoing_activity_trends, ongoing_emotion_trends)
+
+
+
+        def updateNewRelationships(new_activity_trends, new_emotion_trends, recent_activity_trends, recent_emotion_trends, ongoing_activity_trends, ongoing_emotion_trends):
+            for activity, activity_trend in new_activity_trends:
+
+                for emotion, emotion_trend, emotionIndex in recent_emotion_trends:
+                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=emotionIndex-1), datetime.now().date(), -emotionIndex+1, rel_type_map[(activity_trend, emotion_trend)])
+
+                for emotion, emotion_trend, emotionIndex in ongoing_emotion_trends:
+                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=emotionIndex-1), datetime.now().date(), -emotionIndex+1, rel_type_map[(activity_trend, emotion_trend)])
+
+                for emotion, emotion_trend in new_emotion_trends:
+                    relationships.add_correlation(activity, emotion, datetime.now().date(), datetime.now().date(), 0, rel_type_map[(activity_trend, emotion_trend)])
+
+
+            for emotion, emotion_trend in new_emotion_trends:
+                for activity, activity_trend, activityIndex in recent_activity_trends:
+                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=activityIndex-1), datetime.now().date(), activityIndex-1, rel_type_map[(activity_trend, emotion_trend)])
+                
+                for activity, activity_trend, activityIndex in ongoing_activity_trends:
+                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=activityIndex-1), datetime.now().date(), activityIndex-1, rel_type_map[(activity_trend, emotion_trend)])
+
+
+        def updateOngoingRelationships(ongoing_activity_trends, ongoing_emotion_trends, recent_activity_trends, recent_emotion_trends):
+            
+            for activity, activity_trend, _  in ongoing_activity_trends:
+                for emotion, emotion_trend, _ in recent_emotion_trends:
+                    relationships.get_correlation(activity, emotion)[rel_type_map[(activity_trend, emotion_trend)]].update_log_latest_date(datetime.now().date())
+
+            for emotion, emotion_trend, _ in ongoing_emotion_trends:
+                for activity, activity_trend, _ in recent_activity_trends:
+                    relationships.get_correlation(activity, emotion)[rel_type_map[(activity_trend, emotion_trend)]].update_log_latest_date(datetime.now().date())
+
+            for activity, activity_trend, _ in ongoing_activity_trends:
+                for emotion, emotion_trend, _ in ongoing_emotion_trends:
+                    relationships.get_correlation(activity, emotion)[rel_type_map[(activity_trend, emotion_trend)]].update_log_latest_date(datetime.now().date())
+                    
+
+        def deQueueOldTrends():
+            ending_activity_trends = []
+            ongoing_activity_trends = []
+            ending_emotion_trends = []
+            ongoing_emotion_trends = []
+            for activity, activityTrendArr in activityTrendArrs.items():
+                if len(activityTrendArr) == 6:
+                    removal = activityTrendArr.pop(0)
+                    if removal != 0: 
+                        if activityTrendArr[0] != removal:
+                            ending_activity_trends.append((activity, removal)) # Popped elem doesn't match next, end of trend
+                            if activityTrendArr[0] != 0:
+                                ongoing_activity_trends.append((activity, activityTrendArr[0])) # There is still a trend, add to ongoing
+                        elif activityTrendArr[0] == removal:
+                            ongoing_activity_trends.append((activity, removal)) # Match, so trend continues
+                        for activityIndex in range(1,2):
+                            if activityTrendArr[activityIndex] != activityTrendArr[activityIndex-1] and activityTrendArr[activityIndex] != 0:
+                                ongoing_activity_trends.append((activity, activityTrendArr[activityIndex]))
+
+            
+            for emotion, emotionTrendArr in emotionTrendArrs.items():
+                if len(emotionTrendArr) == 6:
+                    removal = emotionTrendArr.pop(0)
+                    if removal != 0: 
+                        if emotionTrendArr[0] != removal:
+                            ending_emotion_trends.append((emotion, removal))
+                            if emotionTrendArr[0] != 0:
+                                ongoing_emotion_trends.append((emotion, emotionTrendArr[0]))
+                        elif emotionTrendArr[0] == removal:
+                            ongoing_emotion_trends.append((emotion, removal))
+                        for emotionIndex in range(1,2):
+                            if emotionTrendArr[emotionIndex] != emotionTrendArr[emotionIndex-1] and emotionTrendArr[emotionIndex] != 0:
+                                ongoing_emotion_trends.append((emotion, emotionTrendArr[emotionIndex]))
+
+            updateOldRelationships(ending_activity_trends, ongoing_activity_trends, ending_emotion_trends, ongoing_emotion_trends)
+
+        def updateOldRelationships(ending_activity_trends, ongoing_activity_trends, ending_emotion_trends, ongoing_emotion_trends):
+            for ending_activity_trend, activity_trend in ending_activity_trends:
+                # To ensure the correct corresponding element is removed, ending activities
+                for ending_emotion_trend, emotion_trend in ending_emotion_trends:
+                    relationships.get_correlation(ending_activity_trend, ending_emotion_trend)[rel_type_map[(activity_trend, emotion_trend)]].remove_earliest_log()
+                for ongoing_emotion_trend, emotion_trend in ongoing_emotion_trends:
+                    relationships.get_correlation(ending_activity_trend, ongoing_emotion_trend)[rel_type_map[(activity_trend, emotion_trend)]].remove_earliest_log()
+            for ending_emotion_trend, emotion_trend in ending_emotion_trends:
+                # To prevent duplicate removals, ending emotion trends only affect ongoing activity trends
+                for ongoing_activity_trend, activity_trend in ongoing_activity_trends:
+                    relationships.get_correlation(ongoing_activity_trend, ending_emotion_trend)[rel_type_map[(activity_trend, emotion_trend)]].remove_earliest_log()
+        
+        if __name__ == "__main__":
+            # Queue data points into the stats one index at a time
+            for i in range(1, 4):
+                for stat in emotionStats:
+                    stat.pop(0)
+                    stat.append(emotionStatsAppend[emotionStats.index(stat)][i])
+                for stat in activityStats:
+                    stat.pop(0)
+                    stat.append(activityStatsAppend[activityStats.index(stat)][i])
+                onAppendedData()
+        def onAppendedData():
+            deQueueOldTrends()
+            enQueueNewTrends()
+
+        # Initialize emotionStats and activityStats with realistic static arrays
+        emotionStats = [
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],  # Happiness
+            [0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3],  # Stress
+            [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]   # Fatigue
+        ]
+
+        activityStats = [
+            [1, 2, 3, 4, 5, 6, 7],  # Running (times occurred)
+            [0.5, 1, 1.5, 2, 2.5, 3, 3.5],  # Meditation (hours)
+            [2, 4, 6, 8, 10, 12, 14]  # Studying (hours)
+        ]
+
+        activityStatsAppend = [
+            [1, 2, 3, 4, 5, 6, 7],  # Running (times occurred)
+            [0.5, 1, 1.5, 2, 2.5, 3, 3.5],  # Meditation (hours)
+            [2, 4, 6, 8, 10, 12, 14]  # Studying (hours)
+        ]
+
+        emotionStatsAppend = [
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],  # Happiness
+            [0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3],  # Stress
+            [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]   # Fatigue
+        ]
+
+        emotionTrendArrs = {
+            "Happiness": [0, 0, 1, 1, 1, 1],
+            "Stress": [0, 0, -1, -1, 1, 1],
+            "Fatigue": [0, 0, 1, 1, 1, 1]
+        }
+
+        activityTrendArrs = {
+            "Running": [1, 1, 1, 1, 1, 1],
+            "Meditation": [0, 1, 1, 1, 1, 1],
+            "Studying": [0, 1, 1, 1, 1, 1]
+        }
         
 ## 5. Contributions
 - Nyi Nyi (3-4 hours): Complexity design, database module, functional requirement, frameworks, Screen Mockups
