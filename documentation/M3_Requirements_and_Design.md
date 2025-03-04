@@ -9,6 +9,7 @@
 | Feb. 28th    | Designs Specification   | Added authorization header checks for users, hence the update |
 | Mar. 1st | Functional Requirements| Updated based on implementation |
 | Mar. 2nd | Non-functional requiresments, Sequence Diagram, Dependency Diagram  | Updated based on implementation |
+| Mar. 3rd | Complex feature section updated with the new complex feature. Pseudocode also added. Also changed diagrams to distinguish LLM weight analysis and week overview analytics  | Updated based on implementation |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.

@@ -3,8 +3,8 @@ import { client } from "../../services";
 import { ObjectFlags } from "typescript";
 import { last } from "pdf-lib";
 
-const emotionIncreaseThreshold = 0.2;
-const emotionDecreaseThreshold = 0.2;
+const emotionIncreaseThreshold = 0.18;
+const emotionDecreaseThreshold = 0.18;
 const activityIncreaseFactor = 1;
 const activityDecreaseFactor = 1;
 
