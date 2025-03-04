@@ -7,6 +7,91 @@ import axios from 'axios';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { deriveKey, encryptData, decryptData } from "../utils/crypto_functions";
+import {z} from "zod";
+const OPEN_AI_API_KEY = process.env.OPEN_AI_API_KEY || "";
+
+const prompt  = "You are evaluating journal entries from someone about their day to day. The entry of the journal is freeform, but the output is set json. You are given a list of emotions to track in the form of strings. You are also given a list of objects that represent activities to track. Each object contains the name, on average how much the user does it, and the unit for how often they do it per day. First output is an overall wellbeing score, to be based on the emotion scores, this ranges 0-100. Emotions are the second output that are to be returned by you ranging from 0 to 1. And lastly you are to return how long you think, based on entry, certain activities passed were done. If you don't think enough info is present to decide on how long it was done for, fill in the AVERAGE amount passed with the activity name.";
+const outputStructure  = "FOLLOW THIS OUTPUT FORMAT FOR THE API TO WORK CORRECTLY: {overallScore: 0-100, emotion: {Joy: 0-1, Sadness: 0-1, Anger: 0-1, Fear: 0-1, Graditude: 0-1, Neutral: 0-1, Resilience: 0-1, SelfAcceptance: 0-1, Stress: 0-1, SenseOfPurpose: 0-1}, activity: {activityName: {weight: 0}, activityName: {weight: 0}, ...}}";
+
+const activityStrings: string[]= []
+export const emotionsStrings: string[] = ["Joy", "Sadness", "Anger", "Fear", "Graditude", "Neutral", "Resilience", "SelfAcceptance", "Stress", "SenseOfPurpose"];
+const emotionAndActivitySchema = z.object({
+    overallScore: z.number().max(100).min(0),
+    emotion: z.object({
+        Joy: z.number().max(1).min(0),
+        Sadness: z.number().max(1).min(0),
+        Anger: z.number().max(1).min(0),
+        Fear: z.number().max(1).min(0),
+        Graditude: z.number().max(1).min(0),
+        Neutral: z.number().max(1).min(0),
+        Resilience: z.number().max(1).min(0),
+        SelfAcceptance: z.number().max(1).min(0),
+        Stress: z.number().max(1).min(0),
+        SenseOfPurpose: z.number().max(1).min(0),
+    }),
+    activity: z.record(
+        z.object({
+            weight : z.number().min(0),
+        })
+    ).refine((activityStats) => {
+        const activities = Object.keys(activityStats);
+        return activities.every((activity) => activities.includes(activity));
+    }, {
+        message: "Invalid key(s) detected",
+    })
+});
+
+async function getEmbeddings(entry: string, activitiesTracking: {
+    name: string, 
+    averageValue: number, 
+    unit: string}[]
+) : Promise<{ ovarallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } }> {
+    activityStrings.push(...activitiesTracking.map((activity) => activity.name));
+    var responseFormatCorrect = false;
+    var retries = 0;
+    var parsedResponse: z.infer<typeof emotionAndActivitySchema> | null = null;
+    while(!responseFormatCorrect && retries < 3){
+        const response = await axios.post(
+            "https://api.openai.com/v1/chat/completions",
+            {
+                model: "gpt-4o",  // Updated to GPT-4o
+                messages: [{ 
+                    role: "user", 
+                    content: ` ${prompt} \n ${outputStructure} \n ${entry} \n ${emotionsStrings} \n ${activitiesTracking}`  
+                }],
+                response_format: "json",
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${OPEN_AI_API_KEY}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        const parseResult = emotionAndActivitySchema.safeParse(response.data);
+        if(parseResult.success){
+            parsedResponse = parseResult.data;
+            responseFormatCorrect = true;
+        } else {
+            retries++;
+        }
+    }
+    if(!responseFormatCorrect || !parsedResponse){
+        throw new Error("Failed to parse response from OpenAI API");
+    }
+
+    var stats: { ovarallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } } = {ovarallScore: NaN, emotions: {}, activities: {} };
+    const emotionStats = parsedResponse.emotion;
+    for(const emotion of Object.keys(emotionStats)){
+        stats.emotions[emotion] = emotionStats[emotion as keyof typeof emotionStats];
+    }
+    stats.activities = {};
+    for(const activity in parsedResponse.activity){
+        stats.activities[activity] = parsedResponse.activity[activity].weight;
+    }
+
+    return stats;
+}
 
 const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
@@ -42,6 +127,10 @@ export class JournalController {
         if (!googleNumID) {
             return res.status(404).json({ error: "User not found or googleNumID is missing" });
         }
+        const user = await client.db("cpen321journal").collection("users").findOne({ userID });
+        if(!user){
+            return res.status(404).json({ error: "User not found" });
+        }
         // Derive Key for Encryption
         const key = await deriveKey(googleNumID);
     
@@ -66,7 +155,9 @@ export class JournalController {
             // Keep Existing Media if not provided
             encryptedMedia = existingEntry ? existingEntry.media : [];
         }
-    
+
+        const entryStats = await getEmbeddings(text, user.activities_tracking);
+
         // Update or Insert Journal Entry
         const result = await client.db("cpen321journal").collection("journals")
             .updateOne(
@@ -75,6 +166,7 @@ export class JournalController {
                     $set: {
                         text: encryptedText, 
                         media: encryptedMedia,
+                        stats: entryStats,
                         updatedAt: new Date()
                     }
                 }, 

@@ -131,6 +131,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
         analytics_button.setOnClickListener(){
             val intent = Intent(this, AnalyticsActivity::class.java)
+            intent.putExtra("THE_DATE", selectedDate.toString())
+            intent.putExtra("USER_ID", googleUserIdd)
             startActivity(intent)
         }
     }
