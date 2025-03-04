@@ -20,7 +20,7 @@ if (!OPEN_API_KEY) {
 const prompt  = "You are evaluating journal entries from someone about their day to day. The entry of the journal is freeform, but the output is set json. You are given a list of emotions to track in the form of strings. You are also given a list of objects that represent activities to track. Each object contains the name, on average how much the user does it, and the unit for how often they do it per day. First output is an overall wellbeing score, to be based on the emotion scores, this ranges 0-100. Emotions are the second output that are to be returned by you ranging from 0 to 1. And lastly you are to return how long you think, based on entry, certain activities passed were done. If you don't think enough info is present to decide on how long it was done for, fill in the AVERAGE amount passed with the activity name.";
 const outputStructure  = "FOLLOW THIS OUTPUT FORMAT FOR THE API TO WORK CORRECTLY FILL OUT EVERY FIELD: {overallScore: 0-100, emotion: {Joy: 0-1, Sadness: 0-1, Anger: 0-1, Fear: 0-1, Gratitude: 0-1, Neutral: 0-1, Resilience: 0-1, SelfAcceptance: 0-1, Stress: 0-1, SenseOfPurpose: 0-1}, activity: {activityName: {amount: 0}, activityName: {amount: 0}, ...}}";
 
-const activityStrings: string[]= []
+const activitySet = new Set<string>();
 export const emotionsStrings: string[] = ["Joy", "Sadness", "Anger", "Fear", "Gratitude", "Neutral", "Resilience", "SelfAcceptance", "Stress", "SenseOfPurpose"];
 const emotionAndActivitySchema = z.object({
     overallScore: z.number().max(100).min(0),
@@ -29,7 +29,7 @@ const emotionAndActivitySchema = z.object({
         Sadness: z.number().max(1).min(0),
         Anger: z.number().max(1).min(0),
         Fear: z.number().max(1).min(0),
-        Graditude: z.number().max(1).min(0),
+        Gratitude: z.number().max(1).min(0),
         Neutral: z.number().max(1).min(0),
         Resilience: z.number().max(1).min(0),
         SelfAcceptance: z.number().max(1).min(0),
@@ -40,11 +40,16 @@ const emotionAndActivitySchema = z.object({
         z.object({
             amount : z.number().min(0),
         })
-    ).refine((activityStats) => {
-        const activities = Object.keys(activityStats);
-        return activities.every((activity) => activities.includes(activity));
-    }, {
-        message: "Invalid key(s) detected",
+    ).superRefine((activities, ctx) => {
+        Object.keys(activities).forEach((key) => {
+            if (!activitySet.has(key)) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: `Invalid activity: ${key}`,
+                    path: ["activity", key]
+                });
+            }
+        });
     })
 });
 
@@ -53,7 +58,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
     averageValue: number, 
     unit: string}[] 
 ) : Promise<{ overallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } }> {
-    activityStrings.push(...activitiesTracking.map((activity) => activity.name));
+    activitiesTracking.forEach((activity) => activitySet.add(activity.name));
     var responseFormatCorrect = false;
     var retries = 0;
     var parsedResponse: z.infer<typeof emotionAndActivitySchema> | null = null;
@@ -107,6 +112,8 @@ async function getEmbeddings(entry: string, activitiesTracking: {
             }
             retries++;
         }
+        
+        activitySet.clear()
     }
     if (parsedResponse) {
         console.log("SUCESS PARSED RESPONSE");
