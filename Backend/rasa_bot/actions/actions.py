@@ -36,12 +36,12 @@ class ActionSaveJournalEntry(Action):
         
         # Prepare the data to send, including the flag to mark journal as saved
         data = {
+            "date": entry_date,  # Ensure date is in ISO8601 format
             "userID": user_id,  
             "text": journal_entry,
-            "date": entry_date,  # Ensure date is in ISO8601 format
             "flag": True          # Flag to indicate journal has been saved
         }
-        
+
         # Prepare the request body with headers
         headers = {
             "Authorization": f"Bearer {user_google_token}",  # Include Authorization token
