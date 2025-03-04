@@ -224,9 +224,12 @@ export async function unpackPastWeekStats(
     for (let i = 6; i >= 0; i--) {
         const statDate = new Date(date);
         statDate.setDate(date.getDate() - i);
+        console.log(statDate)
         dates.push(statDate);
         const entry = await client.db("cpen321journal").collection("journals").findOne({ userID: userID, date: statDate });
+    
         if (!entry && !prevEntry) {
+            console.log("couldn't find entry on date", statDate)
             for (const activity of Object.keys(activityStats)) {
                 activityStats[activity].push(NaN);
             }
@@ -235,6 +238,7 @@ export async function unpackPastWeekStats(
             }
         }
         else if (!entry && prevEntry) {
+            console.log("couldn't find entry on date", statDate)
             for (const activity of Object.keys(activityStats)) {
                 activityStats[activity].push(0);
             }
@@ -255,9 +259,12 @@ export async function unpackPastWeekStats(
                 totalDays++;
                 overallScoreSum += entry.stats.overallScore;
             }
+            console.log(emotionStats)
+            console.log(activityStats)
             prevEntry = true;
         }
     }
+    console.log("FINALL")
     if(totalDays === 0){
         return NaN;
     }

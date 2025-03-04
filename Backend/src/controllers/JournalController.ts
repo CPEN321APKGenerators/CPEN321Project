@@ -65,7 +65,6 @@ async function getEmbeddings(entry: string, activitiesTracking: {
     
     while(!responseFormatCorrect && retries < 3) {
         try {
-            console.log(`${prompt} \n ${outputStructure} \n ${entry} \n Emotions: ${JSON.stringify(emotionsStrings)} \n Activities: ${JSON.stringify(activitiesTracking)}`)
             const response = await axios.post(
                 "https://api.openai.com/v1/chat/completions",
                 {
