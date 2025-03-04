@@ -3,10 +3,10 @@ import { client } from "../../services";
 import { ObjectFlags } from "typescript";
 import { last } from "pdf-lib";
 
-const emotionIncreaseThreshold = 0.17;
-const emotionDecreaseThreshold = 0.17;
-const activityIncreaseFactor = 0.9;
-const activityDecreaseFactor = 0.9;
+const emotionIncreaseThreshold = 0.2;
+const emotionDecreaseThreshold = 0.2;
+const activityIncreaseFactor = 1;
+const activityDecreaseFactor = 1;
 
 
 const trendMap :{[key: string]: string[]} = {
@@ -225,13 +225,10 @@ export async function unpackPastWeekStats(
         const statDate = new Date(date);
         statDate.setDate(date.getDate() - i);
         const formattedDate = statDate.toISOString().split('T')[0];
-        console.log(statDate);
-        console.log(formattedDate)
         dates.push(statDate);
         const entry = await client.db("cpen321journal").collection("journals").findOne({ userID: userID, date: formattedDate });
     
         if (!entry && !prevEntry) {
-            console.log("couldn't find entry on date", statDate)
             for (const activity of Object.keys(activityStats)) {
                 activityStats[activity].push(NaN);
             }
@@ -240,7 +237,6 @@ export async function unpackPastWeekStats(
             }
         }
         else if (!entry && prevEntry) {
-            console.log("couldn't find entry on date", statDate)
             for (const activity of Object.keys(activityStats)) {
                 activityStats[activity].push(0);
             }
@@ -261,12 +257,9 @@ export async function unpackPastWeekStats(
                 totalDays++;
                 overallScoreSum += entry.stats.overallScore;
             }
-            console.log(emotionStats)
-            console.log(activityStats)
             prevEntry = true;
         }
     }
-    console.log("FINALL")
     if(totalDays === 0){
         return NaN;
     }
