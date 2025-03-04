@@ -18,8 +18,6 @@ class ActionSaveJournalEntry(Action):
         user_google_token = tracker.get_slot("google_token")  
 
         print(user_id, entry_date, journal_entry)
-
-
         if journal_entry and user_id:
             response = self.save_journal_entry(user_id, journal_entry, entry_date, user_google_token)
             if response and response.status_code == 200:
@@ -34,12 +32,10 @@ class ActionSaveJournalEntry(Action):
     def save_journal_entry(self, user_id: str, journal_entry: str, entry_date: str, user_google_token: str) -> requests.Response:
         url = "http://ec2-35-183-201-213.ca-central-1.compute.amazonaws.com:5000/api/journal"
         
-        # Prepare the data to send, including the flag to mark journal as saved
         data = {
             "date": entry_date,  # Ensure date is in ISO8601 format
             "userID": user_id,  
             "text": journal_entry,
-            "flag": True          # Flag to indicate journal has been saved
         }
 
         # Prepare the request body with headers
