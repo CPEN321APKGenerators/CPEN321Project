@@ -9,7 +9,7 @@
 | Feb. 28th    | Designs Specification   | Added authorization header checks for users, hence the update |
 | Mar. 1st | Functional Requirements| Updated based on implementation |
 | Mar. 2nd | Non-functional requiresments, Sequence Diagram, Dependency Diagram  | Updated based on implementation |
-| Mar. 3rd | Complex feature section updated with the new complex feature. Pseudocode also added. Also changed diagrams to distinguish LLM weight analysis and week overview analytics  | Updated based on implementation |
+| Mar. 3rd | Complex feature section updated with the new complex feature. Pseudocode also added. Also changed diagrams to distinguish LLM weight analysis and week overview analytics. Lastly gave a bit more justification for our non-functional requirements. | Updated based on implementation |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
@@ -296,12 +296,12 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
         - Operations for managing journal entries should be completed within 2 seconds when the server is available.
         - Sentiment analysis API should take within 20 seconds.
         - Chat bot responses should be fetched within 5 seconds.
-    - **Justification**: Fast response times are crucial for a smooth user experience. Waiting a maximum of 5 seconds for a prompt for writing sounds reasonable along with max 20 seconds for analysis to be done after an entry is created as it will already take some time for the user to navigate to the menu if they wanted to see progress tracking of the app. For operations involving journal entries, people will probably want something a bit more responsive since they might want to look through multiple past journal entries.
+    - **Justification**: Fast response times are crucial for a smooth user experience. Waiting a maximum of 5 seconds for a prompt for writingalong with max 20 seconds for analysis to be done after an entry is created as it will already take some time for the user to navigate to the menu if they wanted to see progress tracking of the app. These numbers specifically were gathered from surveying online in journaling communitites For operations involving journal entries, people will probably want something a bit more responsive since they might want to look through multiple past journal entries.
 
 3. **Usability**
     - **Description**: 
         - Operations for users managing journal entries should take less than 3 clicks.
-    - **Justification**: Minimizing the number of clicks required to perform operations makes it so that the user can get to adding or viewing journal entries quickly so that people who are more impulsive for entries are more likely to remain consistent with journaling.
+    - **Justification**: Minimizing the number of clicks required to perform operations makes it so that the user can get to adding or viewing journal entries quickly so that people who are more impulsive for entries are more likely to remain consistent with journaling. Three was chosen based on surveys of what people would find an ofputting amount of interaction to be able to create a journal log.
 
 
 ## 4. Designs Specification
@@ -766,7 +766,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
     - **Reason**: Enables structured journaling by dynamically adjusting responses based on user input.
 
 ### **4.5. Dependencies Diagram** 
-![alt text](images/dependency.png)
+![alt text](images/DependencyDiagramMVP.png)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. **[Authentication]**
@@ -774,7 +774,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 2. **[Create]**
 ![alt text](images/create.png)
 3. **[Edit]**
-![alt text](images/edit.png)
+![alt text](images/EditJournalEntryMVP.png)
 4. **[Delete]**
 ![alt text](images/delete.png)
 5. **[Export]**
@@ -798,7 +798,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 2. **Performance**
     - **Planned Implementation**: Using https to MongoDB, we can receive and transmit simple text, image and video (or database operations that surround these things), at a rate that will match. 
     For sentiment analysis, because there are multiple sentiments along with multiple variables that need to be tracked, the openai API will be used to compute weights for different emotions to later display in the "sentiment summary" screen.
-    For prompting the user, we will use the SARA framework to customize our own chatbot LLM to analyze and follow a set flow of conversation and to log activities that the user reports throughout the day for statistics tracking. Using this framework will allow us to be more flexible in that it can be run much faster than an external API call.
+    For prompting the user, we will use the RASA framework to customize our own chatbot LLM to analyze and follow a set flow of conversation and to log activities that the user reports throughout the day for statistics tracking. Using this framework will allow us to be more flexible in that it can be run much faster than an external API call.
 
 3. **Usability**
     - **Planned Implementation**: We will make sure the buttons design flow will be within 3 click. The user would click on the entry from calendar activity, which would take the user to the entry view activity. Then the user would do their final click of manage entry to get access to the entry. Please refer to the Screen Mockups for a detailed view.
@@ -821,297 +821,14 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
         Looking within a time window and matching trends with other trends.
         Maintaining datatype that tracks trends of different types between all activities and all emotions.
         Categorizing type of trend seen and noting that down (++, --, -+, +-).
+        Filtering out smaller fluctations to give most significant shifts, right now it is a factor of the average value the user puts they usually perform that activity for in terms of hours, mins, or # of times.
 
     - **Pseudo-code**: Brief Prototype Code to Test in Python
-        ```python
-                class RelationshipLog:
-            def __init__(self):
-                self.count = 0
-                self.avg_date_delay = 0
-                self.logs = []
-            
-            def add_log(self, start_date, latest_date, date_delay):
-                self.avg_date_delay = (self.avg_date_delay * self.count + date_delay) / (self.count + 1)
-                self.logs.append({
-                    "start_date": start_date,
-                    "latest_date": latest_date,
-                    "date_delay": date_delay
-                })
-                self.count += 1
-            
-            def remove_earliest_log(self):
-                if self.logs:
-                    if self.count == 1:
-                        self.avg_date_delay = 0
-                    else:
-                        self.avg_date_delay = (self.avg_date_delay * self.count - self.logs[0]["date_delay"]) / (self.count - 1)
-                    self.logs.pop(0)
-                    self.count -= 1
+        ### High Level Overview
+        ![High Level Overview](images/OverviewCodeSnippetMVP.png)
 
-            def get_last_log(self):
-                return self.logs[-1] if self.logs else None
-
-            def update_log_latest_date(self, latest_date):
-                if self.logs and self.logs[-1]["latest_date"] < latest_date:
-                    self.logs[-1]["latest_date"] = latest_date
-            
-
-        class RelationshipMap:
-            def __init__(self, activities, emotions):
-                self.map = {activity: {emotion: {   "pprelationship": RelationshipLog(),
-                                                    "nnrelationship": RelationshipLog(),
-                                                    "pnrelationship": RelationshipLog(),
-                                                    "nprelationship": RelationshipLog()} for emotion in emotions} for activity in activities}
-            
-            def add_correlation(self, activity, emotion, start_date, latest_date, date_delay, relationship_type):
-                if activity in self.map and emotion in self.map[activity] and relationship_type in self.map[activity][emotion]:
-                    relationTrack = self.map[activity][emotion][relationship_type]
-                    relationTrack.add_log(start_date, latest_date, date_delay)
-                    
-            
-            def get_correlation(self, activity, emotion):
-                return self.map.get(activity, {}).get(emotion, None)
-            
-
-        rel_type_map = {(1,1): "pprelationship", (-1,-1): "nnrelationship", (1,-1): "pnrelationship", (-1,1): "nprelationship"}
-        # Test Data
-        activities = ["Running", "Meditation", "Studying"]
-        emotions = ["Happiness", "Stress", "Fatigue"]
-
-        relationships = RelationshipMap(activities, emotions)
-
-        increaseThreshold = 0
-        decreaseThreshold = 0
-
-        def outputTrend(dataArr, trendArr):
-            if not dataArr or len(dataArr) < 2:
-                return
-            
-            for i in range(len(dataArr) - 1):
-                if (dataArr[i + 1] - dataArr[i]) > (dataArr[i] * increaseThreshold):
-                    trendArr.append(1)
-                elif abs((dataArr[i + 1] - dataArr[i])) > (dataArr[i] * decreaseThreshold):
-                    trendArr.append(-1)
-                else:
-                    trendArr.append(0)
-
-        def appendTrends():
-            for emotionStat, emotionTrendArr in zip(emotionStats, emotionTrendArrs.values()):
-                latestStats = emotionStat[-2:]
-                outputTrend(latestStats, emotionTrendArr)
-            
-            for activityStat, activityTrendArr in zip(activityStats, activityTrendArrs.values()):
-                latestStats = activityStat[-2:]
-                outputTrend(latestStats, activityTrendArr)
-
-
-        def enQueueNewTrends():
-            appendTrends()
-            
-            ongoing_activity_trends = []
-            ongoing_emotion_trends = []
-            new_emotion_trends = []
-            new_activity_trends = []
-            recent_activity_trends = []
-            recent_emotion_trends = []
-
-            for activityTrendArrPair in activityTrendArrs.items():
-                activityTrendArr = activityTrendArrPair[1]
-                latestTrends = activityTrendArr[-3:]
-                if latestTrends[-1] == 0:
-                    for activityIndex in range(2,4):
-                        if latestTrends[-activityIndex] != 0:
-                            if activityIndex != 3 and latestTrends[-activityIndex] != latestTrends[-activityIndex-1]:
-                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-activityIndex], activityIndex))
-                            elif activityIndex == 3:
-                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-activityIndex], activityIndex))
-
-                else:
-                    ongoingIndex = 1
-                    if latestTrends[-2] != latestTrends[-1]:
-                        new_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-1]))
-                    else:
-                        while(ongoingIndex < 3 and latestTrends[-ongoingIndex] == latestTrends[-ongoingIndex-1]):
-                            ongoingIndex += 1
-                        
-                        ongoing_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-ongoingIndex], ongoingIndex))
-
-                    for recentIndex in range(ongoingIndex+1,4):
-                        if latestTrends[-recentIndex] != 0:
-                            if recentIndex == 3:
-                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
-
-                            elif latestTrends[-recentIndex] != latestTrends[-recentIndex-1]:
-                                recent_activity_trends.insert(0, (activityTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
-
-                        
-            for emotionTrendArrPair in emotionTrendArrs.items():
-                emotionTrendArr = emotionTrendArrPair[1]
-                latestTrends = emotionTrendArr[-3:]
-                if latestTrends[-1] == 0:
-                    for emotionIndex in range(2,4):
-                        if latestTrends[-emotionIndex] != 0:
-                            if emotionIndex != 3 and latestTrends[-emotionIndex] != latestTrends[-emotionIndex-1]:
-                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-emotionIndex], emotionIndex))
-                            elif emotionIndex == 3:
-                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-emotionIndex], emotionIndex))
-
-                else:
-                    ongoingIndex = 1
-                    if latestTrends[-2] != latestTrends[-1]:
-                        new_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-1]))
-                    else:
-                        while(ongoingIndex < 3 and latestTrends[-ongoingIndex] == latestTrends[-ongoingIndex-1]):
-                            ongoingIndex += 1
-
-                        ongoing_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-ongoingIndex], ongoingIndex))
-
-                    for recentIndex in range(ongoingIndex+1,4):
-                        if latestTrends[-recentIndex] != 0:
-                            if recentIndex == 3:
-                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
-                            elif latestTrends[-recentIndex] != latestTrends[-recentIndex-1]:
-                                recent_emotion_trends.insert(0, (emotionTrendArrPair[0], latestTrends[-recentIndex], recentIndex))
-            
-            updateOngoingRelationships(ongoing_activity_trends, ongoing_emotion_trends, recent_activity_trends, recent_emotion_trends)
-            updateNewRelationships(new_activity_trends, new_emotion_trends, recent_activity_trends, recent_emotion_trends, ongoing_activity_trends, ongoing_emotion_trends)
-
-
-
-        def updateNewRelationships(new_activity_trends, new_emotion_trends, recent_activity_trends, recent_emotion_trends, ongoing_activity_trends, ongoing_emotion_trends):
-            for activity, activity_trend in new_activity_trends:
-
-                for emotion, emotion_trend, emotionIndex in recent_emotion_trends:
-                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=emotionIndex-1), datetime.now().date(), -emotionIndex+1, rel_type_map[(activity_trend, emotion_trend)])
-
-                for emotion, emotion_trend, emotionIndex in ongoing_emotion_trends:
-                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=emotionIndex-1), datetime.now().date(), -emotionIndex+1, rel_type_map[(activity_trend, emotion_trend)])
-
-                for emotion, emotion_trend in new_emotion_trends:
-                    relationships.add_correlation(activity, emotion, datetime.now().date(), datetime.now().date(), 0, rel_type_map[(activity_trend, emotion_trend)])
-
-
-            for emotion, emotion_trend in new_emotion_trends:
-                for activity, activity_trend, activityIndex in recent_activity_trends:
-                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=activityIndex-1), datetime.now().date(), activityIndex-1, rel_type_map[(activity_trend, emotion_trend)])
-                
-                for activity, activity_trend, activityIndex in ongoing_activity_trends:
-                    relationships.add_correlation(activity, emotion, datetime.now().date()-timedelta(days=activityIndex-1), datetime.now().date(), activityIndex-1, rel_type_map[(activity_trend, emotion_trend)])
-
-
-        def updateOngoingRelationships(ongoing_activity_trends, ongoing_emotion_trends, recent_activity_trends, recent_emotion_trends):
-            
-            for activity, activity_trend, _  in ongoing_activity_trends:
-                for emotion, emotion_trend, _ in recent_emotion_trends:
-                    relationships.get_correlation(activity, emotion)[rel_type_map[(activity_trend, emotion_trend)]].update_log_latest_date(datetime.now().date())
-
-            for emotion, emotion_trend, _ in ongoing_emotion_trends:
-                for activity, activity_trend, _ in recent_activity_trends:
-                    relationships.get_correlation(activity, emotion)[rel_type_map[(activity_trend, emotion_trend)]].update_log_latest_date(datetime.now().date())
-
-            for activity, activity_trend, _ in ongoing_activity_trends:
-                for emotion, emotion_trend, _ in ongoing_emotion_trends:
-                    relationships.get_correlation(activity, emotion)[rel_type_map[(activity_trend, emotion_trend)]].update_log_latest_date(datetime.now().date())
-                    
-
-        def deQueueOldTrends():
-            ending_activity_trends = []
-            ongoing_activity_trends = []
-            ending_emotion_trends = []
-            ongoing_emotion_trends = []
-            for activity, activityTrendArr in activityTrendArrs.items():
-                if len(activityTrendArr) == 6:
-                    removal = activityTrendArr.pop(0)
-                    if removal != 0: 
-                        if activityTrendArr[0] != removal:
-                            ending_activity_trends.append((activity, removal)) # Popped elem doesn't match next, end of trend
-                            if activityTrendArr[0] != 0:
-                                ongoing_activity_trends.append((activity, activityTrendArr[0])) # There is still a trend, add to ongoing
-                        elif activityTrendArr[0] == removal:
-                            ongoing_activity_trends.append((activity, removal)) # Match, so trend continues
-                        for activityIndex in range(1,2):
-                            if activityTrendArr[activityIndex] != activityTrendArr[activityIndex-1] and activityTrendArr[activityIndex] != 0:
-                                ongoing_activity_trends.append((activity, activityTrendArr[activityIndex]))
-
-            
-            for emotion, emotionTrendArr in emotionTrendArrs.items():
-                if len(emotionTrendArr) == 6:
-                    removal = emotionTrendArr.pop(0)
-                    if removal != 0: 
-                        if emotionTrendArr[0] != removal:
-                            ending_emotion_trends.append((emotion, removal))
-                            if emotionTrendArr[0] != 0:
-                                ongoing_emotion_trends.append((emotion, emotionTrendArr[0]))
-                        elif emotionTrendArr[0] == removal:
-                            ongoing_emotion_trends.append((emotion, removal))
-                        for emotionIndex in range(1,2):
-                            if emotionTrendArr[emotionIndex] != emotionTrendArr[emotionIndex-1] and emotionTrendArr[emotionIndex] != 0:
-                                ongoing_emotion_trends.append((emotion, emotionTrendArr[emotionIndex]))
-
-            updateOldRelationships(ending_activity_trends, ongoing_activity_trends, ending_emotion_trends, ongoing_emotion_trends)
-
-        def updateOldRelationships(ending_activity_trends, ongoing_activity_trends, ending_emotion_trends, ongoing_emotion_trends):
-            for ending_activity_trend, activity_trend in ending_activity_trends:
-                # To ensure the correct corresponding element is removed, ending activities
-                for ending_emotion_trend, emotion_trend in ending_emotion_trends:
-                    relationships.get_correlation(ending_activity_trend, ending_emotion_trend)[rel_type_map[(activity_trend, emotion_trend)]].remove_earliest_log()
-                for ongoing_emotion_trend, emotion_trend in ongoing_emotion_trends:
-                    relationships.get_correlation(ending_activity_trend, ongoing_emotion_trend)[rel_type_map[(activity_trend, emotion_trend)]].remove_earliest_log()
-            for ending_emotion_trend, emotion_trend in ending_emotion_trends:
-                # To prevent duplicate removals, ending emotion trends only affect ongoing activity trends
-                for ongoing_activity_trend, activity_trend in ongoing_activity_trends:
-                    relationships.get_correlation(ongoing_activity_trend, ending_emotion_trend)[rel_type_map[(activity_trend, emotion_trend)]].remove_earliest_log()
-        
-        if __name__ == "__main__":
-            # Queue data points into the stats one index at a time
-            for i in range(1, 4):
-                for stat in emotionStats:
-                    stat.pop(0)
-                    stat.append(emotionStatsAppend[emotionStats.index(stat)][i])
-                for stat in activityStats:
-                    stat.pop(0)
-                    stat.append(activityStatsAppend[activityStats.index(stat)][i])
-                onAppendedData()
-        def onAppendedData():
-            deQueueOldTrends()
-            enQueueNewTrends()
-
-        # Initialize emotionStats and activityStats with realistic static arrays
-        emotionStats = [
-            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],  # Happiness
-            [0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3],  # Stress
-            [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]   # Fatigue
-        ]
-
-        activityStats = [
-            [1, 2, 3, 4, 5, 6, 7],  # Running (times occurred)
-            [0.5, 1, 1.5, 2, 2.5, 3, 3.5],  # Meditation (hours)
-            [2, 4, 6, 8, 10, 12, 14]  # Studying (hours)
-        ]
-
-        activityStatsAppend = [
-            [1, 2, 3, 4, 5, 6, 7],  # Running (times occurred)
-            [0.5, 1, 1.5, 2, 2.5, 3, 3.5],  # Meditation (hours)
-            [2, 4, 6, 8, 10, 12, 14]  # Studying (hours)
-        ]
-
-        emotionStatsAppend = [
-            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],  # Happiness
-            [0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3],  # Stress
-            [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]   # Fatigue
-        ]
-
-        emotionTrendArrs = {
-            "Happiness": [0, 0, 1, 1, 1, 1],
-            "Stress": [0, 0, -1, -1, 1, 1],
-            "Fatigue": [0, 0, 1, 1, 1, 1]
-        }
-
-        activityTrendArrs = {
-            "Running": [1, 1, 1, 1, 1, 1],
-            "Meditation": [0, 1, 1, 1, 1, 1],
-            "Studying": [0, 1, 1, 1, 1, 1]
-        }
+        ### Data Structures Used
+        ![Data Structures Used](images/DataStructuresMVP.png)
         
 ## 5. Contributions
 - Nyi Nyi (3-4 hours): Complexity design, database module, functional requirement, frameworks, Screen Mockups
