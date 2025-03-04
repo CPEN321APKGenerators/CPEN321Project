@@ -33,7 +33,6 @@ class ActionSaveJournalEntry(Action):
         BASE_URL = "https://cpen321project-journal.duckdns.org"
         url = f"{BASE_URL}/api/journal"
         
-        
         # Prepare the data to send
         data = {
             "date": entry_date,  # The date comes from the slot
