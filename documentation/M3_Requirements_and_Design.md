@@ -8,6 +8,7 @@
 | Feb. 25th | Designs Specification    | Updated function interface agreement of user and journal sections based on the actual implementation |
 | Feb. 28th    | Designs Specification   | Added authorization header checks for users, hence the update |
 | Mar. 1st | Functional Requirements| Updated based on implementation |
+| Mar. 2nd | Non-functional requiresments | Updated based on implementation |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
@@ -16,7 +17,6 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram** 
 ![alt text](images/usecases.png)
-google auth?
 
 ### **3.2. Actors Description**
 1. **Users**: The primary actor of the application. "Users" can authenticate, manage entries, perform sentiment analysis, update their profile, and make payments.
@@ -790,7 +790,9 @@ google auth?
 
 ### **4.7. Non-Functional Requirements Design**
 1. **Encryption of Entries**
-    - **Planned Implementation**: We will use AES-256-CBC encryption protocol to ensure all entires in the database are only viewable by the user who wrote them. During registration a "salt" will be created and this will be combined with Password-Based Key Derivation Function 2 and an initialization vector to encrypt and store data. Salt will be stored in the DB with the password-based key being derived each time the user needs to modify/add entries.
+    - **Planned Implementation**: We will use AES-256-CBC encryption protocol to ensure all entires in the database are only viewable by the user who wrote them. A server-wide secret will act as the salt for key derivation, ensuring consistency across encryption and decryption processes. When a user needs to add or modify entries, the encryption key will be derived again from their Google Numeric ID and the server secret. The encrypted data, including the IV, will be stored in the database. During decryption, the IV is extracted from the stored data, allowing successful retrieval of the original content.
+
+
 2. **Performance**
     - **Planned Implementation**: Using https to MongoDB, we can receive and transmit simple text, image and video (or database operations that surround these things), at a rate that will match. 
     For sentiment analysis, because there are multiple sentiments along with multiple variables that need to be tracked, the openai API will be used to compute weights for different emotions to later display in the "sentiment summary" screen.
