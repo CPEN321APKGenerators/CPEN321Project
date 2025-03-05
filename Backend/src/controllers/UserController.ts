@@ -112,9 +112,9 @@ export class UserController {
             return res.status(400).json({ error: "userID is required" });
         }
     
-        if (!googleToken) {
-            return res.status(400).json({ message: "Missing googleToken" });
-        }
+        // if (!googleToken) {
+        //     return res.status(400).json({ message: "Missing googleToken" });
+        // }
     
         // Verify Google Token
         try {
@@ -158,9 +158,10 @@ export class UserController {
             if (existingUser) {
                 // User exists, update the provided fields only
                 const updatedFields: any = {
-                    updatedAt: new Date(),
-                    googleNumID: verifiedGoogleNumID // Always update googleNumID
+                    updatedAt: new Date()
                 };
+
+                if (verifiedGoogleNumID) updatedFields.googleNumID = verifiedGoogleNumID;
     
                 if (isPaid !== undefined) updatedFields.isPaid = isPaid;
                 if (preferred_name !== undefined) updatedFields.preferred_name = preferred_name;
