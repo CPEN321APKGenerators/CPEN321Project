@@ -10,62 +10,50 @@ intents:
   - out_of_scope
   - start
   - journal_provided
-  - journal_entry
-  
+
 responses:
   utter_greet:
     - text: "Hi!"
-
   utter_ask_journal:
     - text: "Please type start to begin journaling."
-
   utter_goodbye:
     - text: "See you tomorrow. Bye!"
-
   utter_journal_confirmation:
     - text: "Congrats on being consistent, your entry is saved and processed."
-
   utter_journaling_prompt:
     - text: "Feel free to write down your thoughts. What's on your mind today?"
-
   utter_journal_follow_up:
     - text: "Is there anything else I can do for you today?"
-
   utter_ask_continue:
     - text: "Is there anything else I can do for you today?"
-
   utter_out_of_scope:
-    - text: "This feature isnt available as of now, thank you."
+    - text: "This feature isn't available as of now, thank you."
 
 slots:
-  journal_entry:
+  message:
     type: text
     mappings:
       - type: from_text
         intent: journal_provided
-  user_id:
+  userID:
     type: text
     mappings:
       - type: from_text
-        intent: journal_provided  
-
+        intent: journal_provided
   google_token:
     type: text
     mappings:
       - type: from_text
-        intent: journal_provided  
-
-  entry_date:
+        intent: journal_provided
+  date:
     type: text
     mappings:
       - type: from_text
-        intent: journal_provided  
-
+        intent: journal_provided
 
 session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: false
 
 actions:
-  - action_save_journal_entry  
-
+  - action_save_message

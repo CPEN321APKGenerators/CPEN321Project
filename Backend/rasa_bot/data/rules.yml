@@ -17,7 +17,10 @@ rules:
   steps:
   - intent: journal_provided
   - slot_was_set:
-    - journal_entry
+      - message
+      - userID
+      - google_token
+      - date
   - action: utter_journal_confirmation 
   - action: utter_journal_follow_up
 
@@ -31,4 +34,3 @@ rules:
   - intent: affirm
   - action: utter_out_of_scope
   - action: utter_ask_continue
-
