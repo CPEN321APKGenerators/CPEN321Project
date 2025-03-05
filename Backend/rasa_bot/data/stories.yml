@@ -11,10 +11,10 @@ stories:
   - action: utter_journaling_prompt
   - intent: journal_provided
   - slot_was_set:
-      - message
+      - date
       - userID
       - google_token
-      - date
+      - message
   - action: utter_journal_confirmation
   - action: utter_journal_follow_up
   - intent: affirm

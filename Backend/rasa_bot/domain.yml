@@ -30,7 +30,7 @@ responses:
     - text: "This feature isn't available as of now, thank you."
 
 slots:
-  message:
+  date:
     type: text
     mappings:
       - type: from_text
@@ -45,7 +45,7 @@ slots:
     mappings:
       - type: from_text
         intent: journal_provided
-  date:
+  message:
     type: text
     mappings:
       - type: from_text
