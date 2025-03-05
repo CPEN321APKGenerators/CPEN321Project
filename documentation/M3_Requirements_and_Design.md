@@ -831,7 +831,16 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
         ![Data Structures Used](images/DataStructuresMVP.png)
         
 ## 5. Contributions
+### Milestone 3
 - Nyi Nyi (3-4 hours): Complexity design, database module, functional requirement, frameworks, Screen Mockups
-- Christine Jiang (24 hours): Firebase cloud messaging reminder, backend for User Management, backend for journaling management, payment component, activities settings frontend, profile settings frontend, Google authentication frontend, Update Requirements and Design documentations
+- Christine Jiang (10 hours):  Functional requirement, sequence diagrams, component diagram, framework, main components
 - Kevin Li (4-5 hours): nonfunctional requirements, nonfunctional design, functional requirement
-- Amod Ghimire (5 hours): Functional requirement, sequence diagram, ector description, external modules
+- Amod Ghimire (5 hours): Functional requirement, sequence diagram, actor description, external modules
+
+### Milestone 4
+- Christine Jiang (55-65 hours): Firebase cloud messaging reminder, backend for User Management, backend for journaling management, payment component, activities settings frontend, profile settings frontend, Google authentication frontend, Update Requirements and Design documentations
+- Kevin: (80 hours) Designed and implemented complex feature algorithms, datastructures and routines of returning analytics. Also implemented calls and screening of open-api for the sentiment weights and activity log tracking. Updated documentation for non-function requirements, changed some diagrams to be more clear and rewrote documentation on complex part of project. Testing and debugging of all features except straight to db APIs.
+
+- Nyi: (35-40 hrs) Worked on implementing the RASA chatbot and action server, and designing a structured journaling routine for users. This involved integrating the chatbot with the backend to ensure that user inputs were collected efficiently and stored correctly. Contributed to creating analytics frontend, working on the interface that would present sentiment analysis and journaling insights to the users.
+
+- Amod: (52-60 hours): Worked on the calendar view, chat view and journal view, analytics view. Contributed mostly on the front end. Did all the API calls for managing the journal. The logic of application to highlight the date and designed the front end of the app by following the mockups. Also help with reformating the document with sequence diagrams and functional requirements based on the TA's feedback
