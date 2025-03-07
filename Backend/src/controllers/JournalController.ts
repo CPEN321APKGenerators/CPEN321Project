@@ -473,20 +473,26 @@ export class JournalController {
     
                 imageY -= 50; // Adjust Y position after text
     
+                // Add extra spacing between text and images
+                const textSpacing = 30; // Extra space after text before images
+                const imageSpacing = 20; // Space between images
+
+                // Ensure there is space before starting images
+                imageY -= textSpacing;
+
                 // Embed each image
                 for (const [index, mediaItem] of entry.media.entries()) {
                     if (!mediaItem || typeof mediaItem !== 'string') {
                         console.error(`Invalid mediaItem: ${mediaItem}`);
                         continue; // Skip this media item
                     }
-    
+
                     try {
                         let imageBuffer;
                         let embeddedImage;
-    
+
                         // Check if it's a raw Base64 string (no data URL prefix)
                         if (!mediaItem.startsWith("data:image")) {
-                            // Default to PNG if there's no format information
                             const assumedMimeType = "image/png";
                             imageBuffer = Buffer.from(mediaItem, "base64");
                             embeddedImage = await pdfDoc.embedPng(imageBuffer);
@@ -497,9 +503,9 @@ export class JournalController {
                                 console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
                                 continue;
                             }
-    
+
                             imageBuffer = Buffer.from(base64Data, "base64");
-    
+
                             if (meta.includes("image/png")) {
                                 embeddedImage = await pdfDoc.embedPng(imageBuffer);
                             } else if (meta.includes("image/jpeg") || meta.includes("image/jpg")) {
@@ -509,33 +515,55 @@ export class JournalController {
                                 continue;
                             }
                         }
-    
+
                         if (embeddedImage) {
-                            const imageDims = embeddedImage.scale(0.25);
-    
+                            const { width: imgWidth, height: imgHeight } = embeddedImage.scale(1); // Get original dimensions
+
+                            // Max dimensions for the image (so it doesn't take over the entire page)
+                            const maxWidth = width - 100; // Leave some margin on the sides
+                            const maxHeight = height / 3; // Limit to 1/3 of the page height
+
+                            // Calculate the new dimensions while maintaining aspect ratio
+                            let newWidth = imgWidth;
+                            let newHeight = imgHeight;
+
+                            if (newWidth > maxWidth) {
+                                const scaleFactor = maxWidth / newWidth;
+                                newWidth *= scaleFactor;
+                                newHeight *= scaleFactor;
+                            }
+
+                            if (newHeight > maxHeight) {
+                                const scaleFactor = maxHeight / newHeight;
+                                newWidth *= scaleFactor;
+                                newHeight *= scaleFactor;
+                            }
+
                             // Check if we need a new page
-                            if (imageY - imageDims.height < 50) {
+                            if (imageY - newHeight < 50) {
                                 page = pdfDoc.addPage();
                                 ({ width, height } = page.getSize());
                                 imageY = height - 50;
                             }
-    
-                            // Draw the image on the page
+
+                            // Draw the resized image on the page
                             page.drawImage(embeddedImage, {
                                 x: 50,
-                                y: imageY - imageDims.height,
-                                width: imageDims.width,
-                                height: imageDims.height
+                                y: imageY - newHeight,
+                                width: newWidth,
+                                height: newHeight
                             });
-    
+
                             // Adjust Y position for next image
-                            imageY -= imageDims.height + 20;
+                            imageY -= newHeight + imageSpacing;
                         }
                     } catch (error) {
                         console.error(`Error embedding image: ${error}`);
                         continue;
                     }
                 }
+
+
             }
     
             const pdfBytes = await pdfDoc.save();
