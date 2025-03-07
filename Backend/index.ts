@@ -17,7 +17,6 @@ import path from 'path';
 const { DateTime } = require('luxon');
 
 
-
 const app = express();
 
 // if this middleware is before get, it means it will run before the get request
@@ -151,6 +150,8 @@ app.post('/api/payment-sheet', async (req, res) => {
 // at https://dashboard.stripe.com/webhooks
 // const endpointSecret = 'whsec_...';
 
+
+
 //@ts-ignore
 app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
   let event = request.body;
@@ -180,7 +181,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
   response.send();
 });
 
-app.listen(4242, () => console.log('Webhook Running on port 4242'));
+app.listen(4242, '0.0.0.0', () => console.log('Webhook Running on port 4242'));
 
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
     const userID = paymentIntent.metadata.userID;
