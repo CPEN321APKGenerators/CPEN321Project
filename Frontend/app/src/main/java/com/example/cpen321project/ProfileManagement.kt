@@ -557,7 +557,7 @@ class ProfileManagement : AppCompatActivity() {
                 findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
                 findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
                 //postrequest to make the user paid
-                User_paid_to_premium()
+                //User_paid_to_premium()
             }
         }
     }
