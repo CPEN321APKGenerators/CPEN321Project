@@ -422,7 +422,18 @@ export class JournalController {
         // Decrypt Text and Media
         for (const entry of journals) {
             entry.text = entry.text ? await decryptData(entry.text, key) : "";
-            entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
+            if (!entry.media || !Array.isArray(entry.media)) {
+                entry.media = [];
+            } else {
+                entry.media = await Promise.all(entry.media.map(async (item: string) => {
+                    try {
+                        return await decryptData(item, key);
+                    } catch (error) {
+                        console.error(`Error decrypting media: ${error}`);
+                        return null; // Skip faulty media
+                    }
+                })).then(items => items.filter(Boolean)); // Remove null values
+            }
         }
     
         // Generate File Based on Format
@@ -464,16 +475,35 @@ export class JournalController {
                 let imageY = height - 150;
                 for (const [index, mediaItem] of entry.media.entries()) {
                     // Decode Base64
+                    if (!mediaItem || typeof mediaItem !== 'string' || !mediaItem.includes(',')) {
+                        console.error(`Invalid mediaItem: ${mediaItem}`);
+                        continue; // Skip this media item
+                    }
+                    
                     const base64Data = mediaItem.split(',')[1];
-                    const imageBuffer = Buffer.from(base64Data, 'base64');
+                    if (!base64Data) {
+                        console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
+                        continue;
+                    }
+                    
+                    const imageBuffer = Buffer.from(base64Data, 'base64');                    
     
                     // Embed the image
                     let embeddedImage;
-                    if (mediaItem.startsWith('data:image/png')) {
-                        embeddedImage = await pdfDoc.embedPng(imageBuffer);
-                    } else if (mediaItem.startsWith('data:image/jpeg') || mediaItem.startsWith('data:image/jpg')) {
-                        embeddedImage = await pdfDoc.embedJpg(imageBuffer);
+                    try {
+                        if (mediaItem.startsWith('data:image/png')) {
+                            embeddedImage = await pdfDoc.embedPng(imageBuffer);
+                        } else if (mediaItem.startsWith('data:image/jpeg') || mediaItem.startsWith('data:image/jpg')) {
+                            embeddedImage = await pdfDoc.embedJpg(imageBuffer);
+                        } else {
+                            console.warn(`Unsupported image format: ${mediaItem.substring(0, 30)}...`);
+                            continue;
+                        }
+                    } catch (error) {
+                        console.error(`Error embedding image: ${error}`);
+                        continue;
                     }
+                    
     
                     if (embeddedImage) {
                         const imageDims = embeddedImage.scale(0.25);
