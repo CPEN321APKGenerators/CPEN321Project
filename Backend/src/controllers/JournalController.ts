@@ -422,18 +422,16 @@ export class JournalController {
         // Decrypt Text and Media
         for (const entry of journals) {
             entry.text = entry.text ? await decryptData(entry.text, key) : "";
-            if (!entry.media || !Array.isArray(entry.media)) {
-                entry.media = [];
-            } else {
-                entry.media = await Promise.all(entry.media.map(async (item: string) => {
+            entry.media = entry.media && Array.isArray(entry.media)
+                ? await Promise.all(entry.media.map(async (item: string) => {
                     try {
                         return await decryptData(item, key);
                     } catch (error) {
                         console.error(`Error decrypting media: ${error}`);
                         return null; // Skip faulty media
                     }
-                })).then(items => items.filter(Boolean)); // Remove null values
-            }
+                })).then(items => items.filter(Boolean)) // Remove null values
+                : [];
         }
     
         // Generate File Based on Format
@@ -477,28 +475,39 @@ export class JournalController {
     
                 // Embed each image
                 for (const [index, mediaItem] of entry.media.entries()) {
-                    if (!mediaItem || typeof mediaItem !== 'string' || !mediaItem.includes(',')) {
+                    if (!mediaItem || typeof mediaItem !== 'string') {
                         console.error(`Invalid mediaItem: ${mediaItem}`);
                         continue; // Skip this media item
                     }
     
-                    const base64Data = mediaItem.split(',')[1];
-                    if (!base64Data) {
-                        console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
-                        continue;
-                    }
-    
                     try {
-                        const imageBuffer = Buffer.from(base64Data, 'base64');
+                        let imageBuffer;
                         let embeddedImage;
-                        
-                        if (mediaItem.startsWith('data:image/png')) {
+    
+                        // Check if it's a raw Base64 string (no data URL prefix)
+                        if (!mediaItem.startsWith("data:image")) {
+                            // Default to PNG if there's no format information
+                            const assumedMimeType = "image/png";
+                            imageBuffer = Buffer.from(mediaItem, "base64");
                             embeddedImage = await pdfDoc.embedPng(imageBuffer);
-                        } else if (mediaItem.startsWith('data:image/jpeg') || mediaItem.startsWith('data:image/jpg')) {
-                            embeddedImage = await pdfDoc.embedJpg(imageBuffer);
                         } else {
-                            console.warn(`Unsupported image format: ${mediaItem.substring(0, 30)}...`);
-                            continue;
+                            // Extract MIME type and Base64 data
+                            const [meta, base64Data] = mediaItem.split(",");
+                            if (!base64Data) {
+                                console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
+                                continue;
+                            }
+    
+                            imageBuffer = Buffer.from(base64Data, "base64");
+    
+                            if (meta.includes("image/png")) {
+                                embeddedImage = await pdfDoc.embedPng(imageBuffer);
+                            } else if (meta.includes("image/jpeg") || meta.includes("image/jpg")) {
+                                embeddedImage = await pdfDoc.embedJpg(imageBuffer);
+                            } else {
+                                console.warn(`Unsupported image format: ${meta}`);
+                                continue;
+                            }
                         }
     
                         if (embeddedImage) {
@@ -536,7 +545,7 @@ export class JournalController {
         // Return Download URL
         const downloadURL = `${req.protocol}://${req.get('host')}/public/${filename}`;
         res.status(200).json({ filename, downloadURL });
-    }
+    }    
     
     
 }
