@@ -393,11 +393,11 @@ export class JournalController {
 
     async getJournalFile(req: Request, res: Response, next: NextFunction) {
         const { userID, format } = req.query;
-
+    
         if (typeof userID !== 'string') {
             return res.status(400).json({ error: "Invalid userID" });
         }
-
+    
         const googleNumID = await getGoogleNumID(userID);
         if (!googleNumID) {
             return res.status(404).json({ error: "User not found or googleNumID is missing" });
@@ -451,8 +451,9 @@ export class JournalController {
             const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     
             for (const entry of journals) {
-                const page = pdfDoc.addPage();
-                const { width, height } = page.getSize();
+                let page = pdfDoc.addPage();
+                let { width, height } = page.getSize();
+                let imageY = height - 50; // Initial Y position for images
     
                 // Add Date and Text
                 page.drawText(`Date: ${entry.date}`, {
@@ -468,29 +469,29 @@ export class JournalController {
                     y: height - 100,
                     size: 15,
                     font: timesRomanFont,
-                    color: rgb(0, 0, 0)
+                    color: rgb(0, 0, 0),
+                    maxWidth: width - 100
                 });
     
+                imageY -= 50; // Adjust Y position after text
+    
                 // Embed each image
-                let imageY = height - 150;
                 for (const [index, mediaItem] of entry.media.entries()) {
-                    // Decode Base64
                     if (!mediaItem || typeof mediaItem !== 'string' || !mediaItem.includes(',')) {
                         console.error(`Invalid mediaItem: ${mediaItem}`);
                         continue; // Skip this media item
                     }
-                    
+    
                     const base64Data = mediaItem.split(',')[1];
                     if (!base64Data) {
                         console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
                         continue;
                     }
-                    
-                    const imageBuffer = Buffer.from(base64Data, 'base64');                    
     
-                    // Embed the image
-                    let embeddedImage;
                     try {
+                        const imageBuffer = Buffer.from(base64Data, 'base64');
+                        let embeddedImage;
+                        
                         if (mediaItem.startsWith('data:image/png')) {
                             embeddedImage = await pdfDoc.embedPng(imageBuffer);
                         } else if (mediaItem.startsWith('data:image/jpeg') || mediaItem.startsWith('data:image/jpg')) {
@@ -499,35 +500,31 @@ export class JournalController {
                             console.warn(`Unsupported image format: ${mediaItem.substring(0, 30)}...`);
                             continue;
                         }
+    
+                        if (embeddedImage) {
+                            const imageDims = embeddedImage.scale(0.25);
+    
+                            // Check if we need a new page
+                            if (imageY - imageDims.height < 50) {
+                                page = pdfDoc.addPage();
+                                ({ width, height } = page.getSize());
+                                imageY = height - 50;
+                            }
+    
+                            // Draw the image on the page
+                            page.drawImage(embeddedImage, {
+                                x: 50,
+                                y: imageY - imageDims.height,
+                                width: imageDims.width,
+                                height: imageDims.height
+                            });
+    
+                            // Adjust Y position for next image
+                            imageY -= imageDims.height + 20;
+                        }
                     } catch (error) {
                         console.error(`Error embedding image: ${error}`);
                         continue;
-                    }
-                    
-    
-                    if (embeddedImage) {
-                        const imageDims = embeddedImage.scale(0.25);
-    
-                        // Draw the image on the page
-                        page.drawImage(embeddedImage, {
-                            x: 50,
-                            y: imageY - imageDims.height,
-                            width: imageDims.width,
-                            height: imageDims.height
-                        });
-    
-                        // Adjust Y position for next image
-                        imageY -= imageDims.height + 20;
-                    } else {
-                        // If image is not supported, print text placeholder
-                        page.drawText(`Media ${index + 1}: [Unsupported Image Format]`, {
-                            x: 50,
-                            y: imageY,
-                            size: 12,
-                            font: timesRomanFont,
-                            color: rgb(1, 0, 0)
-                        });
-                        imageY -= 20;
                     }
                 }
             }
@@ -540,6 +537,7 @@ export class JournalController {
         const downloadURL = `${req.protocol}://${req.get('host')}/public/${filename}`;
         res.status(200).json({ filename, downloadURL });
     }
+    
     
 }
 
