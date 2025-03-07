@@ -151,8 +151,8 @@ app.post('/api/payment-sheet', async (req, res) => {
 // const endpointSecret = 'whsec_...';
 
 
+app.listen(4242, '0.0.0.0', () => console.log('Webhook Running on port 4242'));
 
-//@ts-ignore
 app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
   let event = request.body;
   console.log("webhook event: ", event)
@@ -181,7 +181,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
   response.send();
 });
 
-app.listen(4242, '0.0.0.0', () => console.log('Webhook Running on port 4242'));
+
 
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
     const userID = paymentIntent.metadata.userID;
