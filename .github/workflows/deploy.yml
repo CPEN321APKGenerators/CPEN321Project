@@ -37,7 +37,6 @@ jobs:
             echo '${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}' > src/config/cpen321project-c324e-firebase-adminsdk.json
             echo '${{ secrets.STRIPE_SECRET }}' > src/config/cpen321project-stripe-secret.txt
             echo '${{ secrets.SERVER_SECRET }}' > src/config/serverSecret.txt
-            # echo 'MONGO_DB_PWD=${{ secrets.MONGO_DB_PWD }}' >> .env 
 
             # Give permissions to the JSON file
             chmod 600 src/config/cpen321project-c324e-firebase-adminsdk.json
