@@ -23,6 +23,7 @@ services:
       - PORT=${PORT}
     ports:
       - "${PORT}:${PORT}"
+      - "4242:4242"
     depends_on:
       - mongo
     command: npm start

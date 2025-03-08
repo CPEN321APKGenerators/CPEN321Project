@@ -393,11 +393,11 @@ export class JournalController {
 
     async getJournalFile(req: Request, res: Response, next: NextFunction) {
         const { userID, format } = req.query;
-
+    
         if (typeof userID !== 'string') {
             return res.status(400).json({ error: "Invalid userID" });
         }
-
+    
         const googleNumID = await getGoogleNumID(userID);
         if (!googleNumID) {
             return res.status(404).json({ error: "User not found or googleNumID is missing" });
@@ -422,7 +422,16 @@ export class JournalController {
         // Decrypt Text and Media
         for (const entry of journals) {
             entry.text = entry.text ? await decryptData(entry.text, key) : "";
-            entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
+            entry.media = entry.media && Array.isArray(entry.media)
+                ? await Promise.all(entry.media.map(async (item: string) => {
+                    try {
+                        return await decryptData(item, key);
+                    } catch (error) {
+                        console.error(`Error decrypting media: ${error}`);
+                        return null; // Skip faulty media
+                    }
+                })).then(items => items.filter(Boolean)) // Remove null values
+                : [];
         }
     
         // Generate File Based on Format
@@ -440,8 +449,9 @@ export class JournalController {
             const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     
             for (const entry of journals) {
-                const page = pdfDoc.addPage();
-                const { width, height } = page.getSize();
+                let page = pdfDoc.addPage();
+                let { width, height } = page.getSize();
+                let imageY = height - 50; // Initial Y position for images
     
                 // Add Date and Text
                 page.drawText(`Date: ${entry.date}`, {
@@ -457,49 +467,103 @@ export class JournalController {
                     y: height - 100,
                     size: 15,
                     font: timesRomanFont,
-                    color: rgb(0, 0, 0)
+                    color: rgb(0, 0, 0),
+                    maxWidth: width - 100
                 });
     
+                imageY -= 50; // Adjust Y position after text
+    
+                // Add extra spacing between text and images
+                const textSpacing = 30; // Extra space after text before images
+                const imageSpacing = 20; // Space between images
+
+                // Ensure there is space before starting images
+                imageY -= textSpacing;
+
                 // Embed each image
-                let imageY = height - 150;
                 for (const [index, mediaItem] of entry.media.entries()) {
-                    // Decode Base64
-                    const base64Data = mediaItem.split(',')[1];
-                    const imageBuffer = Buffer.from(base64Data, 'base64');
-    
-                    // Embed the image
-                    let embeddedImage;
-                    if (mediaItem.startsWith('data:image/png')) {
-                        embeddedImage = await pdfDoc.embedPng(imageBuffer);
-                    } else if (mediaItem.startsWith('data:image/jpeg') || mediaItem.startsWith('data:image/jpg')) {
-                        embeddedImage = await pdfDoc.embedJpg(imageBuffer);
+                    if (!mediaItem || typeof mediaItem !== 'string') {
+                        console.error(`Invalid mediaItem: ${mediaItem}`);
+                        continue; // Skip this media item
                     }
-    
-                    if (embeddedImage) {
-                        const imageDims = embeddedImage.scale(0.25);
-    
-                        // Draw the image on the page
-                        page.drawImage(embeddedImage, {
-                            x: 50,
-                            y: imageY - imageDims.height,
-                            width: imageDims.width,
-                            height: imageDims.height
-                        });
-    
-                        // Adjust Y position for next image
-                        imageY -= imageDims.height + 20;
-                    } else {
-                        // If image is not supported, print text placeholder
-                        page.drawText(`Media ${index + 1}: [Unsupported Image Format]`, {
-                            x: 50,
-                            y: imageY,
-                            size: 12,
-                            font: timesRomanFont,
-                            color: rgb(1, 0, 0)
-                        });
-                        imageY -= 20;
+
+                    try {
+                        let imageBuffer;
+                        let embeddedImage;
+
+                        // Check if it's a raw Base64 string (no data URL prefix)
+                        if (!mediaItem.startsWith("data:image")) {
+                            const assumedMimeType = "image/png";
+                            imageBuffer = Buffer.from(mediaItem, "base64");
+                            embeddedImage = await pdfDoc.embedPng(imageBuffer);
+                        } else {
+                            // Extract MIME type and Base64 data
+                            const [meta, base64Data] = mediaItem.split(",");
+                            if (!base64Data) {
+                                console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
+                                continue;
+                            }
+
+                            imageBuffer = Buffer.from(base64Data, "base64");
+
+                            if (meta.includes("image/png")) {
+                                embeddedImage = await pdfDoc.embedPng(imageBuffer);
+                            } else if (meta.includes("image/jpeg") || meta.includes("image/jpg")) {
+                                embeddedImage = await pdfDoc.embedJpg(imageBuffer);
+                            } else {
+                                console.warn(`Unsupported image format: ${meta}`);
+                                continue;
+                            }
+                        }
+
+                        if (embeddedImage) {
+                            const { width: imgWidth, height: imgHeight } = embeddedImage.scale(1); // Get original dimensions
+
+                            // Max dimensions for the image (so it doesn't take over the entire page)
+                            const maxWidth = width - 100; // Leave some margin on the sides
+                            const maxHeight = height / 3; // Limit to 1/3 of the page height
+
+                            // Calculate the new dimensions while maintaining aspect ratio
+                            let newWidth = imgWidth;
+                            let newHeight = imgHeight;
+
+                            if (newWidth > maxWidth) {
+                                const scaleFactor = maxWidth / newWidth;
+                                newWidth *= scaleFactor;
+                                newHeight *= scaleFactor;
+                            }
+
+                            if (newHeight > maxHeight) {
+                                const scaleFactor = maxHeight / newHeight;
+                                newWidth *= scaleFactor;
+                                newHeight *= scaleFactor;
+                            }
+
+                            // Check if we need a new page
+                            if (imageY - newHeight < 50) {
+                                page = pdfDoc.addPage();
+                                ({ width, height } = page.getSize());
+                                imageY = height - 50;
+                            }
+
+                            // Draw the resized image on the page
+                            page.drawImage(embeddedImage, {
+                                x: 50,
+                                y: imageY - newHeight,
+                                width: newWidth,
+                                height: newHeight
+                            });
+
+                            // Adjust Y position for next image
+                            imageY -= newHeight + imageSpacing;
+                        }
+                    } catch (error) {
+                        console.error(`Error embedding image: ${error}`);
+                        continue;
                     }
                 }
+
+
             }
     
             const pdfBytes = await pdfDoc.save();
@@ -509,7 +573,8 @@ export class JournalController {
         // Return Download URL
         const downloadURL = `${req.protocol}://${req.get('host')}/public/${filename}`;
         res.status(200).json({ filename, downloadURL });
-    }
+    }    
+    
     
 }
 
