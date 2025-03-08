@@ -23,7 +23,7 @@ rules:
       - message: "Today Was Good" 
   - action: utter_journal_confirmation 
   - action: utter_journal_follow_up
-
+  
 - rule: Say goodbye
   steps:
   - intent: deny
