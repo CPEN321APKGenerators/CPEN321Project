@@ -40,17 +40,11 @@ nlu:
 
 - intent: journal_provided
   examples: |
-    - today I feel great
-    - I went for a run
-    - I’m stressed out
-    - today was a long day
-    - I did some yoga
-    - I’m feeling anxious
-    - * journal entry *
-    - I am thinking about my goals
-    - I need to reflect on my day
-    - * random thoughts *
-
+    - My journal entry is [Today was great](message)
+    - I want to write [Today Was Good](message)
+    - Log journal for [2025-03-04](date)
+    - My ID is [amodghimera2345@gmail.com](userID)
+    - Here is my token: [eyJhbGciOiJSUzI1NiIsImtpZCI6IjI1ZjgyMTE3MTM3ODhiNjE0NTQ3NGI1MDI5YjAxNDFiZDViM2RlOWMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI1ODUwNDAyMDQyMTAtMjR2aDBhNG52cnM1Z2ljZGhkZnBsZ3ZlN3E5cXQxbTYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI1ODUwNDAyMDQyMTAtamxscW8ybjNvZHJmcmY4dGhiZ3ZoaXY2azFwYzVmMmcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDM0NTgwNTI2MTgzODExMTQ4MjMiLCJlbWFpbCI6ImFtb2RnaGltZXJhMjM0NUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IkFtb2QgR2hpbWlyZSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJYlFwbmVaZ0NTRXFxUWxrRTZ1Sl9SYUtUOVlHQ1F1cHdnN1JnOW5pSnVLRHI5Ykh3PXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IkFtb2QiLCJmYW1pbHlfbmFtZSI6IkdoaW1pcmUiLCJpYXQiOjE3NDExMzcwMjQsImV4cCI6MTc0MTE0MDYyNH0.Mmj-fRGmRaryOyvKPsJknhYg2fYGI39BPuWMuOo5XnQcfmSsOie_lXbJoqaC0phxb-6jP6vymcVzvJFUeIs-yRt3xjM4_JCTwkIJoRFx7aELEDSbEyIpVdit4oiCtHE3737N-E0m6k4c8EgpSHdW6RaKOJnIEulixrc_jxtblTLDWa-s4tXXZlIORLBXvaNgpOotvJIiWk_RqnHdGhX4kvSitjFZHhUVBYtLMdg2rxvRxeLgYtUFV_zi8VYQLxkhNvk_UCTaeCrX5oC6FQC4YnOwYwqYLZwAIAWO4RIhaXPMMcRNW2mg6FIBlPfNZKwEuDpARPVIXvUGGQRR2P3bQ](google_token)
 
 - intent: inform
   examples: |
