@@ -1,7 +1,7 @@
-import requests  
+import requests
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from typing import List, Dict, Any
+from typing import Dict, Any, List
 import logging
 
 class ActionSaveJournalEntry(Action):
@@ -9,74 +9,66 @@ class ActionSaveJournalEntry(Action):
     def name(self) -> str:
         return "action_save_message"
     
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict) -> List[Dict[str, Any]]:
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]) -> List[Dict[str, Any]]:
         # Retrieve slot values
         date = tracker.get_slot("date")  
         userID = tracker.get_slot("userID")
         google_token = tracker.get_slot("google_token")  
         message = tracker.get_slot("message")  
-        
+
+        # Extract GoogleNumID from google_token
+        googleNumID = self.extract_google_num_id(google_token)
+
         # Log retrieved data for debugging
-        print(f"Retrieved from frontend - date: {date}, userID: {userID}, google_token: {google_token}, message: {message}")
-    
-        # Check if all necessary slots are provided
-        if not message:
-            logging.error("No journal entry provided.")
-            dispatcher.utter_message(text="No journal entry provided. Please enter a journal message.")
-            return []
-        
-        if not userID:
-            logging.error("No user ID provided.")
-            dispatcher.utter_message(text="User ID is missing. Please log in again.")
-            return []
-        
-        if not date:
-            logging.error("No entry date provided.")
-            dispatcher.utter_message(text="Entry date is missing. Please provide the date.")
+        logging.info(f"Received journal entry: date={date}, userID={userID}, google_token={google_token}, message={message}, googleNumID={googleNumID}")
+
+        # Validate required fields
+        if not all([date, userID, google_token, message, googleNumID]):
+            logging.error("Missing required journal entry fields.")
+            dispatcher.utter_message(text="Failed to save journal entry. Missing information.")
             return []
 
-        if not google_token:
-            logging.error("No google_token provided.")
-            dispatcher.utter_message(text="Google Token is missing. Please log in again.")
-            return []
-        
-        # Call API to save the journal entry
-        response = self.save_message(date, userID, message, google_token)
+        # Send API request
+        response = self.save_message(date, userID, googleNumID, message, google_token)
         if response and response.status_code == 200:
-            dispatcher.utter_message(text="Your journal entry has been saved successfully!")
+            dispatcher.utter_message(text="Congrats on being consistent, your entry is saved and processed.")
         else:
             dispatcher.utter_message(text="There was an error saving your journal entry. Please try again.")
-        
+
         return []
     
-    def save_message(self, userID: str, message: str, date: str, google_token: str) -> requests.Response:
-        BASE_URL = "https://cpen321project-journal.duckdns.org"
-        url = f"{BASE_URL}/api/journal"
+    def save_message(self, date: str, userID: str, googleNumID: str, message: str, google_token: str) -> requests.Response:
+        API_URL = "https://cpen321project-journal.duckdns.org/api/journal"
         
-        # Prepare the data for the POST request
+        # Prepare the payload
         data = {
-            "date": date,  
-            "userID": userID,   
-            "google_token": google_token, 
-            "message": message,  
+            "date": date,
+            "userID": userID,
+            "googleNumID": googleNumID,
+            "message": message
         }
 
-        # Set the headers for the request
+        # Set the headers
         headers = {
-            "Authorization": f"Bearer {google_token}",  
+            "Authorization": f"Bearer {google_token}",
             "Content-Type": "application/json"
         }
         
         try:
-            # Send POST request
-            response = requests.post(url, json=data, headers=headers)
-            print(f"Response Status: {response.status_code}, Response Body: {response.text}")
-            
-            if response.status_code != 200:
-                logging.error(f"Failed to save journal entry. Status code: {response.status_code}, Response Body: {response.text}")
+            # Send the request
+            response = requests.post(API_URL, json=data, headers=headers)
+            logging.info(f"API Response: {response.status_code} - {response.text}")
             return response
         except requests.exceptions.RequestException as e:
-            # Log the exception and return None
-            logging.error(f"Request failed: {e}")
+            logging.error(f"API request failed: {e}")
             return None
 
+    def extract_google_num_id(self, google_token: str) -> str:
+        """ Extracts the GoogleNumID from the ID token """
+        try:
+            import jwt
+            decoded_token = jwt.decode(google_token, options={"verify_signature": False})
+            return decoded_token.get("sub", "")
+        except Exception as e:
+            logging.error(f"Failed to decode Google token: {e}")
+            return ""
