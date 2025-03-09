@@ -41,19 +41,16 @@ slots:
     mappings:
       - type: from_entity
         entity: date
-      - type: from_text
   userID:
     type: text
     mappings:
       - type: from_entity
         entity: userID
-      - type: from_text
   googleNumID:
     type: text
     mappings:
       - type: from_entity
         entity: googleNumID
-      - type: from_text
   message:
     type: text
     mappings:
