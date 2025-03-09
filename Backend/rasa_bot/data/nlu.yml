@@ -37,20 +37,14 @@ nlu:
     - not really
     - I don’t think so
     - no thanks
-
+    
 - intent: journal_provided
   examples: |
-    - today I feel great
-    - I went for a run
-    - I’m stressed out
-    - today was a long day
-    - I did some yoga
-    - I’m feeling anxious
-    - * journal entry *
-    - I am thinking about my goals
-    - I need to reflect on my day
-    - * random thoughts *
-
+    - My journal entry is [Today was great](message)
+    - I want to write [Today Was Good](message)
+    - Log journal for [2025-03-04](date)
+    - My ID is [amodghimera2345@gmail.com](userID)
+    - Here is my token: [eyJhbGciOiJSUzI1Ni...](google_token)
 
 - intent: inform
   examples: |

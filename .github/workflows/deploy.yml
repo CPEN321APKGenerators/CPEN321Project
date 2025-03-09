@@ -20,6 +20,21 @@ jobs:
           key: ${{secrets.EC2_KEY}}
           source: "."
           target: "/home/ubuntu/cpen321journal"
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22 # is it?
+  
+      - name: Install Dependencies
+        run: |
+          cd Backend
+          npm install
+  
+      - name: Run Tests
+        run: |
+          cd Backend
+          npm test
 
       - name: Rebuild and Deploy
         uses: appleboy/ssh-action@master
@@ -63,18 +78,3 @@ jobs:
             docker-compose down
             docker-compose --env-file .env build
             docker-compose --env-file .env up -d
-
-
-          # - name: Install Stripe CLI
-          #   run: |
-          #     curl -s https://api.github.com/repos/stripe/stripe-cli/releases/latest \
-          #     | grep "browser_download_url.*linux_x86_64.tar.gz" \
-          #     | cut -d '"' -f 4 \
-          #     | wget -i -
-          #     tar -xvf stripe_*.tar.gz
-          #     sudo mv stripe /usr/local/bin/
-          #     stripe version  # Verify the installation
-          
-          # - name: Set up Stripe Webhook
-          #   working-directory: ./Backend
-          #   run: stripe listen
