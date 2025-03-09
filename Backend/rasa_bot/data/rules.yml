@@ -19,7 +19,7 @@ rules:
   - slot_was_set:
       - date
       - userID
-      - google_token
+      - googleNumID
       - message
   - action: action_save_message 
   - action: utter_journal_confirmation 
