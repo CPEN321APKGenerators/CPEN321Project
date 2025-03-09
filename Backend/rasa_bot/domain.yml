@@ -11,6 +11,12 @@ intents:
   - start
   - journal_provided
 
+entities:
+  - date
+  - userID
+  - google_token
+  - message
+
 responses:
   utter_greet:
     - text: "Hi!"
@@ -33,23 +39,27 @@ slots:
   date:
     type: text
     mappings:
+      - type: from_entity
+        entity: date
       - type: from_text
-        intent: journal_provided
   userID:
     type: text
     mappings:
+      - type: from_entity
+        entity: userID
       - type: from_text
-        intent: journal_provided
   google_token:
     type: text
     mappings:
+      - type: from_entity
+        entity: google_token
       - type: from_text
-        intent: journal_provided
   message:
     type: text
     mappings:
+      - type: from_entity
+        entity: message
       - type: from_text
-        intent: journal_provided
 
 session_config:
   session_expiration_time: 60
