@@ -1,15 +1,4 @@
 action_endpoint:
   url: "http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook"
 
-model_groups:
-  - id: openai_direct
-    models:
-      - model: "gpt-4-0613"
-        provider: "openai"
-        timeout: 7  
-        temperature: 0.0  
 
-  - id: openai_embeddings
-    models:
-      - model: "text-embedding-ada-002"
-        provider: "openai"

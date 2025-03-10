@@ -7,12 +7,8 @@ intents:
   - deny
   - journal_provided
   - start
-  
-entities:
-  - date
-  - userID
-  - google_token
-  - message
+
+entities: []
 
 slots:
   date:
@@ -39,10 +35,9 @@ slots:
   message:
     type: text
     mappings:
-      - type: from_entity
-        entity: message
-      - type: from_text  # Captures directly from user message
-
+      - type: from_trigger_intent
+        intent: journal_provided
+        value: "{message}"  
 
 responses:
   utter_greet:
