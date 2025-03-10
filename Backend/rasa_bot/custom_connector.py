@@ -1,31 +1,55 @@
-from typing import Text, Dict, Any
-from rasa.core.channels.rest import RestInput
-from rasa.core.channels.channel import UserMessage, InputChannel
+import json
+import inspect
 from sanic import Blueprint, response
 from sanic.request import Request
-import json
+from sanic.response import HTTPResponse
+from typing import Text, Dict, Any, Optional, Callable, Awaitable
 
-class CustomRestInput(RestInput):
-    @staticmethod
-    def _extract_metadata(req: Request) -> Dict[Text, Any]:
-        return req.json.get("metadata", {})  
+from rasa.core.channels.channel import (
+    InputChannel,
+    CollectingOutputChannel,
+    UserMessage,
+)
 
-    def blueprint(self, on_new_message):
-        custom_webhook = Blueprint("custom_webhook", __name__)
+class CustomRestInput(InputChannel):
+    """A custom REST input channel that extracts metadata."""
+
+    def name(self) -> Text:
+        return "custom_rest"
+
+    def blueprint(
+        self, on_new_message: Callable[[UserMessage], Awaitable[None]]
+    ) -> Blueprint:
+
+        custom_webhook = Blueprint(
+            "custom_webhook_{}".format(type(self).__name__),
+            inspect.getmodule(self).__name__,
+        )
+
+        @custom_webhook.route("/", methods=["GET"])
+        async def health(request: Request) -> HTTPResponse:
+            return response.json({"status": "ok"})
 
         @custom_webhook.route("/webhook", methods=["POST"])
-        async def receive(request: Request):
-            sender_id = request.json.get("sender", "default")
+        async def receive(request: Request) -> HTTPResponse:
+            """Receives user messages and extracts metadata."""
+
+            sender_id = request.json.get("sender", "default_sender")
             text = request.json.get("message", "")
-            metadata = self._extract_metadata(request)
+            metadata = request.json.get("metadata", {})  # Extract metadata
 
-            try:
-                await on_new_message(
-                    UserMessage(text, None, sender_id, input_channel=self.name(), metadata=metadata)
+            collector = CollectingOutputChannel()
+
+            await on_new_message(
+                UserMessage(
+                    text,
+                    collector,
+                    sender_id,
+                    input_channel=self.name(),
+                    metadata=metadata,  # Pass metadata to UserMessage
                 )
-            except Exception as e:
-                print(f"Error: {e}")
+            )
 
-            return response.json({"status": "success"})
+            return response.json(collector.messages)
 
         return custom_webhook

@@ -6,26 +6,28 @@ intents:
   - affirm
   - deny
   - journal_provided
-  - start  
+  - start
 
-entities:  
-  - message
+entities: []
 
 slots:
   date:
     type: text
     mappings:
-      - type: custom  
+      - type: from_metadata
+        key: date  
 
   userID:
     type: text
     mappings:
-      - type: custom  
+      - type: from_metadata
+        key: userID 
 
   google_token:
     type: text
     mappings:
-      - type: custom  
+      - type: from_metadata
+        key: google_token  
 
   message:
     type: text
