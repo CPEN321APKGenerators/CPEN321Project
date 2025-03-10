@@ -1,0 +1,15 @@
+version: "3.1"
+
+nlu:
+- regex: date
+  examples: |
+    - \d{4}-\d{2}-\d{2}  # Matches "2025-03-04"
+    - [A-Za-z]+\s\d{1,2},\s\d{4}  # Matches "March 10, 2025"
+
+- regex: userID
+  examples: |
+    - [a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+  # Matches emails
+
+- regex: googleNumID
+  examples: |
+    - [A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+  # Matches JWT tokens
