@@ -83,7 +83,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/material_dynamic_primary80"
+            android:background="@color/material_dynamic_primary20"
             android:orientation="horizontal">
 
             <TextView
@@ -91,6 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="SUN"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="16dp" />
 
@@ -99,6 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="MON"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="16dp" />
 
@@ -107,6 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="TUE"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="16dp" />
 
@@ -115,6 +118,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="WED"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="16dp" />
 
@@ -123,6 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="THU"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="16dp" />
 
@@ -131,6 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="FRI"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="16dp" />
 
@@ -139,6 +145,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="SAT"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="16dp" />
 
@@ -150,12 +157,26 @@
             android:layout_height="550dp"
             android:background="@color/material_dynamic_primary95" />
 
-        <Button
-            android:id="@+id/analytics_button"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/analytics_button" />
+            android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/analytics_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/analytics_button" />
+
+            <Button
+                android:id="@+id/export_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Export Entries" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

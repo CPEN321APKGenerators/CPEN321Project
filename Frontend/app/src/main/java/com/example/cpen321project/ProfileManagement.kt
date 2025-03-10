@@ -1,43 +1,50 @@
 package com.example.cpen321project
 
-import android.os.Bundle
-import android.view.View
-import android.widget.*
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import android.Manifest
-import com.google.firebase.messaging.FirebaseMessaging
-import okhttp3.*
-import java.io.IOException
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.Response
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
-import org.json.JSONArray
-import org.json.JSONObject
+import android.widget.ArrayAdapter
 import android.widget.Button
-import com.android.volley.RequestQueue
-import com.stripe.android.paymentsheet.PaymentSheet
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.TimePicker
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.IOException
 
 const val CHANNEL_ID = "channel_id"
 
@@ -89,13 +96,15 @@ class ProfileManagement : AppCompatActivity() {
         saveSettingsButton.setOnClickListener {
             // Get selected time from TimePicker
             val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
-            val minute = if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
+            val minute =
+                if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
             val formattedTime = String.format("%02d:%02d", hour, minute)
             val preferredName = preferredNameText.text.toString().trim()
 
             // Save the selected days locally
             val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            prefs.edit().putStringSet("SelectedDays", selectedDays.map { it.toString() }.toSet()).apply()
+            prefs.edit().putStringSet("SelectedDays", selectedDays.map { it.toString() }.toSet())
+                .apply()
 
             sendReminderSettings(selectedDays, formattedTime)
             sendUserProfile(preferredName, activitiesList)
@@ -106,7 +115,11 @@ class ProfileManagement : AppCompatActivity() {
         }
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "General Notifications", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "General Notifications",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -196,7 +209,8 @@ class ProfileManagement : AppCompatActivity() {
         // Average Value Input
         val valueInput = EditText(this)
         valueInput.hint = "Enter average value"
-        valueInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        valueInput.inputType =
+            android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
         layout.addView(valueInput)
 
         // Unit Dropdown
@@ -225,7 +239,6 @@ class ProfileManagement : AppCompatActivity() {
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         builder.show()
     }
-
 
 
     // Function to show edit/delete options on long press
@@ -264,7 +277,8 @@ class ProfileManagement : AppCompatActivity() {
         // Average Value Input
         val valueInput = EditText(this)
         valueInput.hint = "Enter average value"
-        valueInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        valueInput.inputType =
+            android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
         valueInput.setText(currentActivity.averageValue.toString())
         layout.addView(valueInput)
 
@@ -365,12 +379,20 @@ class ProfileManagement : AppCompatActivity() {
                 if (response.isSuccessful) {
                     Log.d("Reminder", "Reminder settings updated successfully")
                     runOnUiThread {
-                        Toast.makeText(this@ProfileManagement, "Reminder updated successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ProfileManagement,
+                            "Reminder updated successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
                     Log.e("Reminder", "Failed to update reminder settings")
                     runOnUiThread {
-                        Toast.makeText(this@ProfileManagement, "Failed to update reminder settings", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ProfileManagement,
+                            "Failed to update reminder settings",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -378,7 +400,11 @@ class ProfileManagement : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Reminder", "Failed to connect to server", e)
                 runOnUiThread {
-                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ProfileManagement,
+                        "Connection error. Please try again.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         })
@@ -433,8 +459,10 @@ class ProfileManagement : AppCompatActivity() {
                         // Extract fields from response
                         val preferredName = jsonResponse.optString("preferred_name", "")
                         val accountStatus = jsonResponse.optBoolean("isPaid", false)
-                        val activitiesTracking = jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
-                        val userReminderTime = jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
+                        val activitiesTracking =
+                            jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
+                        val userReminderTime =
+                            jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
                         val weekdays = userReminderTime.optJSONArray("Weekday") ?: JSONArray()
                         val reminderTime = userReminderTime.optString("time", "")
 
@@ -445,10 +473,13 @@ class ProfileManagement : AppCompatActivity() {
 
                             // Update account status
                             if (accountStatus) {
-                                findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Premium"
-                                findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
+                                findViewById<TextView>(R.id.profile_account_status).text =
+                                    "Account Status: Premium"
+                                findViewById<Button>(R.id.profile_upgrade_button).visibility =
+                                    View.GONE
                             } else {
-                                findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Free"
+                                findViewById<TextView>(R.id.profile_account_status).text =
+                                    "Account Status: Free"
                             }
 
                             // Update activities tracking list
@@ -456,7 +487,8 @@ class ProfileManagement : AppCompatActivity() {
                             for (i in 0 until activitiesTracking.length()) {
                                 val activityJson = activitiesTracking.getJSONObject(i)
                                 val activityName = activityJson.optString("name", "")
-                                val averageValue = activityJson.optDouble("averageValue", 0.0).toFloat()
+                                val averageValue =
+                                    activityJson.optDouble("averageValue", 0.0).toFloat()
                                 val unit = activityJson.optString("unit", "")
 
                                 // Create a new Activity object and add it to the list
@@ -476,7 +508,8 @@ class ProfileManagement : AppCompatActivity() {
                             // Update TimePicker with the saved time
                             if (reminderTime.isNotEmpty()) {
                                 val (hour, minute) = reminderTime.split(":").map { it.toInt() }
-                                val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
+                                val timePicker: TimePicker =
+                                    findViewById(R.id.profile_reminder_timepicker)
                                 if (Build.VERSION.SDK_INT >= 23) {
                                     timePicker.hour = hour
                                     timePicker.minute = minute
@@ -490,7 +523,11 @@ class ProfileManagement : AppCompatActivity() {
                 } else {
                     Log.e("UserProfile", "Failed to get user profile")
                     runOnUiThread {
-                        Toast.makeText(this@ProfileManagement, "Failed to get user profile", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ProfileManagement,
+                            "Failed to get user profile",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -498,7 +535,11 @@ class ProfileManagement : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("UserProfile", "Failed to connect to server", e)
                 runOnUiThread {
-                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ProfileManagement,
+                        "Connection error. Please try again.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         })
@@ -647,13 +688,21 @@ class ProfileManagement : AppCompatActivity() {
                 if (response.isSuccessful) {
                     Log.d("UserProfile", "User profile updated successfully")
                     runOnUiThread {
-                        Toast.makeText(this@ProfileManagement, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ProfileManagement,
+                            "Profile updated successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
 
                     Log.e("UserProfile", "Failed to update user profile")
                     runOnUiThread {
-                        Toast.makeText(this@ProfileManagement, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ProfileManagement,
+                            "Failed to update profile",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -661,7 +710,11 @@ class ProfileManagement : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("UserProfile", "Failed to connect to server", e)
                 runOnUiThread {
-                    Toast.makeText(this@ProfileManagement, "Connection error. Please try again.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ProfileManagement,
+                        "Connection error. Please try again.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         })

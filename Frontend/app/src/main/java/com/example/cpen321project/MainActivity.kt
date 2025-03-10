@@ -1,5 +1,8 @@
 package com.example.cpen321project
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
@@ -8,33 +11,29 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.messaging.FirebaseMessaging
-import okhttp3.*
-import org.json.JSONObject
-import java.io.IOException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import java.security.MessageDigest
-import java.util.UUID
-
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var calendarRecyclerView: RecyclerView
@@ -42,6 +41,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
     private lateinit var analytics_button: Button
+    private lateinit var export_button: Button
     private val activityScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             .getString("GoogleIDtoken", null)
 
 
-        if (googleUserId.isNullOrEmpty() || (googleidToken != null && isIdTokenExpired(googleidToken)) ) {
+        if (googleUserId.isNullOrEmpty() || (googleidToken != null && isIdTokenExpired(googleidToken))) {
             // If not authenticated or token expired, redirect to LoginActivity
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -129,12 +129,95 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
         analytics_button = findViewById(R.id.analytics_button)
 
-        analytics_button.setOnClickListener(){
+        analytics_button.setOnClickListener() {
             val intent = Intent(this, AnalyticsActivity::class.java)
             intent.putExtra("THE_DATE", selectedDate.toString())
             intent.putExtra("USER_ID", googleUserIdd)
             startActivity(intent)
         }
+
+        export_button = findViewById(R.id.export_button)
+        export_button.setOnClickListener() {
+            showFormatSelectionDialog(googleUserIdd, googleidToken)
+        }
+    }
+
+    private fun showFormatSelectionDialog(googleUserIdd: String?, googleidToken: String?) {
+        val formats = arrayOf("PDF", "CSV")
+
+        AlertDialog.Builder(this)
+            .setTitle("Choose file format")
+            .setItems(formats) { _, which ->
+                val selectedFormat = formats[which].lowercase()
+                get_downloadurl(selectedFormat, googleidToken, googleUserIdd)
+            }
+            .show()
+    }
+
+    private fun get_downloadurl(
+        selectedFormat: String,
+        googleidToken: String?,
+        googleUserIdd: String?
+    ) {
+        val url =
+            "https://cpen321project-journal.duckdns.org/api/journal/file?userID=$googleUserIdd&format=$selectedFormat"
+
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .addHeader("Authorization", "Bearer $googleidToken")
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(
+                        applicationContext,
+                        "Failed to retrieve file URL!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+                    val jsonResponse = JSONObject(responseBody ?: "{}")
+                    val downloadURL = jsonResponse.optString("downloadURL", "")
+
+                    if (downloadURL.isNotEmpty()) {
+                        runOnUiThread {
+                            copyToClipboard(downloadURL)
+                        }
+                    } else {
+                        runOnUiThread {
+                            Toast.makeText(
+                                applicationContext,
+                                "Failed to get file URL!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            "Error: ${response.code}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun copyToClipboard(downloadURL: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("File URL", downloadURL)
+        clipboard.setPrimaryClip(clip)
+
+        Toast.makeText(this, "File URL copied to clipboard!", Toast.LENGTH_SHORT).show()
     }
 
     private fun initWidgets() {
@@ -193,8 +276,13 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                 intent.putExtra("SELECTED_DATE", selectedJournalDate.toString())
                 intent.putExtra("GOOGLE_ID", googleuserId)
                 intent.putExtra("GOOGLE_TOKEN", googleidtoken)
-                if (googleuserId != null && journalentries.contains(selectedJournalDate.toString()) && googleidtoken !=null) {
-                    fetchJournalEntry(googleuserId, googleidtoken, selectedJournalDate.toString(), intent)
+                if (googleuserId != null && journalentries.contains(selectedJournalDate.toString()) && googleidtoken != null) {
+                    fetchJournalEntry(
+                        googleuserId,
+                        googleidtoken,
+                        selectedJournalDate.toString(),
+                        intent
+                    )
                 } else {
                     Log.e(
                         "MainActivity",
@@ -270,7 +358,12 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         finish() // Close MainActivity
     }
 
-    private fun fetchJournalEntry(userId: String, googleidToken: String, date: String, intent: Intent) {
+    private fun fetchJournalEntry(
+        userId: String,
+        googleidToken: String,
+        date: String,
+        intent: Intent
+    ) {
         val url =
             "https://cpen321project-journal.duckdns.org/api/journal/?date=$date&userID=$userId"
         val client = OkHttpClient()
@@ -345,8 +438,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             return true
         }
     }
-
-
 
 
 }

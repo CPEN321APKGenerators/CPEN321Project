@@ -67,6 +67,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="Type a message..."
+                android:textColor="@color/black"
                 android:padding="10dp"
                 android:background="@android:drawable/editbox_background"/>
 
@@ -85,6 +86,7 @@
             android:background="@android:drawable/editbox_background"
             android:gravity="top"
             android:hint="@string/write_your_journal_entry_here_hint"
+            android:textColor="@color/black"
             android:text=""
             android:padding="10dp"
             android:textSize="16sp"
@@ -136,12 +138,6 @@
                 android:layout_weight="1"
                 app:srcCompat="@android:drawable/ic_menu_delete" />
 
-            <ImageButton
-                android:id="@+id/sharebutton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_menu_share" />
         </LinearLayout>
 
     </LinearLayout>

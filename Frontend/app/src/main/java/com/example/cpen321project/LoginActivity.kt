@@ -98,7 +98,8 @@ class LoginActivity : AppCompatActivity() {
                         Log.d(TAG, "result: ${credential}")
                         var googleUserId = googleIdTokenCredential.id
 //                        googleUserId = "440009"
-                        val google_num_id = getGoogleUserIDFromIdToken(googleIdTokenCredential.idToken)
+                        val google_num_id =
+                            getGoogleUserIDFromIdToken(googleIdTokenCredential.idToken)
 
                         // Save Google User ID in SharedPreferences
                         getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -119,8 +120,7 @@ class LoginActivity : AppCompatActivity() {
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
-                }
-                else {
+                } else {
                     // Catch any unrecognized credential type here.
                     Log.e(TAG, "Unexpected type of credential")
                 }

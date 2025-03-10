@@ -8,16 +8,22 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
 
-class CalendarAdapter (private val context: Context, private val dayOfMonth: ArrayList<String>, private val selectedDate:LocalDate, private val journalEntries: Set<String>, private val onItemListener: OnItemListener): RecyclerView.Adapter<CalendarViewHolder>() {
+class CalendarAdapter(
+    private val context: Context,
+    private val dayOfMonth: ArrayList<String>,
+    private val selectedDate: LocalDate,
+    private val journalEntries: Set<String>,
+    private val onItemListener: OnItemListener
+) : RecyclerView.Adapter<CalendarViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.calendar_cell, parent,false)
+        val view = inflater.inflate(R.layout.calendar_cell, parent, false)
 
         val layoutParams = view.layoutParams
         layoutParams.height = (parent.height * 0.14).toInt()
 
-        return  CalendarViewHolder(view, onItemListener)
+        return CalendarViewHolder(view, onItemListener)
     }
 
     override fun getItemCount(): Int {
@@ -41,11 +47,13 @@ class CalendarAdapter (private val context: Context, private val dayOfMonth: Arr
                     holder.dayOfMonth.setBackgroundResource(R.drawable.circle_background)
                     holder.dayOfMonth.setTextColor(Color.BLACK)
                 }
+
                 currentDate.isAfter(LocalDate.now()) -> {
                     // Grey out future dates
                     holder.dayOfMonth.setBackgroundColor(Color.TRANSPARENT)
                     holder.dayOfMonth.setTextColor(Color.GRAY)
                 }
+
                 else -> {
                     // Default color for past dates without journals
                     holder.dayOfMonth.setBackgroundColor(Color.TRANSPARENT)
@@ -56,12 +64,16 @@ class CalendarAdapter (private val context: Context, private val dayOfMonth: Arr
             holder.itemView.setOnClickListener {
                 if (!currentDate.isAfter(LocalDate.now())) { // Allow clicks only on past and current dates
                     onItemListener.onItemClick(position, dayText)
-                } else Toast.makeText(context,"Cannot add a journal for future dates!",Toast.LENGTH_SHORT).show()
+                } else Toast.makeText(
+                    context,
+                    "Cannot add a journal for future dates!",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
-    interface OnItemListener{
+    interface OnItemListener {
         fun onItemClick(position: Int, dayText: String)
     }
 
