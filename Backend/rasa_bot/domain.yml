@@ -8,32 +8,32 @@ intents:
   - journal_provided
   - start
 
-entities: []
+entities:
+  - message
 
 slots:
   date:
     type: text
     mappings:
       - type: from_metadata
-        key: date  
+        metadata_key: date  
 
   userID:
     type: text
     mappings:
       - type: from_metadata
-        key: userID 
+        metadata_key: userID 
 
   google_token:
     type: text
     mappings:
       - type: from_metadata
-        key: google_token  
+        metadata_key: google_token  
 
   message:
     type: text
     mappings:
-      - type: from_text 
-
+      - type: from_text  
 
 responses:
   utter_greet:

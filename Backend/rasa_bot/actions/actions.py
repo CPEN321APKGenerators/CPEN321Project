@@ -8,16 +8,15 @@ class ActionSaveMessage(Action):
         return "action_save_message"
 
     def run(self, dispatcher, tracker, domain):
-        # Retrieve slot values
-        date = tracker.get_slot("date")
-        userID = tracker.get_slot("userID")
-        google_token = tracker.get_slot("google_token")
-        message = tracker.get_slot("message")
+        metadata = tracker.latest_message.get("metadata", {})
 
-        # Log retrieved values
+        date = metadata.get("date")  
+        userID = metadata.get("userID") 
+        google_token = metadata.get("google_token") 
+        message = tracker.get_slot("message") 
+
         logging.info(f"Retrieved slots -> date: {date}, userID: {userID}, google_token: {google_token}, message: {message}")
 
-        # Validate required fields
         if not all([date, userID, google_token, message]):
             logging.error("Missing required journal entry fields.")
             dispatcher.utter_message(text="Failed to save journal entry. Missing information.")
