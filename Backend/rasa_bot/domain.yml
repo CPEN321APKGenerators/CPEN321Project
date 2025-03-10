@@ -41,6 +41,7 @@ slots:
     mappings:
       - type: from_entity
         entity: date
+      - type: from_text
   userID:
     type: text
     mappings:
