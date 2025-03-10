@@ -96,52 +96,82 @@ app.get('/', (req, res) => {
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-    
-client.connect().then( () => {
-    console.log("MongoDB Client connected")
 
-    app.listen(process.env.PORT, () => {
-        console.log("Listening on port " + process.env.PORT)
-    })
-}).catch( err => {
-    console.log(err)
-    client.close()
-})
+// Do NOT start the server if in test environment
+if (process.env.NODE_ENV !== 'test') {
+    client.connect().then(() => {
+      console.log("MongoDB Client connected");
+      
+      // Main server
+      app.listen(process.env.PORT, () => {
+        console.log("Listening on port " + process.env.PORT);
+      });
+  
+      // Stripe webhook server
+      app.listen(4242, () => console.log('Webhook Running on port 4242'));
+    }).catch(err => {
+      console.log(err);
+      client.close();
+    });
+  }
 
-const stripe = require('stripe')(stripeSecret);
+export { app };
+
+import Stripe from 'stripe';
+
+export const setStripeInstance = (mockedStripe: Stripe) => {
+    stripe = mockedStripe;
+};
+
+// Allow injecting a mocked Stripe instance
+export const createStripeInstance = (secret: string) => new Stripe(secret, {
+apiVersion: '2025-02-24.acacia',
+});
+
+let stripe = createStripeInstance(stripeSecret);
+
+  
 // This example sets up an endpoint using the Express framework.
 // Watch this video to get started: https://youtu.be/rPR2aJ6XnAc.
 
+// In your /api/payment-sheet route handler
+// In your /api/payment-sheet route handler
 app.post('/api/payment-sheet', async (req, res) => {
-    // Use an existing Customer ID if this is a returning customer.
-    const { userID } = req.body;
-    console.log("user id from payment: ", userID)
-    const customer = await stripe.customers.create();
-    const ephemeralKey = await stripe.ephemeralKeys.create(
-    {customer: customer.id},
-    {apiVersion: '2025-02-24.acacia'}
-  );
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: 1099,
-    currency: 'cad',
-    customer: customer.id,
-    // In the latest version of the API, specifying the `automatic_payment_methods` parameter
-    // is optional because Stripe enables its functionality by default.
-    automatic_payment_methods: {
-      enabled: true,
-    },
-    metadata: {
-        userID: userID // This links the payment to the user in your system
-    },
-  });
-
-  res.json({
-    paymentIntent: paymentIntent.client_secret,
-    ephemeralKey: ephemeralKey.secret,
-    customer: customer.id,
-    publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM',
-    userID: userID
-  });
+    try {
+      const { userID } = req.body;
+      console.log("user id from payment: ", userID);
+  
+      // Customer creation
+      const customer = await stripe.customers.create();
+      if (!customer?.id) throw new Error('Failed to create customer');
+  
+      // Ephemeral key
+      const ephemeralKey = await stripe.ephemeralKeys.create(
+        { customer: customer.id },
+        { apiVersion: '2025-02-24.acacia' }
+      );
+  
+      // Payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 1099,
+        currency: 'cad',
+        customer: customer.id,
+        automatic_payment_methods: { enabled: true },
+        metadata: { userID }
+      });
+  
+      res.json({
+        paymentIntent: paymentIntent.client_secret,
+        ephemeralKey: ephemeralKey.secret,
+        customer: customer.id,
+        publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM',
+        userID
+      });
+      
+    } catch (err) {
+      console.error('Payment sheet error:', err);
+      res.sendStatus(500);
+    }
 });
 
 // Replace this endpoint secret with your endpoint's unique secret 
@@ -151,7 +181,7 @@ app.post('/api/payment-sheet', async (req, res) => {
 // const endpointSecret = 'whsec_...';
 
 
-app.listen(4242, () => console.log('Webhook Running on port 4242'));
+// app.listen(4242, () => console.log('Webhook Running on port 4242'));
 
 app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
   let event = request.body;
@@ -261,3 +291,6 @@ async function scheduleNotifications() {
 
 // Initialize Cron Jobs
 scheduleNotifications();
+
+
+export default app;

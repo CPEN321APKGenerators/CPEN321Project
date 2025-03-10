@@ -34,7 +34,7 @@ jobs:
       - name: Run Tests
         run: |
           cd Backend
-          npm test
+          NODE_ENV=test npm test
 
       - name: Rebuild and Deploy
         uses: appleboy/ssh-action@master
