@@ -14,31 +14,26 @@ slots:
   date:
     type: text
     mappings:
-      - type: from_trigger_intent
-        intent: journal_provided
-        value: date  
+      - type: from_metadata
+        metadata_key: date  
 
   userID:
     type: text
     mappings:
-      - type: from_trigger_intent
-        intent: journal_provided
-        value: userID
+      - type: from_metadata
+        metadata_key: userID  
 
   google_token:
     type: text
     mappings:
-      - type: from_trigger_intent
-        intent: journal_provided
-        value: google_token
+      - type: from_metadata
+        metadata_key: google_token  
 
   message:
     type: text
     mappings:
-      - type: from_trigger_intent
-        intent: journal_provided
-        value: message
-      - type: from_text  
+      - type: from_text 
+
 
 responses:
   utter_greet:
