@@ -21,8 +21,8 @@ rules:
       - userID
       - google_token
       - message
-  - action: action_save_message 
-  - action: utter_journal_confirmation 
+  - action: action_save_message
+  - action: utter_journal_confirmation
   - action: utter_journal_follow_up
 
 - rule: Say goodbye

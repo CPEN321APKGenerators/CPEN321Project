@@ -5,11 +5,8 @@ intents:
   - goodbye
   - affirm
   - deny
-  - inform
-  - thankyou
-  - out_of_scope
-  - start
   - journal_provided
+  - start
 
 entities:
   - date
@@ -17,49 +14,60 @@ entities:
   - google_token
   - message
 
-responses:
-  utter_greet:
-    - text: "Hi!"
-  utter_ask_journal:
-    - text: "Please type start to begin journaling."
-  utter_goodbye:
-    - text: "See you tomorrow. Bye!"
-  utter_journal_confirmation:
-    - text: "Congrats on being consistent, your entry is saved and processed."
-  utter_journaling_prompt:
-    - text: "Feel free to write down your thoughts. What's on your mind today?"
-  utter_journal_follow_up:
-    - text: "Is there anything else I can do for you today?"
-  utter_ask_continue:
-    - text: "Is there anything else I can do for you today?"
-  utter_out_of_scope:
-    - text: "This feature isn't available as of now, thank you."
-
 slots:
   date:
     type: text
     mappings:
       - type: from_entity
         entity: date
+      - type: from_trigger_intent  # Captures from frontend API call
+        intent: journal_provided
+        value: "{date}"
+
   userID:
     type: text
     mappings:
       - type: from_entity
         entity: userID
+      - type: from_trigger_intent  # Captures from frontend API call
+        intent: journal_provided
+        value: "{userID}"
+
   google_token:
     type: text
     mappings:
       - type: from_entity
         entity: google_token
+      - type: from_trigger_intent  # Captures from frontend API call
+        intent: journal_provided
+        value: "{google_token}"
+
   message:
     type: text
     mappings:
-      - type: from_text
+      - type: from_entity
+        entity: message
+      - type: from_text  # Captures directly from user message
 
-
-session_config:
-  session_expiration_time: 60
-  carry_over_slots_to_new_session: false
+responses:
+  utter_greet:
+    - text: "Hi! Ready to journal?"
+  utter_ask_journal:
+    - text: "Type your journal entry below."
+  utter_goodbye:
+    - text: "See you tomorrow!"
+  utter_journal_confirmation:
+    - text: "Your journal entry has been saved!"
+  utter_journal_follow_up:
+    - text: "Would you like to add anything else?"
+  utter_ask_continue:
+    - text: "Do you want to continue journaling?"
+  utter_out_of_scope:
+    - text: "Sorry, I can only assist with journaling."
 
 actions:
   - action_save_message
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
