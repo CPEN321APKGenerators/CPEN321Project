@@ -18,27 +18,26 @@ slots:
   date:
     type: text
     mappings:
-      - type: from_entity
-        entity: date  
+      - type: from_metadata
+        key: date  
 
   userID:
     type: text
     mappings:
-      - type: from_entity
-        entity: userID  
+      - type: from_metadata
+        key: userID 
 
   google_token:
     type: text
     mappings:
-      - type: from_entity
-        entity: google_token  
+      - type: from_metadata
+        key: google_token  
 
   message:
     type: text
     mappings:
-      - type: from_entity
-        entity: message
-      - type: from_text  
+      - type: from_text 
+
 
 responses:
   utter_greet:
