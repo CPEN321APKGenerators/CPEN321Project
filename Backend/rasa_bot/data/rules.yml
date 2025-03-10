@@ -14,12 +14,6 @@ rules:
   - action: utter_journaling_prompt
 
 - rule: Process journal entry
-  condition:
-    - slot_was_set:
-        - date
-        - userID
-        - google_token
-        - message  
   steps:
   - intent: journal_provided
   - action: action_save_message
