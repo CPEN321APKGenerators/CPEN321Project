@@ -16,28 +16,29 @@ slots:
     mappings:
       - type: from_trigger_intent
         intent: journal_provided
-        value: "{date}"
+        value: date  
 
   userID:
     type: text
     mappings:
       - type: from_trigger_intent
         intent: journal_provided
-        value: "{userID}"
+        value: userID
 
   google_token:
     type: text
     mappings:
       - type: from_trigger_intent
         intent: journal_provided
-        value: "{google_token}"
+        value: google_token
 
   message:
     type: text
     mappings:
       - type: from_trigger_intent
         intent: journal_provided
-        value: "{message}"  
+        value: message
+      - type: from_text  
 
 responses:
   utter_greet:
