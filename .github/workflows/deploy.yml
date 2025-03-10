@@ -30,13 +30,8 @@ jobs:
         run: |
           cd Backend
           npm install
-  
-      - name: Run Tests
-        run: |
-          cd Backend
-          NODE_ENV=test npm test
-
-      - name: Rebuild and Deploy
+        
+      - name: Add Secrets Files
         uses: appleboy/ssh-action@master
         with:
           host: ${{secrets.EC2_HOST}}
@@ -73,6 +68,49 @@ jobs:
             
             # Give .env permissions
             chmod 600 .env
+  
+      - name: Run Tests
+        run: |
+          cd Backend
+          NODE_ENV=test npm test
+
+      - name: Rebuild and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_KEY}}
+          script: |
+            cd /home/ubuntu/cpen321journal/Backend
+
+            # # Create the config directory
+            # mkdir -p config
+
+            # # Write the JSON file directly on EC2
+            # echo '${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}' > src/config/cpen321project-c324e-firebase-adminsdk.json
+            # echo '${{ secrets.STRIPE_SECRET }}' > src/config/cpen321project-stripe-secret.txt
+            # echo '${{ secrets.SERVER_SECRET }}' > src/config/serverSecret.txt
+
+            # # Give permissions to the JSON file
+            # chmod 600 src/config/cpen321project-c324e-firebase-adminsdk.json
+            # chmod 600 src/config/cpen321project-stripe-secret.txt
+            # chmod 600 src/config/serverSecret.txt
+
+            # # Conditionally append secrets to .env
+            # if grep -q "^PORT=" .env; then
+            #   sed -i "s/^PORT=.*/PORT=${{ secrets.PROD_PORT }}/" .env
+            # else
+            #   echo "PORT=${{ secrets.PROD_PORT }}" >> .env
+            # fi
+
+            # if grep -q "^DB_URI=" .env; then
+            #   sed -i "s/^DB_URI=.*/DB_URI=${{ secrets.PROD_DB_URI }}/" .env
+            # else
+            #   echo "DB_URI=${{ secrets.PROD_DB_URI }}" >> .env
+            # fi
+            
+            # # Give .env permissions
+            # chmod 600 .env
 
             # Build and run container
             docker-compose down
