@@ -54,7 +54,6 @@ class MyIO(InputChannel):
                     sender_id,
                     input_channel=self.name(),
                     metadata=metadata,
-                    headers=request.headers,
                 )
             )
 
