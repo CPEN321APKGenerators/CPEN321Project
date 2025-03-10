@@ -44,7 +44,7 @@ nlu:
     - [Had a rough day, but I managed](message)
     - [Feeling happy and motivated](message)
     - [It was a long but productive day](message)
-    - [I am not doing good] (message)
+    - [I am not doing good](message)
 
 - intent: inform
   examples: |
@@ -67,3 +67,15 @@ nlu:
     - start 
     - journal
   
+
+- regex: date
+  examples: |
+    - \d{4}-\d{2}-\d{2}
+
+- regex: userID
+  examples: |
+    - [a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+
+
+- regex: google_token
+  examples: |
+    - [a-zA-Z0-9-_]+\.([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9-_]+

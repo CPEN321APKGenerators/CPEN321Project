@@ -9,7 +9,7 @@ pipeline:
 - name: RegexEntityExtractor
   use_lookup_tables: True
   use_regexes: True
-  use_word_boundaries: False  # This helps capture longer tokens (like emails, dates, etc.)
+  use_word_boundaries: False 
 - name: DIETClassifier
   epochs: 100
   entity_recognition: True

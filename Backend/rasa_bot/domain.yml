@@ -20,34 +20,26 @@ slots:
     mappings:
       - type: from_entity
         entity: date
-      - type: from_trigger_intent  # Captures from frontend API call
-        intent: journal_provided
-        value: "{date}"
 
   userID:
     type: text
     mappings:
       - type: from_entity
         entity: userID
-      - type: from_trigger_intent  # Captures from frontend API call
-        intent: journal_provided
-        value: "{userID}"
 
   google_token:
     type: text
     mappings:
       - type: from_entity
         entity: google_token
-      - type: from_trigger_intent  # Captures from frontend API call
-        intent: journal_provided
-        value: "{google_token}"
 
   message:
     type: text
     mappings:
       - type: from_entity
         entity: message
-      - type: from_text  # Captures directly from user message
+      - type: from_text  
+
 
 responses:
   utter_greet:
