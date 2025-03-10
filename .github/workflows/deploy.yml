@@ -69,7 +69,11 @@ jobs:
             # Give .env permissions
             chmod 600 .env
   
-      - name: Run Tests
+      - name: Run Tests with Secrets
+        env:
+          FIREBASE_CONFIG: ${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }}
+          STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
+          SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
         run: |
           cd Backend
           NODE_ENV=test npm test
