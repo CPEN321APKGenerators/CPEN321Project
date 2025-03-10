@@ -64,7 +64,7 @@ class Journal_entries : AppCompatActivity() {
     private lateinit var sendChatButton: Button
     private val client = OkHttpClient()
     private val chatbotUrl =
-        "http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/rest/webhook"
+        "http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook"
     private val BASE_URL = "https://cpen321project-journal.duckdns.org"
     private var userID: String? = null
     private var user_google_token: String? = null
@@ -243,13 +243,16 @@ class Journal_entries : AppCompatActivity() {
 
 
     private fun sendMessageToChatbot(message: String) {
-        val json = JSONObject()
+        val json =JSONObject()
 //        if(journal_flag) {
         json.apply {
-            put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
-            put("userID", userID)
-            put("google_token", user_google_token)
+            put("sender", userID)  // Unique sender ID
             put("message", message)
+            put("metadata", JSONObject().apply {
+                put("date", selectedDate)
+                put("userID", userID)
+                put("google_token", user_google_token)
+            })
         }
 //        } else {
 //            json.apply {
@@ -278,17 +281,17 @@ class Journal_entries : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
                 if (responseData != null) {
-                    val responseArray = JSONArray(responseData)  // Parse response as JSONArray
+                    val responseObject = JSONObject(responseData)  // ✅ Convert to
+
+
+                    // ✅ Extract "messages" array
+                    val responseArray = responseObject.getJSONArray("messages")
                     val botMessages = StringBuilder()
 
                     for (i in 0 until responseArray.length()) {
-                        val messageObject = responseArray.getJSONObject(i)  // Get each JSON object
-                        val botMessage = messageObject.getString("text")  // Extract text
-                        botMessages.append(botMessage).append("\n")  // Append to a string
-
-//                        if (messageObject.has("Journalentry")) {
-//                            journal_flag = messageObject.getBoolean("Journalentry")
-//                        }
+                        val messageObject = responseArray.getJSONObject(i)  // ✅
+                        val botMessage = messageObject.getString("text")  // ✅ Get text
+                        botMessages.append(botMessage).append("\n")  // ✅ Append message
                     }
 
                     runOnUiThread {
