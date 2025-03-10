@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../index"; // Adjust the path if needed
 import { client } from "../services";
+import { stopCronJob } from "../index";
 
 describe("Unmocked: POST /webhook", () => {
     beforeAll(async () => {
@@ -48,4 +49,9 @@ describe("Unmocked: POST /webhook", () => {
 
         expect(res.status).toBe(200); // Should still return 200 even for unhandled events
     });
+});
+
+afterAll(async () => {
+    stopCronJob(); // Stop cron jobs to prevent leaks
+    await client.close(); // Close the database connection to avoid leaks
 });

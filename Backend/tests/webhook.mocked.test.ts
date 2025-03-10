@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../index"; // Adjust the path if needed
 import { client } from "../services";
+import { stopCronJob } from "../index";
 
 jest.mock("../services"); // Mock the database service
 
@@ -60,4 +61,9 @@ describe("Mocked: POST /webhook", () => {
 
         expect(res.status).toBe(200);
     });
+});
+
+afterAll(async () => {
+    stopCronJob(); // Stop cron jobs to prevent leaks
+    await client.close(); // Close the database connection to avoid leaks
 });

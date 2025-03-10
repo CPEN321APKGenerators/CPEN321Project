@@ -30,6 +30,11 @@ jobs:
         run: |
           cd Backend
           npm install
+      
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: '5.0' # Use the version that matches your local MongoDB
   
       - name: Run Tests with Secrets
         env:

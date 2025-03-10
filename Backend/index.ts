@@ -276,20 +276,18 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
     }
 }
 
-async function scheduleNotifications() {
-    // Run every minute
-    cron.schedule('* * * * *', async () => {
-    // Run at the start of every hour
-    // cron.schedule('0 * * * *', async () => {
-        console.log('Checking for scheduled notifications...');
+let cronJob: any;  // Add a reference to the cron job
 
+async function scheduleNotifications() {
+    cronJob = cron.schedule('* * * * *', async () => {
+        console.log('Checking for scheduled notifications...');
         try {
             await client.connect();
             const db = client.db('cpen321journal');
             const usersCollection = db.collection('users');
 
             const now = DateTime.utc();
-            const utcDay = now.weekday; // 1 = Monday, 7 = Sunday
+            const utcDay = now.weekday;
             const utcTime = now.toFormat('HH:mm');
 
             console.log("Current UTC Day:", utcDay);
@@ -301,14 +299,10 @@ async function scheduleNotifications() {
                 const { reminderSetting, fcmToken, userID } = user;
                 console.log("Stored Reminder:", reminderSetting);
 
-                const weekdays = reminderSetting?.Weekday || [];
-                const reminderTime = reminderSetting?.time || null;
-
                 if (
-                    Array.isArray(weekdays) &&
                     reminderSetting &&
-                    reminderSetting.Weekday.includes(utcDay) && // Check UTC weekday
-                    reminderSetting.time === utcTime // Check UTC time
+                    reminderSetting.Weekday.includes(utcDay) && 
+                    reminderSetting.time === utcTime
                 ) {
                     console.log("Reminder matched for user:", userID);
 
@@ -331,11 +325,17 @@ async function scheduleNotifications() {
             console.error('Error checking notifications:', error);
         }
     });
+}
 
+// Stop the cron job when tests are done
+export function stopCronJob() {
+    if (cronJob) cronJob.stop();
 }
 
 // Initialize Cron Jobs
-scheduleNotifications();
+if (process.env.NODE_ENV !== "test") {
+    scheduleNotifications();
+}
 
 
 export default app;
