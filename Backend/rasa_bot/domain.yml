@@ -14,7 +14,7 @@ intents:
 entities:
   - date
   - userID
-  - googleNumID
+  - google_token
   - message
 
 responses:
@@ -47,11 +47,13 @@ slots:
     mappings:
       - type: from_entity
         entity: userID
-  googleNumID:
+      - type: from_text
+  google_token:
     type: text
     mappings:
       - type: from_entity
-        entity: googleNumID
+        entity: google_token
+      - type: from_text
   message:
     type: text
     mappings:

@@ -13,20 +13,20 @@ class ActionSaveJournalEntry(Action):
         # Retrieve slot values
         date = tracker.get_slot("date")  
         userID = tracker.get_slot("userID")
-        googleNumID = tracker.get_slot("googleNumID")  
+        google_token = tracker.get_slot("google_token")  
         message = tracker.get_slot("message")  
         
         # Log retrieved data for debugging
-        logging.info(f"Retrieved slots -> date: {date}, userID: {userID}, googleNumID: {googleNumID}, message: {message}")
+        logging.info(f"Retrieved slots -> date: {date}, userID: {userID}, google_token: {google_token}, message: {message}")
 
         # Check if all necessary slots are provided
-        if not all([date, userID, googleNumID, message]):
+        if not all([date, userID, google_token, message]):
             logging.error("Missing required journal entry fields.")
             dispatcher.utter_message(text="Failed to save journal entry. Missing information.")
             return []
 
         # Call API to save the journal entry
-        response = self.save_message(date, userID, message, googleNumID)
+        response = self.save_message(date, userID, message, google_token)
         if response and response.status_code == 200:
             dispatcher.utter_message(text="Your journal entry has been saved successfully!")
         else:
@@ -34,7 +34,7 @@ class ActionSaveJournalEntry(Action):
         
         return []
     
-    def save_message(self, date: str, userID: str, message: str, googleNumID: str) -> requests.Response:
+    def save_message(self, date: str, userID: str, message: str, google_token: str) -> requests.Response:
         BASE_URL = "https://cpen321project-journal.duckdns.org"
         url = f"{BASE_URL}/api/journal"
         
@@ -42,13 +42,13 @@ class ActionSaveJournalEntry(Action):
         data = {
             "date": date,  
             "userID": userID,   
-            "googleNumID": googleNumID,  
+            "google_token": google_token,  
             "message": message,  
         }
 
         # Set the headers for the request
         headers = {
-            "Authorization": f"Bearer {googleNumID}",  
+            "Authorization": f"Bearer {google_token}",  
             "Content-Type": "application/json"
         }
         

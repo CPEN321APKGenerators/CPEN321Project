@@ -10,6 +10,6 @@ nlu:
   examples: |
     - [a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+  # Matches emails
 
-- regex: googleNumID
+- regex: google_token
   examples: |
     - [A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+  # Matches JWT tokens
