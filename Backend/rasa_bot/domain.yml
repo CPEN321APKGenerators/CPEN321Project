@@ -51,19 +51,21 @@ slots:
 
 responses:
   utter_greet:
-    - text: "Hi! Ready to journal?"
+    - text: "Hi!"
   utter_ask_journal:
-    - text: "Type your journal entry below."
+    - text: "Please type start to begin journaling."
   utter_goodbye:
-    - text: "See you tomorrow!"
+    - text: "See you tomorrow. Bye!"
   utter_journal_confirmation:
-    - text: "Your journal entry has been saved!"
+    - text: "Congrats on being consistent, your entry is saved and processed."
+  utter_journaling_prompt:
+    - text: "Feel free to write down your thoughts. What's on your mind today?"
   utter_journal_follow_up:
-    - text: "Would you like to add anything else?"
+    - text: "Is there anything else I can do for you today?"
   utter_ask_continue:
-    - text: "Do you want to continue journaling?"
+    - text: "Is there anything else I can do for you today?"
   utter_out_of_scope:
-    - text: "Sorry, I can only assist with journaling."
+    - text: "This feature isn't available as of now, thank you."
 
 actions:
   - action_save_message
