@@ -13,7 +13,7 @@ stories:
   - slot_was_set:
       - date
       - userID
-      - googleNumID
+      - google_token
       - message
   - action: action_save_message
   - action: utter_journal_confirmation
