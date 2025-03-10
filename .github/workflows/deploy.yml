@@ -30,11 +30,20 @@ jobs:
         run: |
           cd Backend
           npm install
+      
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: '5.0' # Use the version that matches your local MongoDB
   
-      - name: Run Tests
+      - name: Run Tests with Secrets
+        env:
+          FIREBASE_CONFIG: ${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }} 
+          STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
+          SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
         run: |
           cd Backend
-          npm test
+          NODE_ENV=test npm test
 
       - name: Rebuild and Deploy
         uses: appleboy/ssh-action@master
@@ -71,8 +80,8 @@ jobs:
               echo "DB_URI=${{ secrets.PROD_DB_URI }}" >> .env
             fi
             
-            # Give .env permissions
-            chmod 600 .env
+            # # Give .env permissions
+            # chmod 600 .env
 
             # Build and run container
             docker-compose down

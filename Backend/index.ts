@@ -32,7 +32,18 @@ if (!admin.apps.length) {
 }
 
 // Read the secret as a string
-const stripeSecret = fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+const stripeSecret = process.env.STRIPE_SECRET || (() => {
+    try {
+        return fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+    } catch (error) {
+        console.warn("Stripe secret file not found, falling back to environment variable.");
+        return "";
+    }
+})();
+
+if (!stripeSecret) {
+    throw new Error("Missing Stripe Secret Key!");
+}
 console.log(stripeSecret)
 // const OtherRoutes=[]
 const Routes = [...AnalysisRoutes, ...JournalRoutes, ...UserRoutes];
@@ -96,52 +107,82 @@ app.get('/', (req, res) => {
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-    
-client.connect().then( () => {
-    console.log("MongoDB Client connected")
 
-    app.listen(process.env.PORT, () => {
-        console.log("Listening on port " + process.env.PORT)
-    })
-}).catch( err => {
-    console.log(err)
-    client.close()
-})
+// Do NOT start the server if in test environment
+if (process.env.NODE_ENV !== 'test') {
+    client.connect().then(() => {
+      console.log("MongoDB Client connected");
+      
+      // Main server
+      app.listen(process.env.PORT, () => {
+        console.log("Listening on port " + process.env.PORT);
+      });
+  
+      // Stripe webhook server
+      app.listen(4242, () => console.log('Webhook Running on port 4242'));
+    }).catch(err => {
+      console.log(err);
+      client.close();
+    });
+  }
 
-const stripe = require('stripe')(stripeSecret);
+export { app };
+
+import Stripe from 'stripe';
+
+export const setStripeInstance = (mockedStripe: Stripe) => {
+    stripe = mockedStripe;
+};
+
+// Allow injecting a mocked Stripe instance
+export const createStripeInstance = (secret: string) => new Stripe(secret, {
+apiVersion: '2025-02-24.acacia',
+});
+
+let stripe = createStripeInstance(stripeSecret);
+
+  
 // This example sets up an endpoint using the Express framework.
 // Watch this video to get started: https://youtu.be/rPR2aJ6XnAc.
 
+// In your /api/payment-sheet route handler
+// In your /api/payment-sheet route handler
 app.post('/api/payment-sheet', async (req, res) => {
-    // Use an existing Customer ID if this is a returning customer.
-    const { userID } = req.body;
-    console.log("user id from payment: ", userID)
-    const customer = await stripe.customers.create();
-    const ephemeralKey = await stripe.ephemeralKeys.create(
-    {customer: customer.id},
-    {apiVersion: '2025-02-24.acacia'}
-  );
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: 1099,
-    currency: 'cad',
-    customer: customer.id,
-    // In the latest version of the API, specifying the `automatic_payment_methods` parameter
-    // is optional because Stripe enables its functionality by default.
-    automatic_payment_methods: {
-      enabled: true,
-    },
-    metadata: {
-        userID: userID // This links the payment to the user in your system
-    },
-  });
-
-  res.json({
-    paymentIntent: paymentIntent.client_secret,
-    ephemeralKey: ephemeralKey.secret,
-    customer: customer.id,
-    publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM',
-    userID: userID
-  });
+    try {
+      const { userID } = req.body;
+      console.log("user id from payment: ", userID);
+  
+      // Customer creation
+      const customer = await stripe.customers.create();
+      if (!customer?.id) throw new Error('Failed to create customer');
+  
+      // Ephemeral key
+      const ephemeralKey = await stripe.ephemeralKeys.create(
+        { customer: customer.id },
+        { apiVersion: '2025-02-24.acacia' }
+      );
+  
+      // Payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 1099,
+        currency: 'cad',
+        customer: customer.id,
+        automatic_payment_methods: { enabled: true },
+        metadata: { userID }
+      });
+  
+      res.json({
+        paymentIntent: paymentIntent.client_secret,
+        ephemeralKey: ephemeralKey.secret,
+        customer: customer.id,
+        publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM',
+        userID
+      });
+      
+    } catch (err) {
+      console.error('Payment sheet error:', err);
+      res.sendStatus(500);
+    }
 });
 
 // Replace this endpoint secret with your endpoint's unique secret 
@@ -151,36 +192,58 @@ app.post('/api/payment-sheet', async (req, res) => {
 // const endpointSecret = 'whsec_...';
 
 
-app.listen(4242, () => console.log('Webhook Running on port 4242'));
+// app.listen(4242, () => console.log('Webhook Running on port 4242'));
 
-app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
-  let event = request.body;
-  console.log("webhook event: ", event)
+// app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+//   let event = request.body;
+//   console.log("webhook event: ", event)
 
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        console.log(`PaymentIntent for ${paymentIntent.amount} was successful! from webhook!`);
-        console.log("payment intent userID: ", paymentIntent.metadata);
-        console.log("payment intent userID: ", paymentIntent.metadata.userID);
-        // Then define and call a method to handle the successful payment intent.
-        handlePaymentIntentSucceeded(paymentIntent);
-        break;
-    case 'payment_method.attached':
-      const paymentMethod = event.data.object;
-      // Then define and call a method to handle the successful attachment of a PaymentMethod.
-      // handlePaymentMethodAttached(paymentMethod);
-      break;
-    default:
-      // Unexpected event type
-      console.log(`Unhandled event type ${event.type}.`);
-  }
+//   // Handle the event
+//   switch (event.type) {
+//     case 'payment_intent.succeeded':
+//         const paymentIntent = event.data.object;
+//         console.log(`PaymentIntent for ${paymentIntent.amount} was successful! from webhook!`);
+//         console.log("payment intent userID: ", paymentIntent.metadata);
+//         console.log("payment intent userID: ", paymentIntent.metadata.userID);
+//         // Then define and call a method to handle the successful payment intent.
+//         handlePaymentIntentSucceeded(paymentIntent);
+//         break;
+//     case 'payment_method.attached':
+//       const paymentMethod = event.data.object;
+//       // Then define and call a method to handle the successful attachment of a PaymentMethod.
+//       // handlePaymentMethodAttached(paymentMethod);
+//       break;
+//     default:
+//       // Unexpected event type
+//       console.log(`Unhandled event type ${event.type}.`);
+//   }
 
-  // Return a 200 response to acknowledge receipt of the event
-  response.send();
+//   // Return a 200 response to acknowledge receipt of the event
+//   response.send();
+// });
+
+app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
+    let event = request.body;
+    console.log("webhook event: ", event);
+
+    try {
+        switch (event.type) {
+            case 'payment_intent.succeeded':
+                const paymentIntent = event.data.object;
+                console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
+                await handlePaymentIntentSucceeded(paymentIntent);  // Await function
+                break;
+            default:
+                console.log(`Unhandled event type ${event.type}.`);
+        }
+
+        response.sendStatus(200);
+    } catch (error) {
+        if (error instanceof Error)
+            console.error("Webhook error:", error.message);
+        response.sendStatus(500);  // Ensure a 500 response on failure
+    }
 });
-
 
 
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
@@ -193,28 +256,38 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
         };
 
         updatedFields.isPaid = true;
-        await client.db("cpen321journal").collection("users").updateOne(
-            { userID },
-            { $set: updatedFields }
-        );
-        console.log("updated user!")
+        try {
+            const result = await client.db("cpen321journal").collection("users").updateOne(
+                { userID },
+                { $set: updatedFields }
+            );
+        
+            if (!result.acknowledged) {
+                throw new Error("Failed to update database");
+            }
+        
+            console.log("Updated user!");
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Database update failed:", error.message);
+            }
+            throw error;
+        }        
     }
 }
 
-async function scheduleNotifications() {
-    // Run every minute
-    cron.schedule('* * * * *', async () => {
-    // Run at the start of every hour
-    // cron.schedule('0 * * * *', async () => {
-        console.log('Checking for scheduled notifications...');
+let cronJob: any;  // Add a reference to the cron job
 
+async function scheduleNotifications() {
+    cronJob = cron.schedule('* * * * *', async () => {
+        console.log('Checking for scheduled notifications...');
         try {
             await client.connect();
             const db = client.db('cpen321journal');
             const usersCollection = db.collection('users');
 
             const now = DateTime.utc();
-            const utcDay = now.weekday; // 1 = Monday, 7 = Sunday
+            const utcDay = now.weekday;
             const utcTime = now.toFormat('HH:mm');
 
             console.log("Current UTC Day:", utcDay);
@@ -226,14 +299,10 @@ async function scheduleNotifications() {
                 const { reminderSetting, fcmToken, userID } = user;
                 console.log("Stored Reminder:", reminderSetting);
 
-                const weekdays = reminderSetting?.Weekday || [];
-                const reminderTime = reminderSetting?.time || null;
-
                 if (
-                    Array.isArray(weekdays) &&
                     reminderSetting &&
-                    reminderSetting.Weekday.includes(utcDay) && // Check UTC weekday
-                    reminderSetting.time === utcTime // Check UTC time
+                    reminderSetting.Weekday.includes(utcDay) && 
+                    reminderSetting.time === utcTime
                 ) {
                     console.log("Reminder matched for user:", userID);
 
@@ -256,8 +325,17 @@ async function scheduleNotifications() {
             console.error('Error checking notifications:', error);
         }
     });
+}
 
+// Stop the cron job when tests are done
+export function stopCronJob() {
+    if (cronJob) cronJob.stop();
 }
 
 // Initialize Cron Jobs
-scheduleNotifications();
+if (process.env.NODE_ENV !== "test") {
+    scheduleNotifications();
+}
+
+
+export default app;

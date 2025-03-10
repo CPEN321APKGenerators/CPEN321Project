@@ -2,13 +2,12 @@ package com.example.cpen321project
 
 import android.Manifest
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -52,7 +51,6 @@ class Journal_entries : AppCompatActivity() {
     private lateinit var backtocalendar: Button
     private lateinit var editentry: ImageButton
     private lateinit var deleteentry: ImageButton
-    private lateinit var share_entry: ImageButton
     private lateinit var add_image: ImageButton
     private lateinit var save_entry: Button
     private lateinit var journalImageview: ImageView
@@ -65,11 +63,11 @@ class Journal_entries : AppCompatActivity() {
     private lateinit var chatInput: EditText
     private lateinit var sendChatButton: Button
     private val client = OkHttpClient()
-    private val chatbotUrl = "http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/rest/webhook"
+    private val chatbotUrl =
+        "http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/rest/webhook"
     private val BASE_URL = "https://cpen321project-journal.duckdns.org"
     private var userID: String? = null
-    private var user_google_token: String?= null
-    private var journal_flag: Boolean=false
+    private var user_google_token: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +84,6 @@ class Journal_entries : AppCompatActivity() {
         backtocalendar = findViewById(R.id.Backbuttonentries)
         editentry = findViewById(R.id.editbutton)
         deleteentry = findViewById(R.id.deletebutton)
-        share_entry = findViewById(R.id.sharebutton)
         add_image = findViewById(R.id.addimageButton)
         save_entry = findViewById(R.id.Saveentrybutton)
         journalImageview = findViewById(R.id.journalImageView)
@@ -125,7 +122,7 @@ class Journal_entries : AppCompatActivity() {
         } else {
             // Hide journal UI
             journalentrytext.visibility = View.GONE
-//            save_entry.visibility = View.GONE
+            save_entry.visibility = View.GONE
             journalImageview.visibility = View.GONE
 
             // Show chatbot UI
@@ -149,7 +146,7 @@ class Journal_entries : AppCompatActivity() {
             if (journalentrytext.visibility == View.VISIBLE) {
                 journalentrytext.isEnabled = true
                 journalentrytext.requestFocus()
-            } else{
+            } else {
                 Toast.makeText(this, "Write a Journal to begin editing", Toast.LENGTH_SHORT).show()
             }
         }
@@ -192,11 +189,7 @@ class Journal_entries : AppCompatActivity() {
             }
         }
 
-        share_entry.setOnClickListener(){
-            showFormatSelectionDialog()
-        }
-
-        journalImageview.setOnClickListener(){
+        journalImageview.setOnClickListener() {
             showdeletiondialog()
         }
     }
@@ -215,69 +208,6 @@ class Journal_entries : AppCompatActivity() {
     private fun deleteImageFromJournal() {
         journalImageview.setImageDrawable(null)
     }
-
-    private fun showFormatSelectionDialog() {
-        val formats = arrayOf("PDF", "CSV")
-
-        AlertDialog.Builder(this)
-            .setTitle("Choose file format")
-            .setItems(formats) { _, which ->
-                val selectedFormat = formats[which].lowercase()
-                get_downloadurl(selectedFormat)
-            }
-            .show()
-    }
-
-    private fun get_downloadurl(format: String) {
-
-        val url = "$BASE_URL/api/journal/file?userID=$userID&format=$format&googleToken=$user_google_token"
-
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .addHeader("Authorization", "Bearer $user_google_token")
-            .build()
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(applicationContext, "Failed to retrieve file URL!", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-                    val jsonResponse = JSONObject(responseBody ?: "{}")
-                    val downloadURL = jsonResponse.optString("downloadURL", "")
-
-                    if (downloadURL.isNotEmpty()) {
-                        runOnUiThread {
-                            copyToClipboard(downloadURL)
-                        }
-                    } else {
-                        runOnUiThread {
-                            Toast.makeText(applicationContext, "Failed to get file URL!", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    runOnUiThread {
-                        Toast.makeText(applicationContext, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
-    }
-
-    private fun copyToClipboard(downloadURL: String) {
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("File URL", downloadURL)
-        clipboard.setPrimaryClip(clip)
-
-        Toast.makeText(this, "File URL copied to clipboard!", Toast.LENGTH_SHORT).show()
-    }
-
 
     private fun Userpaid(callback: (Boolean) -> Unit) {
 
@@ -313,14 +243,14 @@ class Journal_entries : AppCompatActivity() {
 
 
     private fun sendMessageToChatbot(message: String) {
-        val json =JSONObject()
+        val json = JSONObject()
 //        if(journal_flag) {
-           json.apply {
-                put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
-                put("userID", userID)
-                put("google_token", user_google_token)
-                put("message", message)
-            }
+        json.apply {
+            put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
+            put("userID", userID)
+            put("google_token", user_google_token)
+            put("message", message)
+        }
 //        } else {
 //            json.apply {
 //                put("message", message)
@@ -374,11 +304,13 @@ class Journal_entries : AppCompatActivity() {
         messageView.text = text
         messageView.textSize = 16f
         messageView.setPadding(10, 10, 10, 10)
+        messageView.setTextColor(Color.WHITE)  // White text for better contrast
+        messageView.setTypeface(null, Typeface.BOLD)
 
         if (isUser) {
-            messageView.setBackgroundResource(android.R.color.holo_blue_light)
+            messageView.background = ContextCompat.getDrawable(this, R.drawable.chat_bubble_user)
         } else {
-            messageView.setBackgroundResource(android.R.color.holo_green_light)
+            messageView.background = ContextCompat.getDrawable(this, R.drawable.chat_bubble_bot)
         }
 
         chatContainer.addView(messageView)
@@ -402,66 +334,83 @@ class Journal_entries : AppCompatActivity() {
             mediaArray.put(base64Image)  // Add Base64 image string to the JSON array
         }
 
-        val json = JSONObject().apply {
-            put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
-            put("userID", userID)
-            put("text", journalText)
-            put("media", mediaArray)
-        }
-
-        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-
-        val request = Request.Builder()
-            .url("$BASE_URL/api/journal")
-            .post(requestBody)
-            .addHeader("Authorization", "Bearer $user_google_token")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        "Failed to save journal!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+        val json =
+            try {
+                JSONObject().apply {
+                    put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
+                    put("userID", userID)
+                    put("text", journalText)
+                    put("media", mediaArray)  // Ensure this doesn't exceed size limits
                 }
+            } catch (e: JSONException) {
+                Log.e("JSON Error", "Failed to create JSON object", e)
+                null  // Return null or handle error accordingly
             }
 
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
+        if (json != null) {
+            val requestBody = json.toString().toRequestBody("application/json".toMediaType())
+
+            val request = Request.Builder()
+                .url("$BASE_URL/api/journal")
+                .post(requestBody)
+                .addHeader("Authorization", "Bearer $user_google_token")
+                .build()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    runOnUiThread {
                         Toast.makeText(
                             applicationContext,
-                            "Journal saved successfully!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            applicationContext,
-                            "Error: ${response.body?.string()}",
+                            "Failed to save journal!",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
-            }
-        })
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.putExtra("added_date", selectedDate.toString())
-        startActivity(intent)
-        finish()
+
+                override fun onResponse(call: Call, response: Response) {
+                    runOnUiThread {
+                        if (response.isSuccessful) {
+                            Toast.makeText(
+                                applicationContext,
+                                "Journal saved successfully!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                applicationContext,
+                                "Error: ${response.body?.string()}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            })
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.putExtra("added_date", selectedDate.toString())
+            startActivity(intent)
+            finish()
+        } else {
+            Log.e("Request Error", "JSON object is null, request not sent")
+        }
     }
 
     private fun convertImageViewToBase64(imageView: ImageView): String? {
-        val drawable = imageView.drawable ?: return null  // Check if ImageView has an image
+        val drawable = imageView.drawable ?: return null
         val bitmap = (drawable as BitmapDrawable).bitmap
 
+        // Resize image to prevent large Base64 strings
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 300, 300, true)
+
         val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)  // Compress as PNG
+        resizedBitmap.compress(
+            Bitmap.CompressFormat.JPEG,
+            50,
+            outputStream
+        )  // Compress as JPEG with 50% quality
         val byteArray = outputStream.toByteArray()
 
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)  // Convert to Base64
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP) // Convert to Base64
     }
 
     private fun decodeBase64ToBitmap(base64String: String): Bitmap? {

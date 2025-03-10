@@ -7,11 +7,30 @@ import axios from 'axios';
 
 // Initialize Firebase Admin SDK (Ensure serviceAccountKey.json is properly configured)
 if (!admin.apps.length) {
-    const serviceAccount = require("../config/cpen321project-c324e-firebase-adminsdk.json")
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
+    try {
+        let serviceAccount;
+
+        // Check if the environment variable is set (used for GitHub Actions & testing)
+        if (process.env.FIREBASE_CONFIG) {
+            console.log("Using Firebase config from environment variable");
+            serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+        } else {
+            console.log("Using Firebase config from JSON file");
+            serviceAccount = require("../config/cpen321project-c324e-firebase-adminsdk.json");
+        }
+
+        // Initialize Firebase
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+        });
+
+        console.log("Firebase Admin Initialized");
+
+    } catch (error) {
+        console.error("Failed to initialize Firebase:", error);
+    }
 }
+
 
 const getServerOffset = () => {
     const offset = new Date().getTimezoneOffset(); // in minutes

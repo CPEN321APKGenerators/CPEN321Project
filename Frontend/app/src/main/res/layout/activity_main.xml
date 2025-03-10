@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -24,9 +23,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Profile"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Log Out Button on the Right -->
             <Button
@@ -34,9 +33,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Log Out"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -83,7 +82,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/material_dynamic_primary80"
+            android:background="@color/material_dynamic_primary20"
             android:orientation="horizontal">
 
             <TextView
@@ -92,6 +91,7 @@
                 android:layout_weight="1"
                 android:text="SUN"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="16dp" />
 
             <TextView
@@ -100,6 +100,7 @@
                 android:layout_weight="1"
                 android:text="MON"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="16dp" />
 
             <TextView
@@ -108,6 +109,7 @@
                 android:layout_weight="1"
                 android:text="TUE"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="16dp" />
 
             <TextView
@@ -116,6 +118,7 @@
                 android:layout_weight="1"
                 android:text="WED"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="16dp" />
 
             <TextView
@@ -124,6 +127,7 @@
                 android:layout_weight="1"
                 android:text="THU"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="16dp" />
 
             <TextView
@@ -132,6 +136,7 @@
                 android:layout_weight="1"
                 android:text="FRI"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="16dp" />
 
             <TextView
@@ -140,6 +145,7 @@
                 android:layout_weight="1"
                 android:text="SAT"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="16dp" />
 
         </LinearLayout>
@@ -150,12 +156,26 @@
             android:layout_height="550dp"
             android:background="@color/material_dynamic_primary95" />
 
-        <Button
-            android:id="@+id/analytics_button"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/analytics_button" />
+            android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/analytics_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/analytics_button" />
+
+            <Button
+                android:id="@+id/export_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Export Entries" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

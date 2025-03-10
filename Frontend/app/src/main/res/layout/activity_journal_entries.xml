@@ -7,15 +7,16 @@
     android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/journalview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/journalview">
+        android:orientation="vertical">
 
         <!-- Back Button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <Button
                 android:id="@+id/Backbuttonentries"
                 android:layout_width="109dp"
@@ -28,14 +29,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/journalDateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
                 android:paddingBottom="10dp"
-                android:text="@string/Journal_date"/>
+                android:text="@string/Journal_date"
+                android:textSize="18sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <!-- Chatbot Conversation ScrollView -->
@@ -43,8 +45,8 @@
             android:id="@+id/chatScrollView"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:fillViewport="true"
             android:background="#EEEEEE"
+            android:fillViewport="true"
             android:padding="8dp">
 
             <LinearLayout
@@ -64,17 +66,18 @@
             <EditText
                 android:id="@+id/chatInput"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/editbox_background"
                 android:hint="Type a message..."
                 android:padding="10dp"
-                android:background="@android:drawable/editbox_background"/>
+                android:textColor="@color/black" />
 
             <Button
                 android:id="@+id/sendChatButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Send"/>
+                android:text="Send" />
         </LinearLayout>
 
         <!-- User Journal Entry -->
@@ -85,10 +88,11 @@
             android:background="@android:drawable/editbox_background"
             android:gravity="top"
             android:hint="@string/write_your_journal_entry_here_hint"
-            android:text=""
+            android:minHeight="200dp"
             android:padding="10dp"
-            android:textSize="16sp"
-            android:minHeight="200dp" />
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
         <!-- Image View -->
         <ImageView
@@ -97,23 +101,23 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:adjustViewBounds="true"
-            android:contentDescription="Selected Image"/>
+            android:contentDescription="Selected Image" />
 
         <!-- Save Button -->
         <Button
             android:id="@+id/Saveentrybutton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_entry_button"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:text="@string/save_entry_button" />
 
         <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
             android:gravity="center"
-            android:layout_marginTop="10dp">
+            android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/editbutton"
@@ -136,12 +140,6 @@
                 android:layout_weight="1"
                 app:srcCompat="@android:drawable/ic_menu_delete" />
 
-            <ImageButton
-                android:id="@+id/sharebutton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_menu_share" />
         </LinearLayout>
 
     </LinearLayout>

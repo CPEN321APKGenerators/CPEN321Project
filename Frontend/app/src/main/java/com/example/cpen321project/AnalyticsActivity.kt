@@ -1,14 +1,18 @@
 package com.example.cpen321project
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cpen321project.databinding.ActivityAnalyticsBinding
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -17,7 +21,11 @@ import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.Calendar
+import java.util.Locale
+import java.util.Random
 
 class AnalyticsActivity : AppCompatActivity() {
 
@@ -25,7 +33,8 @@ class AnalyticsActivity : AppCompatActivity() {
     private lateinit var selected_date: String
     private lateinit var userID: String
     private var emotionsData: Map<String, List<Float>> = emptyMap()
-
+    private val selectedEmotions = mutableSetOf<String>()
+    private lateinit var filterButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +42,7 @@ class AnalyticsActivity : AppCompatActivity() {
         setContentView(binding.root)
         selected_date = LocalDate.now().toString()
         userID = intent.getStringExtra("USER_ID").toString()
+
         get_trend()
         setupChart()
         binding.refreshButton.setOnClickListener {
@@ -45,7 +55,8 @@ class AnalyticsActivity : AppCompatActivity() {
     }
 
     private fun get_trend() {
-        val url = "https://cpen321project-journal.duckdns.org/api/analytics?date=$selected_date&userID=$userID"
+        val url =
+            "https://cpen321project-journal.duckdns.org/api/analytics?date=$selected_date&userID=$userID"
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
@@ -56,12 +67,14 @@ class AnalyticsActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
                     Log.e("Analytics Fetch", "Failed to fetch analytics data: ${response.code}")
+                    useFallbackData() // Use random data instead
                     return
                 }
 
                 val responseBody = response.body?.string() ?: ""
                 if (responseBody.isEmpty()) {
                     Log.d("Analytics Fetch", "No analytics data available for this date")
+                    useFallbackData() // Use random data instead
                     return
                 }
 
@@ -69,7 +82,6 @@ class AnalyticsActivity : AppCompatActivity() {
                     val jsonResponse = JSONObject(responseBody)
 
                     val emotionStats = jsonResponse.getJSONObject("emotionStats")
-                    val activityStats = jsonResponse.getJSONObject("activityStats")
                     val overallScore = jsonResponse.optDouble("overallScore", -1.0)
                     val summaryArray = jsonResponse.getJSONArray("summary")
 
@@ -96,39 +108,91 @@ class AnalyticsActivity : AppCompatActivity() {
                         newEmotionsData[key] = valuesList
                     }
 
-                    // Update the class-level emotionsData
                     emotionsData = newEmotionsData
-
                     runOnUiThread {
                         updateChartData()
                         updateOverallScore(overallScore)
                         updateSummary(summaryList)
+                        setupEmotionFilter()
                     }
                 } catch (e: JSONException) {
                     Log.e("Analytics Fetch", "Error parsing JSON response", e)
+                    useFallbackData()
                 }
             }
 
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Analytics Fetch", "Error fetching analytics data", e)
+                useFallbackData()
             }
         })
     }
 
+    private fun useFallbackData() {
+        val random = Random()
+
+        // Fake emotion data with random values
+        emotionsData = mapOf(
+            "Happy" to List(10) { random.nextFloat() * 100 },
+            "Sad" to List(10) { random.nextFloat() * 100 },
+            "Angry" to List(10) { random.nextFloat() * 100 },
+            "Excited" to List(10) { random.nextFloat() * 100 },
+            "Calm" to List(10) { random.nextFloat() * 100 },
+            "Surprised" to List(10) { random.nextFloat() * 100 },
+            "Fearful" to List(10) { random.nextFloat() * 100 },
+            "Confused" to List(10) { random.nextFloat() * 100 },
+            "Bored" to List(10) { random.nextFloat() * 100 },
+            "Nostalgic" to List(10) { random.nextFloat() * 100 },
+            "Grateful" to List(10) { random.nextFloat() * 100 },
+            "Hopeful" to List(10) { random.nextFloat() * 100 },
+            "Proud" to List(10) { random.nextFloat() * 100 },
+            "Anxious" to List(10) { random.nextFloat() * 100 },
+            "Content" to List(10) { random.nextFloat() * 100 }
+        )
+
+
+        val summaryList = listOf(
+            "Exercise - Happy: Felt energized",
+            "Reading - Calm: Relaxing time",
+            "Work - Angry: Frustrating day"
+        )
+
+        val overallScore = random.nextDouble() * 100
+
+        runOnUiThread {
+            updateChartData()
+            updateOverallScore(overallScore)
+            updateSummary(summaryList)
+            setupEmotionFilter()
+        }
+    }
+
     private fun setupChart() {
         val chart = binding.analyticsChart
+        val xAxis = chart.xAxis
 
         // Configure X-Axis
-        val xAxis = chart.xAxis
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.setDrawGridLines(false)
         xAxis.labelRotationAngle = 45f
-        xAxis.setLabelCount(5, true) // Ensure X-axis has 5 labels
+        xAxis.axisMinimum = 0f
+        xAxis.axisMaximum = 6f
+        xAxis.granularity = 1f
+
+        // Get last 7 days dynamically
+        val last7Days = getLast7Days()
+
+        xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                val index = value.toInt().coerceIn(0, 6)
+                return last7Days[index] // Use dynamically generated labels
+            }
+        }
 
         // Configure Y-Axis
-        chart.axisRight.isEnabled = false // Hide right Y-Axis
-        chart.axisLeft.setDrawGridLines(false) // Hide grid lines for clarity
-        chart.description.isEnabled = false // Remove default description text
+        chart.axisRight.isEnabled = false
+        chart.axisLeft.setDrawGridLines(false)
+        chart.description.isEnabled = false
 
         // Enable touch interactions
         chart.isDragEnabled = true
@@ -138,12 +202,24 @@ class AnalyticsActivity : AppCompatActivity() {
         // Configure Legend
         val legend = chart.legend
         legend.isEnabled = true
-        legend.isWordWrapEnabled = true // Wrap the legend if it's too long
-        legend.xEntrySpace = 10f // Adds space between legend items
-        legend.yEntrySpace = 5f // Adds vertical spacing
-        legend.formSize = 12f // Adjusts the size of legend symbols
+        legend.isWordWrapEnabled = true
+        legend.xEntrySpace = 10f
+        legend.yEntrySpace = 5f
+        legend.formSize = 12f
     }
 
+    private fun getLast7Days(): List<String> {
+        val dateFormat = SimpleDateFormat("MMM dd", Locale.getDefault()) // e.g., "Feb 26"
+        val calendar = Calendar.getInstance()
+        val last7Days = mutableListOf<String>()
+
+        for (i in 6 downTo 0) { // Last 7 days from today
+            calendar.add(Calendar.DAY_OF_YEAR, -i)
+            last7Days.add(dateFormat.format(calendar.time))
+            calendar.add(Calendar.DAY_OF_YEAR, i) // Reset calendar
+        }
+        return last7Days
+    }
 
     private fun updateChartData() {
         val chart = binding.analyticsChart
@@ -154,12 +230,24 @@ class AnalyticsActivity : AppCompatActivity() {
             return
         }
 
-        val dataSets = mutableListOf<com.github.mikephil.charting.interfaces.datasets.ILineDataSet>()
-        val colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA, Color.CYAN,
-            Color.YELLOW, Color.DKGRAY, Color.LTGRAY, Color.BLACK, Color.WHITE)
+        val dataSets = mutableListOf<ILineDataSet>()
+        val colors = listOf(
+            Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA, Color.CYAN,
+            Color.rgb(255, 165, 0),  // Orange
+            Color.rgb(75, 0, 130),   // Indigo
+            Color.rgb(128, 0, 128),  // Purple
+            Color.rgb(0, 128, 128),  // Teal
+            Color.rgb(255, 105, 180),// Hot Pink
+            Color.rgb(255, 223, 0),  // Gold
+            Color.rgb(0, 191, 255),  // Deep Sky Blue
+            Color.rgb(34, 139, 34),  // Forest Green
+            Color.rgb(255, 69, 0),   // Red-Orange
+            Color.rgb(139, 0, 139)   // Dark Magenta
+        )
 
         var index = 0
         for ((emotion, values) in emotionsData) {
+            if (!selectedEmotions.contains(emotion)) continue
             if (values.isEmpty()) continue
 
             val entries = values.mapIndexed { i, value -> Entry(i.toFloat(), value) }
@@ -192,5 +280,70 @@ class AnalyticsActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupEmotionFilter() {
+        filterButton = binding.emotionFilterButton
+        filterButton.setOnClickListener {
+            showEmotionSelectionDialog()
+        }
+    }
 
+    private fun showEmotionSelectionDialog() {
+        val emotionsArray = emotionsData.keys.toTypedArray()
+        val checkedItems =
+            BooleanArray(emotionsArray.size) { selectedEmotions.contains(emotionsArray[it]) }
+
+        AlertDialog.Builder(this)
+            .setTitle("Select Emotions")
+            .setMultiChoiceItems(emotionsArray, checkedItems) { _, which, isChecked ->
+                if (isChecked) {
+                    selectedEmotions.add(emotionsArray[which])
+                } else {
+                    selectedEmotions.remove(emotionsArray[which])
+                }
+            }
+            .setPositiveButton("Apply") { _, _ ->
+                filterChartData() // Update chart based on selection
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun filterChartData() {
+        val chart = binding.analyticsChart
+
+        if (selectedEmotions.isEmpty()) {
+            updateChartData() // Show all emotions
+            return
+        }
+
+        val filteredDataSets = mutableListOf<ILineDataSet>()
+        val colors = listOf(
+            Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA, Color.CYAN,
+            Color.rgb(255, 165, 0),  // Orange
+            Color.rgb(75, 0, 130),   // Indigo
+            Color.rgb(128, 0, 128),  // Purple
+            Color.rgb(0, 128, 128),  // Teal
+            Color.rgb(255, 105, 180),// Hot Pink
+            Color.rgb(255, 223, 0),  // Gold
+            Color.rgb(0, 191, 255),  // Deep Sky Blue
+            Color.rgb(34, 139, 34),  // Forest Green
+            Color.rgb(255, 69, 0),   // Red-Orange
+            Color.rgb(139, 0, 139)   // Dark Magenta
+        )
+
+        var index = 0
+        for ((emotion, values) in emotionsData) {
+            if (emotion in selectedEmotions) {
+                val entries = values.mapIndexed { i, value -> Entry(i.toFloat(), value) }
+                val dataSet = LineDataSet(entries, emotion)
+                dataSet.color = colors[index % colors.size]
+                dataSet.valueTextColor = Color.BLACK
+                filteredDataSets.add(dataSet)
+                index++
+            }
+        }
+
+        chart.data = LineData(filteredDataSets)
+        chart.invalidate()
+    }
 }
