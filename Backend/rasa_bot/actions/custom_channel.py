@@ -1,25 +1,32 @@
-import json
 import inspect
+import json
 from sanic import Blueprint, response
 from sanic.request import Request
 from sanic.response import HTTPResponse
-from typing import Text, Dict, Any, Optional, Callable, Awaitable
+from typing import Text, Dict, Any, Callable, Awaitable
 
+import rasa.utils.endpoints
 from rasa.core.channels.channel import (
     InputChannel,
     CollectingOutputChannel,
     UserMessage,
 )
 
-class CustomRestInput(InputChannel):
-    """A custom REST input channel that extracts metadata."""
+class MyIO(InputChannel):
+    """Custom REST Input channel to receive metadata."""
 
     def name(self) -> Text:
-        return "custom_rest"
+        """Name of the custom channel."""
+        return "myio"
+
+    def get_metadata(self, request: Request) -> Dict[Text, Any]:
+        """Extract metadata from request JSON."""
+        return request.json.get("metadata", {})
 
     def blueprint(
         self, on_new_message: Callable[[UserMessage], Awaitable[None]]
     ) -> Blueprint:
+        """Define the blueprint for the custom webhook."""
 
         custom_webhook = Blueprint(
             "custom_webhook_{}".format(type(self).__name__),
@@ -32,11 +39,11 @@ class CustomRestInput(InputChannel):
 
         @custom_webhook.route("/webhook", methods=["POST"])
         async def receive(request: Request) -> HTTPResponse:
-            """Receives user messages and extracts metadata."""
+            """Handle user messages and extract metadata."""
 
             sender_id = request.json.get("sender", "default_sender")
-            text = request.json.get("message", "")
-            metadata = request.json.get("metadata", {})  # Extract metadata
+            text = request.json.get("message", "")  # Corrected key
+            metadata = self.get_metadata(request)  # Extract metadata
 
             collector = CollectingOutputChannel()
 
@@ -46,10 +53,17 @@ class CustomRestInput(InputChannel):
                     collector,
                     sender_id,
                     input_channel=self.name(),
-                    metadata=metadata,  # Pass metadata to UserMessage
+                    metadata=metadata,
+                    headers=request.headers,
                 )
             )
 
-            return response.json(collector.messages)
+            response_dict = {
+                "messages": collector.messages,
+                "metadata": metadata,
+                "conversation_id": sender_id,
+                "tracker_state": collector.tracker_state,
+            }
+            return response.json(response_dict)
 
         return custom_webhook

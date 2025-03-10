@@ -8,17 +8,27 @@ class ActionSaveMessage(Action):
         return "action_save_message"
 
     def run(self, dispatcher, tracker, domain):
-        # Extract metadata from tracker
-        metadata = tracker.latest_message.get("metadata", {})
+        # Extract metadata from the latest user message
+        events = tracker.events
+        metadata = None
 
-        # Retrieve slot values from metadata
-        date = metadata.get("date")
-        userID = metadata.get("userID")
-        google_token = metadata.get("google_token")
-        message = tracker.get_slot("message")  # Message comes from user input
+        for event in reversed(events):  # Loop through events in reverse to get the latest user event
+            if event.get("event") == "user" and event.get("metadata"):
+                metadata = event.get("metadata")
+                break
 
-        # Log retrieved values
-        logging.info(f"Retrieved metadata -> date: {date}, userID: {userID}, google_token: {google_token}, message: {message}")
+        if metadata:
+            date = metadata.get("date")
+            userID = metadata.get("userID")
+            google_token = metadata.get("google_token")
+        else:
+            date, userID, google_token = None, None, None
+
+        # Extract the message (directly from user input)
+        message = tracker.latest_message.get("text", "")
+
+        # Log extracted values
+        logging.info(f"Extracted metadata -> date: {date}, userID: {userID}, google_token: {google_token}, message: {message}")
 
         # Validate required fields
         if not all([date, userID, google_token, message]):

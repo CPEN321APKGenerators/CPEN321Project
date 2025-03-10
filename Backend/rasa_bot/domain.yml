@@ -11,23 +11,6 @@ intents:
 entities: []
 
 slots:
-  date:
-    type: text
-    mappings:
-      - type: from_metadata
-        key: date  
-
-  userID:
-    type: text
-    mappings:
-      - type: from_metadata
-        key: userID 
-
-  google_token:
-    type: text
-    mappings:
-      - type: from_metadata
-        key: google_token  
 
   message:
     type: text
