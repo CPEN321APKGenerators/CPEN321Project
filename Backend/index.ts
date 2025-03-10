@@ -194,34 +194,56 @@ app.post('/api/payment-sheet', async (req, res) => {
 
 // app.listen(4242, () => console.log('Webhook Running on port 4242'));
 
-app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
-  let event = request.body;
-  console.log("webhook event: ", event)
+// app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+//   let event = request.body;
+//   console.log("webhook event: ", event)
 
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        console.log(`PaymentIntent for ${paymentIntent.amount} was successful! from webhook!`);
-        console.log("payment intent userID: ", paymentIntent.metadata);
-        console.log("payment intent userID: ", paymentIntent.metadata.userID);
-        // Then define and call a method to handle the successful payment intent.
-        handlePaymentIntentSucceeded(paymentIntent);
-        break;
-    case 'payment_method.attached':
-      const paymentMethod = event.data.object;
-      // Then define and call a method to handle the successful attachment of a PaymentMethod.
-      // handlePaymentMethodAttached(paymentMethod);
-      break;
-    default:
-      // Unexpected event type
-      console.log(`Unhandled event type ${event.type}.`);
-  }
+//   // Handle the event
+//   switch (event.type) {
+//     case 'payment_intent.succeeded':
+//         const paymentIntent = event.data.object;
+//         console.log(`PaymentIntent for ${paymentIntent.amount} was successful! from webhook!`);
+//         console.log("payment intent userID: ", paymentIntent.metadata);
+//         console.log("payment intent userID: ", paymentIntent.metadata.userID);
+//         // Then define and call a method to handle the successful payment intent.
+//         handlePaymentIntentSucceeded(paymentIntent);
+//         break;
+//     case 'payment_method.attached':
+//       const paymentMethod = event.data.object;
+//       // Then define and call a method to handle the successful attachment of a PaymentMethod.
+//       // handlePaymentMethodAttached(paymentMethod);
+//       break;
+//     default:
+//       // Unexpected event type
+//       console.log(`Unhandled event type ${event.type}.`);
+//   }
 
-  // Return a 200 response to acknowledge receipt of the event
-  response.send();
+//   // Return a 200 response to acknowledge receipt of the event
+//   response.send();
+// });
+
+app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
+    let event = request.body;
+    console.log("webhook event: ", event);
+
+    try {
+        switch (event.type) {
+            case 'payment_intent.succeeded':
+                const paymentIntent = event.data.object;
+                console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
+                await handlePaymentIntentSucceeded(paymentIntent);  // Await function
+                break;
+            default:
+                console.log(`Unhandled event type ${event.type}.`);
+        }
+
+        response.sendStatus(200);
+    } catch (error) {
+        if (error instanceof Error)
+            console.error("Webhook error:", error.message);
+        response.sendStatus(500);  // Ensure a 500 response on failure
+    }
 });
-
 
 
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
@@ -234,11 +256,23 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
         };
 
         updatedFields.isPaid = true;
-        await client.db("cpen321journal").collection("users").updateOne(
-            { userID },
-            { $set: updatedFields }
-        );
-        console.log("updated user!")
+        try {
+            const result = await client.db("cpen321journal").collection("users").updateOne(
+                { userID },
+                { $set: updatedFields }
+            );
+        
+            if (!result.acknowledged) {
+                throw new Error("Failed to update database");
+            }
+        
+            console.log("Updated user!");
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Database update failed:", error.message);
+            }
+            throw error;
+        }        
     }
 }
 
