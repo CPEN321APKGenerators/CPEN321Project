@@ -1,3 +1,9 @@
+from typing import Any, Text, Dict, List
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
+import requests
+import logging
+
 class ActionSaveMessage(Action):
     def name(self) -> Text:
         return "action_save_message"
