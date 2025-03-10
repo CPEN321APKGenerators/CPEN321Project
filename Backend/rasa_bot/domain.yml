@@ -8,11 +8,7 @@ intents:
   - journal_provided
   - start
 
-entities: 
-  - date 
-  - userID
-  - google_token
-  - message
+entities: []
 
 slots:
   date:
