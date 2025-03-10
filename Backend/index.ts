@@ -32,7 +32,18 @@ if (!admin.apps.length) {
 }
 
 // Read the secret as a string
-const stripeSecret = fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+const stripeSecret = process.env.STRIPE_SECRET || (() => {
+    try {
+        return fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+    } catch (error) {
+        console.warn("Stripe secret file not found, falling back to environment variable.");
+        return "";
+    }
+})();
+
+if (!stripeSecret) {
+    throw new Error("Missing Stripe Secret Key!");
+}
 console.log(stripeSecret)
 // const OtherRoutes=[]
 const Routes = [...AnalysisRoutes, ...JournalRoutes, ...UserRoutes];
