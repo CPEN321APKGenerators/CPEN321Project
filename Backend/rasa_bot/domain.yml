@@ -14,25 +14,26 @@ slots:
   date:
     type: text
     mappings:
-      - type: from_metadata
+      - type: from_metadata  
         metadata_key: date  
 
   userID:
     type: text
     mappings:
-      - type: from_metadata
+      - type: from_metadata  
         metadata_key: userID  
 
   google_token:
     type: text
     mappings:
-      - type: from_metadata
+      - type: from_metadata  
         metadata_key: google_token  
 
   message:
     type: text
     mappings:
-      - type: from_text 
+      - type: from_text  
+
 
 
 responses:
