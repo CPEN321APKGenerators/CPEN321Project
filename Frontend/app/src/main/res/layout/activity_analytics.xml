@@ -64,14 +64,19 @@
             android:layout_height="300dp"
             android:background="@android:color/white" />
 
-        <!-- Refresh Button -->
         <Button
-            android:id="@+id/refreshButton"
+            android:id="@+id/activityfilterButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
-            android:text="Refresh Data" />
+            android:text="Select Activities" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/activities_chart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="@android:color/white" />
 
     </LinearLayout>
 

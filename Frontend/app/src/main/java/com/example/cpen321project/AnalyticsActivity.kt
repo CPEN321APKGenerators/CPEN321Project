@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cpen321project.databinding.ActivityAnalyticsBinding
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -25,16 +26,16 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.Locale
-import java.util.Random
 
 class AnalyticsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAnalyticsBinding
     private lateinit var selected_date: String
     private lateinit var userID: String
-    private var emotionsData: Map<String, List<Float>> = emptyMap()
+    private var emotionsData = mutableMapOf<String, List<Float>>()
+    private var activitiesData = mutableMapOf<String, List<Float>>()
     private val selectedEmotions = mutableSetOf<String>()
-    private lateinit var filterButton: Button
+    private var selectedActivities = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,10 +45,8 @@ class AnalyticsActivity : AppCompatActivity() {
         userID = intent.getStringExtra("USER_ID").toString()
 
         get_trend()
-        setupChart()
-        binding.refreshButton.setOnClickListener {
-            updateChartData()
-        }
+        setupChart(binding.activitiesChart)
+        setupChart(binding.analyticsChart)
 
         binding.buttonToCalendar.setOnClickListener {
             finish()  // Closes this activity and returns to the previous one
@@ -67,14 +66,12 @@ class AnalyticsActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
                     Log.e("Analytics Fetch", "Failed to fetch analytics data: ${response.code}")
-                    useFallbackData() // Use random data instead
                     return
                 }
 
                 val responseBody = response.body?.string() ?: ""
                 if (responseBody.isEmpty()) {
                     Log.d("Analytics Fetch", "No analytics data available for this date")
-                    useFallbackData() // Use random data instead
                     return
                 }
 
@@ -82,6 +79,7 @@ class AnalyticsActivity : AppCompatActivity() {
                     val jsonResponse = JSONObject(responseBody)
 
                     val emotionStats = jsonResponse.getJSONObject("emotionStats")
+                    val activityStats = jsonResponse.getJSONObject("activityStats")
                     val overallScore = jsonResponse.optDouble("overallScore", -1.0)
                     val summaryArray = jsonResponse.getJSONArray("summary")
 
@@ -107,68 +105,51 @@ class AnalyticsActivity : AppCompatActivity() {
                         }
                         newEmotionsData[key] = valuesList
                     }
-
                     emotionsData = newEmotionsData
+
+                    val newActivityData = mutableMapOf<String, List<Float>>()
+                    val activityKeys = activityStats.keys()
+                    while (activityKeys.hasNext()) {
+                        val key = activityKeys.next()
+                        val valuesArray = activityStats.getJSONArray(key)
+                        val valuesList = mutableListOf<Float>()
+                        for (i in 0 until valuesArray.length()) {
+                            val value = valuesArray.optDouble(i, 0.0)
+                            valuesList.add(value.toFloat())
+                        }
+                        newActivityData[key] = valuesList
+                    }
+                    activitiesData = newActivityData
+
                     runOnUiThread {
-                        updateChartData()
                         updateOverallScore(overallScore)
                         updateSummary(summaryList)
-                        setupEmotionFilter()
+                        setupEmotionFilter(
+                            activitiesData,
+                            selectedActivities,
+                            binding.activitiesChart,
+                            binding.activityfilterButton
+                        )
+                        setupEmotionFilter(
+                            emotionsData,
+                            selectedEmotions,
+                            binding.analyticsChart,
+                            binding.emotionFilterButton
+                        )
                     }
                 } catch (e: JSONException) {
                     Log.e("Analytics Fetch", "Error parsing JSON response", e)
-                    useFallbackData()
                 }
             }
 
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Analytics Fetch", "Error fetching analytics data", e)
-                useFallbackData()
             }
         })
     }
 
-    private fun useFallbackData() {
-        val random = Random()
-
-        // Fake emotion data with random values
-        emotionsData = mapOf(
-            "Happy" to List(10) { random.nextFloat() * 100 },
-            "Sad" to List(10) { random.nextFloat() * 100 },
-            "Angry" to List(10) { random.nextFloat() * 100 },
-            "Excited" to List(10) { random.nextFloat() * 100 },
-            "Calm" to List(10) { random.nextFloat() * 100 },
-            "Surprised" to List(10) { random.nextFloat() * 100 },
-            "Fearful" to List(10) { random.nextFloat() * 100 },
-            "Confused" to List(10) { random.nextFloat() * 100 },
-            "Bored" to List(10) { random.nextFloat() * 100 },
-            "Nostalgic" to List(10) { random.nextFloat() * 100 },
-            "Grateful" to List(10) { random.nextFloat() * 100 },
-            "Hopeful" to List(10) { random.nextFloat() * 100 },
-            "Proud" to List(10) { random.nextFloat() * 100 },
-            "Anxious" to List(10) { random.nextFloat() * 100 },
-            "Content" to List(10) { random.nextFloat() * 100 }
-        )
-
-
-        val summaryList = listOf(
-            "Exercise - Happy: Felt energized",
-            "Reading - Calm: Relaxing time",
-            "Work - Angry: Frustrating day"
-        )
-
-        val overallScore = random.nextDouble() * 100
-
-        runOnUiThread {
-            updateChartData()
-            updateOverallScore(overallScore)
-            updateSummary(summaryList)
-            setupEmotionFilter()
-        }
-    }
-
-    private fun setupChart() {
-        val chart = binding.analyticsChart
+    private fun setupChart(activitiesChart: LineChart) {
+        val chart = activitiesChart
         val xAxis = chart.xAxis
 
         // Configure X-Axis
@@ -221,52 +202,6 @@ class AnalyticsActivity : AppCompatActivity() {
         return last7Days
     }
 
-    private fun updateChartData() {
-        val chart = binding.analyticsChart
-
-        if (emotionsData.isEmpty()) {
-            chart.clear()
-            chart.setNoDataText("No chart data available")
-            return
-        }
-
-        val dataSets = mutableListOf<ILineDataSet>()
-        val colors = listOf(
-            Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA, Color.CYAN,
-            Color.rgb(255, 165, 0),  // Orange
-            Color.rgb(75, 0, 130),   // Indigo
-            Color.rgb(128, 0, 128),  // Purple
-            Color.rgb(0, 128, 128),  // Teal
-            Color.rgb(255, 105, 180),// Hot Pink
-            Color.rgb(255, 223, 0),  // Gold
-            Color.rgb(0, 191, 255),  // Deep Sky Blue
-            Color.rgb(34, 139, 34),  // Forest Green
-            Color.rgb(255, 69, 0),   // Red-Orange
-            Color.rgb(139, 0, 139)   // Dark Magenta
-        )
-
-        var index = 0
-        for ((emotion, values) in emotionsData) {
-            if (!selectedEmotions.contains(emotion)) continue
-            if (values.isEmpty()) continue
-
-            val entries = values.mapIndexed { i, value -> Entry(i.toFloat(), value) }
-            val dataSet = LineDataSet(entries, emotion)
-            dataSet.color = colors[index % colors.size]
-            dataSet.valueTextColor = Color.BLACK
-            dataSets.add(dataSet)
-            index++
-        }
-
-        if (dataSets.isEmpty()) {
-            chart.clear()
-            chart.setNoDataText("No valid data to display")
-            return
-        }
-
-        chart.data = LineData(dataSets)
-        chart.invalidate()
-    }
 
     private fun updateOverallScore(score: Double) {
         runOnUiThread {
@@ -280,39 +215,50 @@ class AnalyticsActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupEmotionFilter() {
-        filterButton = binding.emotionFilterButton
-        filterButton.setOnClickListener {
-            showEmotionSelectionDialog()
+    private fun setupEmotionFilter(
+        Data: MutableMap<String, List<Float>>,
+        selected: MutableSet<String>,
+        Chart: LineChart,
+        FilterButton: Button
+    ) {
+        FilterButton.setOnClickListener {
+            showEmotionSelectionDialog(Data, selected, Chart)
         }
     }
 
-    private fun showEmotionSelectionDialog() {
-        val emotionsArray = emotionsData.keys.toTypedArray()
+    private fun showEmotionSelectionDialog(
+        Data: MutableMap<String, List<Float>>,
+        selected: MutableSet<String>,
+        Chart: LineChart
+    ) {
+        val items = Data.keys.toTypedArray()
         val checkedItems =
-            BooleanArray(emotionsArray.size) { selectedEmotions.contains(emotionsArray[it]) }
+            BooleanArray(items.size) { selected.contains(items[it]) }
 
         AlertDialog.Builder(this)
             .setTitle("Select Emotions")
-            .setMultiChoiceItems(emotionsArray, checkedItems) { _, which, isChecked ->
+            .setMultiChoiceItems(items, checkedItems) { _, which, isChecked ->
                 if (isChecked) {
-                    selectedEmotions.add(emotionsArray[which])
+                    selected.add(items[which])
                 } else {
-                    selectedEmotions.remove(emotionsArray[which])
+                    selected.remove(items[which])
                 }
             }
             .setPositiveButton("Apply") { _, _ ->
-                filterChartData() // Update chart based on selection
+                filterChartData(Data, selected, Chart) // Update chart based on selection
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun filterChartData() {
-        val chart = binding.analyticsChart
+    private fun filterChartData(
+        Data: MutableMap<String, List<Float>>,
+        Selected: MutableSet<String>,
+        Chart: LineChart
+    ) {
+        val chart = Chart
 
-        if (selectedEmotions.isEmpty()) {
-            updateChartData() // Show all emotions
+        if (Selected.isEmpty()) {
             return
         }
 
@@ -332,10 +278,10 @@ class AnalyticsActivity : AppCompatActivity() {
         )
 
         var index = 0
-        for ((emotion, values) in emotionsData) {
-            if (emotion in selectedEmotions) {
+        for ((key, values) in Data) {
+            if (key in Selected) {
                 val entries = values.mapIndexed { i, value -> Entry(i.toFloat(), value) }
-                val dataSet = LineDataSet(entries, emotion)
+                val dataSet = LineDataSet(entries, key)
                 dataSet.color = colors[index % colors.size]
                 dataSet.valueTextColor = Color.BLACK
                 filteredDataSets.add(dataSet)
