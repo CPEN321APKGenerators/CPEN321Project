@@ -281,7 +281,7 @@ class Journal_entries : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
                 if (responseData != null) {
-                    val responseObject = JSONObject(responseData)  // ✅ Convert to
+                    val responseObject = JSONObject(responseData)
 
 
                     // ✅ Extract "messages" array
@@ -289,9 +289,9 @@ class Journal_entries : AppCompatActivity() {
                     val botMessages = StringBuilder()
 
                     for (i in 0 until responseArray.length()) {
-                        val messageObject = responseArray.getJSONObject(i)  // ✅
-                        val botMessage = messageObject.getString("text")  // ✅ Get text
-                        botMessages.append(botMessage).append("\n")  // ✅ Append message
+                        val messageObject = responseArray.getJSONObject(i)
+                        val botMessage = messageObject.getString("text")
+                        botMessages.append(botMessage).append("\n")
                     }
 
                     runOnUiThread {
