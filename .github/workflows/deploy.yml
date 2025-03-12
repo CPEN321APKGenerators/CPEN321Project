@@ -41,6 +41,8 @@ jobs:
           FIREBASE_CONFIG: ${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }} 
           STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
           SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
+          TEST_GOOGLE_TOKEN: ${{ secrets.TEST_GOOGLE_TOKEN }}
+          GOOGLE_NUM_ID: ${{ secrets.GOOGLE_NUM_ID }}
         run: |
           cd Backend
           NODE_ENV=test npm test

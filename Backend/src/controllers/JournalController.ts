@@ -159,16 +159,29 @@ export class JournalController {
         if (!googleNumID) {
             return res.status(404).json({ error: "User not found or googleNumID is missing" });
         }
-        const user = await client.db("cpen321journal").collection("users").findOne({ userID });
-        if(!user){
+        // Fetch user from the database
+        let user;
+        try {
+            user = await client.db("cpen321journal").collection("users").findOne({ userID });
+        } catch (error) {
+            console.error("Database error fetching user:", error);
+            return res.status(500).json({ error: "Database error while retrieving user" });
+        }
+
+        if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
         // Derive Key for Encryption
         const key = await deriveKey(googleNumID);
     
-        // Check for Existing Entry
-        const existingEntry = await client.db("cpen321journal").collection("journals")
-            .findOne({ date, userID });
+        // Fetch existing journal entry
+        let existingEntry;
+        try {
+            existingEntry = await client.db("cpen321journal").collection("journals").findOne({ date, userID });
+        } catch (error) {
+            console.error("Database error fetching journal entry:", error);
+            return res.status(500).json({ error: "Database error while retrieving journal entry" });
+        }
     
         // Encrypt Text
         let encryptedText;
@@ -194,25 +207,30 @@ export class JournalController {
 
 
         // Update or Insert Journal Entry
-        const result = await client.db("cpen321journal").collection("journals")
-            .updateOne(
-                { date, userID },          // Filter by date and userID
-                { 
-                    $set: {
-                        text: encryptedText, 
-                        media: encryptedMedia,
-                        stats: entryStats,
-                        updatedAt: new Date()
-                    }
-                }, 
-                { upsert: true }           // Create a new document if none exists
-            );
-    
-        res.status(200).json({ 
-            message: result.upsertedCount > 0 
-                ? "New journal entry created successfully with encrypted text and images!" 
-                : "Existing journal entry updated successfully!"
-        });
+        try {
+            const result = await client.db("cpen321journal").collection("journals")
+                .updateOne(
+                    { date, userID },
+                    { 
+                        $set: {
+                            text: encryptedText, 
+                            media: encryptedMedia,
+                            stats: entryStats,
+                            updatedAt: new Date()
+                        }
+                    }, 
+                    { upsert: true }
+                );
+
+            return res.status(200).json({ 
+                message: result.upsertedCount > 0 
+                    ? "New journal entry created successfully with encrypted text and images!" 
+                    : "Existing journal entry updated successfully!"
+            });
+        } catch (error) {
+            console.error("Database error updating journal entry:", error);
+            return res.status(500).json({ error: "Database error while saving journal entry" });
+        }
     }
     
 
@@ -289,107 +307,6 @@ export class JournalController {
         });
     }
 
-    // async postJournalMedia(req: Request, res: Response, next: NextFunction) {
-    //     const { date, userID, media } = req.body;
-    
-    //     if (!media || !Array.isArray(media) || media.length === 0) {
-    //         return res.status(400).json({ message: "No media provided" });
-    //     }
-
-    //     const googleNumID = await getGoogleNumID(userID);
-    //     if (!googleNumID) {
-    //         return res.status(404).json({ error: "User not found or googleNumID is missing" });
-    //     }
-    
-    //     const key = await deriveKey(googleNumID);
-    
-    //     const encryptedMedia = await Promise.all(media.map(async (item: string) => await encryptData(item, key)));
-    
-    //     const existing = await client.db("cpen321journal").collection("journals")
-    //         .findOne({ date, userID });
-    
-    //     if (existing) {
-    //         const updatedMedia = [...existing.media, ...encryptedMedia];
-            
-    //         await client.db("cpen321journal").collection("journals")
-    //             .updateOne(
-    //                 { date, userID },
-    //                 { $set: { media: updatedMedia } }
-    //             );
-    //     } else {
-    //         await client.db("cpen321journal").collection("journals")
-    //             .insertOne({
-    //                 date,
-    //                 userID,
-    //                 text: "",
-    //                 media: encryptedMedia,
-    //                 createdAt: new Date()
-    //             });
-    //     }
-
-    //     console.log("encrypted: ", encryptedMedia)
-    
-    //     res.status(201).json({ success: true });
-    // }
-    
-    
-
-    // async deleteJournalMedia(req: Request, res: Response, next: NextFunction) {
-    //     const { date, userID, media } = req.query;
-    
-    //     if (!media || typeof media !== "string") {
-    //         return res.status(400).json({ message: "Invalid or no media specified for deletion" });
-    //     }
-    
-    //     // Retrieve the journal entry
-    //     const entry = await client.db("cpen321journal").collection("journals")
-    //         .findOne({ date, userID });
-    
-    //     if (!entry) {
-    //         return res.status(404).json({ message: "Journal entry not found" });
-    //     }
-    
-    //     // Filter out the specified media
-    //     const updatedMedia = entry.media.filter((item: string) => item !== media);
-    
-    //     // Update the document with the new media array
-    //     const result = await client.db("cpen321journal").collection("journals")
-    //         .updateOne(
-    //             { date, userID },
-    //             { $set: { media: updatedMedia } }
-    //         );
-    
-    //     res.status(200).json({ delete_success: result.modifiedCount > 0 });
-    // }
-    
-    
-
-    // async getJournalMedia(req: Request, res: Response, next: NextFunction) {
-    //     const { date, userID } = req.query;
-
-    //     if (typeof userID !== 'string') {
-    //         return res.status(400).json({ error: "Invalid userID" });
-    //     }
-
-    //     const googleNumID = await getGoogleNumID(userID);
-    //     if (!googleNumID) {
-    //         return res.status(404).json({ error: "User not found or googleNumID is missing" });
-    //     }
-    
-    //     const key = await deriveKey(googleNumID as string);
-    
-    //     const entry = await client.db("cpen321journal").collection("journals")
-    //         .findOne({ date, userID });
-    
-    //     if (!entry) {
-    //         return res.status(404).json({ message: "Journal entry not found" });
-    //     }
-    
-    //     entry.media = entry.media ? await Promise.all(entry.media.map(async (item: string) => await decryptData(item, key))) : [];
-    
-    //     res.status(200).json({ media: entry.media || [] });
-    // }
-    
 
     async getJournalFile(req: Request, res: Response, next: NextFunction) {
         const { userID, format } = req.query;

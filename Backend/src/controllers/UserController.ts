@@ -213,7 +213,7 @@ export class UserController {
                 const result = await client.db("cpen321journal").collection("users").insertOne(newUser);
     
                 if (result.acknowledged) {
-                    res.status(201).json(newUser);  // Return the newly created profile
+                    res.status(200).json(newUser);  // Return the newly created profile
                 } else {
                     res.status(500).json({ error: "Failed to create user profile" });
                 }

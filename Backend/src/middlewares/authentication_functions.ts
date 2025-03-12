@@ -20,6 +20,6 @@ export async function verifyGoogleToken(req: Request, res: Response, next: NextF
 
         next();
     } catch (error) {
-        return res.status(403).json({ message: "Invalid Google token" });
+        return res.status(403).json({ message: "Invalid Google token when authenticating" });
     }
 }
