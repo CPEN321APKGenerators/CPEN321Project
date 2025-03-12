@@ -243,13 +243,15 @@ class ProfileManagement : AppCompatActivity() {
 
     // Function to show edit/delete options on long press
     private fun showEditDeleteDialog(position: Int) {
-        val options = arrayOf("Edit", "Delete")
+//        val options = arrayOf("Edit", "Delete")
+        val options = arrayOf("Delete")
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose an option")
         builder.setItems(options) { _, which ->
             when (which) {
-                0 -> showEditActivityDialog(position)  // Edit selected
-                1 -> deleteActivity(position)           // Delete selected
+//                0 -> showEditActivityDialog(position)  // Edit selected
+//                1 -> deleteActivity(position)           // Delete selected
+                0 -> deleteActivity(position)
             }
         }
         builder.show()
