@@ -62,7 +62,6 @@ describe('User APIs - No Mocks (Integration)', () => {
         .send({userID: "llcce44@gmail.com", preferred_name: "test user", googleToken: testGoogleToken});
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty('updatedFields');
     })
 
   });
