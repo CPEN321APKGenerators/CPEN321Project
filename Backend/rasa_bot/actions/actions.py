@@ -30,7 +30,7 @@ class ActionSaveMessage(Action):
             "date": date,
             "userID": userID,
             "google_token": google_token,  
-            "message": message
+            "text": message
         }
 
         headers = {

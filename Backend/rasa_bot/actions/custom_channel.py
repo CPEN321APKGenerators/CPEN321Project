@@ -33,9 +33,9 @@ class MyIO(InputChannel):
 
         @custom_webhook.route("/webhook", methods=["POST"])
         async def receive(request: Request) -> HTTPResponse:
-            sender_id = request.json.get("sender")  # Extract sender ID
-            text = request.json.get("message")  # Extract message
-            metadata = request.json.get("metadata", {})  # Extract metadata
+            sender_id = request.json.get("sender")  
+            text = request.json.get("message")  # Extract message, coming from user
+            metadata = request.json.get("metadata", {})  # Extract metadata, sent with message
 
             collector = CollectingOutputChannel()
 
