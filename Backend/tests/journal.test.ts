@@ -4,6 +4,7 @@ import { jest } from "@jest/globals";
 import { JournalController } from "../src/controllers/JournalController";
 import { MongoClient, Db, Collection, Document, BulkWriteResult } from "mongodb";
 import { client } from "../services";
+import fs from "fs";
 
 const mockJournal = {
     id: "12345",
@@ -14,7 +15,16 @@ const mockJournal = {
 
 // Unmocked Tests (Real API Calls)
 describe("Journal API - Unmocked", () => {
-    const unmocked_data_json = require('./unmocked_data.json'); // Use a real token for integration tests
+    let unmocked_data_json: any = {}; // Default empty object
+    try {
+        if (fs.existsSync("./tests/unmocked_data.json")) {
+            unmocked_data_json = require("./unmocked_data.json");
+        } else {
+            console.warn("⚠️ Warning: unmocked_data.json not found. Using only environment variables.");
+        }
+    } catch (error) {
+        console.warn("⚠️ Warning: Failed to load unmocked_data.json. Using only environment variables.", error);
+    }
     const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken
     const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID
     

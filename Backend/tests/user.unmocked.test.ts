@@ -2,10 +2,20 @@ import request from 'supertest';
 import { app } from '../index'; // Your Express app instance
 import { client } from '../services';
 import { ObjectId } from 'mongodb';
+import fs from "fs";
 
 describe('User APIs - No Mocks (Integration)', () => {
   const testUserID = 'test-user-123';
-  const unmocked_data_json = require('./unmocked_data.json'); // Use a real token for integration tests
+  let unmocked_data_json: any = {}; // Default empty object
+  try {
+      if (fs.existsSync("./tests/unmocked_data.json")) {
+          unmocked_data_json = require("./unmocked_data.json");
+      } else {
+          console.warn("⚠️ Warning: unmocked_data.json not found. Using only environment variables.");
+      }
+  } catch (error) {
+      console.warn("⚠️ Warning: Failed to load unmocked_data.json. Using only environment variables.", error);
+  }
   const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken
   const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID
   console.log(testGoogleToken);
