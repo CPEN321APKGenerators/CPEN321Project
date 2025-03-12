@@ -20,10 +20,10 @@ describe("Journal API - Unmocked", () => {
         if (fs.existsSync("./tests/unmocked_data.json")) {
             unmocked_data_json = require("./unmocked_data.json");
         } else {
-            console.warn("⚠️ Warning: unmocked_data.json not found. Using only environment variables.");
+            console.log("Warning: unmocked_data.json not found. Using only environment variables.");
         }
     } catch (error) {
-        console.warn("⚠️ Warning: Failed to load unmocked_data.json. Using only environment variables.", error);
+        console.log("Warning: Failed to load unmocked_data.json. Using only environment variables.", error);
     }
     const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken
     const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID
@@ -45,7 +45,7 @@ describe("Journal API - Unmocked", () => {
             .send(mockJournal);
 
         expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty("message", "Existing journal entry updated successfully!");
+        expect(response.body).toHaveProperty("message", "New journal entry created successfully with encrypted text and images!");
     });
 
     it("should retrieve a journal entry", async () => {
