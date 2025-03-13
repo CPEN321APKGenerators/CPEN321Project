@@ -144,7 +144,8 @@ class UnpaidUserJournalTest {
 
         onView(withId(R.id.deletebutton)).perform(click())
         sleep(1000)
-        onView(withText("Delete journal Entry")).check(matches(isDisplayed()))
+        onView(withText("Delete Journal Entry")).check(matches(isDisplayed()))
+        sleep(1000)
         onView(allOf(withText("Yes"), isDisplayed())).perform(click())
         sleep(1000)
         onView(withId(R.id.calenderrecycleView)).check(matches(isDisplayed()))

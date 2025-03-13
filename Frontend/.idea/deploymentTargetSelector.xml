@@ -5,7 +5,13 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="UnpaidUserTest">
+      <SelectionState runConfigName="UnpaidUserJournalTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="PaidUserJournalTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="C_User_click_on_higlighted_delete_entry()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
