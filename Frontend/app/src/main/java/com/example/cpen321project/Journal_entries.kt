@@ -176,7 +176,7 @@ class Journal_entries : AppCompatActivity() {
             if (isPaidUser) {
                 showUploadOptions()
             } else {
-                Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -244,7 +244,6 @@ class Journal_entries : AppCompatActivity() {
 
     private fun sendMessageToChatbot(message: String) {
         val json =JSONObject()
-//        if(journal_flag) {
         json.apply {
             put("sender", userID)  // Unique sender ID
             put("message", message)
@@ -254,12 +253,6 @@ class Journal_entries : AppCompatActivity() {
                 put("google_token", user_google_token)
             })
         }
-//        } else {
-//            json.apply {
-//                put("message", message)
-//            }
-//        }
-
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()

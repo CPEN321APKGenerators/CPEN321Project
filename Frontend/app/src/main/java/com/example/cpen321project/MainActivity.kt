@@ -292,7 +292,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                 }
 //                startActivity(intent)
             } else {
-                Toast.makeText(this, "Cannot add a journal for future dates!", Toast.LENGTH_SHORT)
+                Toast.makeText(this, "Cannot add a journal for future dates!", Toast.LENGTH_LONG)
                     .show()
             }
         }
