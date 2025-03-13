@@ -232,7 +232,7 @@ class ProfileManagement : AppCompatActivity() {
             if (activityName.isNotEmpty() && averageValue > 0) {
                 addNewActivity(activityName, averageValue, unit)
             } else {
-                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -308,7 +308,7 @@ class ProfileManagement : AppCompatActivity() {
                 activitiesAdapter.notifyDataSetChanged()
                 updateListViewHeight()
             } else {
-                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -384,7 +384,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Reminder updated successfully!",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 } else {
@@ -393,7 +393,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Failed to update reminder settings",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -405,7 +405,7 @@ class ProfileManagement : AppCompatActivity() {
                     Toast.makeText(
                         this@ProfileManagement,
                         "Connection error. Please try again.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -528,7 +528,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Failed to get user profile",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -540,7 +540,7 @@ class ProfileManagement : AppCompatActivity() {
                     Toast.makeText(
                         this@ProfileManagement,
                         "Connection error. Please try again.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -626,7 +626,7 @@ class ProfileManagement : AppCompatActivity() {
                     Toast.makeText(
                         applicationContext,
                         "Payment update failed",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -637,13 +637,13 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             applicationContext,
                             "Payment saved successfully!, You are a premium user",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     } else {
                         Toast.makeText(
                             applicationContext,
                             "Error: ${response.body?.string()}",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -693,7 +693,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Profile updated successfully!",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 } else {
@@ -703,7 +703,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Failed to update profile",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -715,7 +715,7 @@ class ProfileManagement : AppCompatActivity() {
                     Toast.makeText(
                         this@ProfileManagement,
                         "Connection error. Please try again.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
