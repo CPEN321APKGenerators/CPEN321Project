@@ -63,8 +63,7 @@ class Journal_entries : AppCompatActivity() {
     private lateinit var chatInput: EditText
     private lateinit var sendChatButton: Button
     private val client = OkHttpClient()
-    private val chatbotUrl =
-        "http://54.234.28.190:3001/api/chat"  //will change to https later
+    private val chatbotUrl = "https://54.234.28.190:3001/api/chat"
     private val BASE_URL = "https://cpen321project-journal.duckdns.org"
     private var userID: String? = null
     private var user_google_token: String? = null
