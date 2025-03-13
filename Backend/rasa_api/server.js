@@ -3,7 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const fs = require("fs");
-
+const https = require("https");
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -62,6 +62,6 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Node.js API running on port ${PORT}`);
+https.createServer(options, app).listen(PORT, () => {
+    console.log(`Node.js API running with HTTPS on port ${PORT}`);
 });
