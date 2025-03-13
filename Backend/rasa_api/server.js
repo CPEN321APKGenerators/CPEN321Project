@@ -7,6 +7,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Load SSL Certificate & Key
+const options = {
+    key: fs.readFileSync("./ssl/key.pem"),  // Private key
+    cert: fs.readFileSync("./ssl/cert.pem") // Self-signed certificate
+};
+
 // Environment Variables
 const RASA_SERVER_URL = process.env.RASA_SERVER_URL || "http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook";
 const ACTION_SERVER_URL = process.env.ACTION_SERVER_URL || "http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook";
