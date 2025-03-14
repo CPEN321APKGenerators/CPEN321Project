@@ -9,6 +9,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.BoundedMatcher
@@ -177,8 +178,9 @@ class UnpaidUserJournalTest {
         sleep(1000)
         // Check if a Toast with expected message is displayed
         onView(withText("Cannot add a journal for future dates!"))
-            .inRoot(ToastMatcher())
-            .check(matches(isDisplayed()))  // Toast should be displayed
+            .inRoot(ToastMatcher().apply{
+                matches(isDisplayed())
+            })
     }
 
     @Test
@@ -195,8 +197,22 @@ class UnpaidUserJournalTest {
 
         sleep(1000)
         onView(withText("Upgrade to upload media!"))
-            .inRoot(ToastMatcher())
-            .check(matches(isDisplayed()))  // Toast should be displayed
+            .inRoot(ToastMatcher().apply {
+                matches(isDisplayed())
+            })
+    }
+
+    @Test
+    fun F_User_export_journal() {
+        onView(withId(R.id.export_button)).check(matches(isDisplayed()))
+        onView(withId(R.id.export_button)).perform(click())
+
+        sleep(1000)
+
+        onView(withText("File URL copied to clipboard!"))
+            .inRoot(ToastMatcher().apply {
+                matches(isDisplayed())
+            })
     }
 }
 

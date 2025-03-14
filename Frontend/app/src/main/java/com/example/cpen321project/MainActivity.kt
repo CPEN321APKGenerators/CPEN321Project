@@ -217,7 +217,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         val clip = ClipData.newPlainText("File URL", downloadURL)
         clipboard.setPrimaryClip(clip)
 
-        Toast.makeText(this, "File URL copied to clipboard!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "File URL copied to clipboard!", Toast.LENGTH_LONG).show()
     }
 
     private fun initWidgets() {
