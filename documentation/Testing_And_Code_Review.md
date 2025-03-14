@@ -18,7 +18,7 @@
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
 | **POST /user/login**          | [`tests/unmocked/authenticationLogin.test.js#L1`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google Authentication API, User DB |
 | **POST /study-groups/create** | ...                                                  | ...                                                | Study Group DB                     |
-| ...                           | ...                                                  | ...                                                | ...                                |
+| **GET /analytics**            | ...                                                  | [`tests/analytics.mocked.test.ts#L1`](#)           | User DB                            |
 | ...                           | ...                                                  | ...                                                | ...                                |
 
 #### 2.1.2. Commit Hash Where Tests Run
