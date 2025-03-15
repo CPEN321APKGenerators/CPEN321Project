@@ -36,7 +36,7 @@ export async function verifyGoogleToken(req: Request, res: Response, next: NextF
         const verifiedGoogleNumID = response.data.sub;
         
         if (verifiedGoogleNumID !== googleNumID) {
-            return res.status(403).json({ message: "Unauthorized: googleNumID does not match token" });
+            return res.status(403).json({ message: "Unauthorized: googleNumID does not match token" + verifiedGoogleNumID + ";" + googleNumID });
         }
 
         next();
