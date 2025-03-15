@@ -28,7 +28,7 @@ export async function verifyGoogleToken(req: Request, res: Response, next: NextF
     }
 
     if (!googleNumID) {
-        googleNumID = getGoogleNumID(userID)
+        googleNumID = await getGoogleNumID(userID); 
     }
 
     try {
