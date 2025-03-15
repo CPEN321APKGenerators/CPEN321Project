@@ -4,5 +4,5 @@ process.env.OPEN_API_KEY = 'randomopenapikeythatjustserveasaplaceholderpleaserep
 
 
 // Suppress console logs during tests
-jest.spyOn(console, 'log').mockImplementation(() => {});
-jest.spyOn(console, 'error').mockImplementation(() => {});
+// jest.spyOn(console, 'log').mockImplementation(() => {});
+// jest.spyOn(console, 'error').mockImplementation(() => {});

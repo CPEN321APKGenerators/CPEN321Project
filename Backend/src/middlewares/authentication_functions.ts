@@ -9,6 +9,12 @@ export async function verifyGoogleToken(req: Request, res: Response, next: NextF
     if (!googleToken || !googleNumID) {
         return res.status(400).json({ message: "Missing googleToken or googleNumID" });
     }
+    // if (!googleToken) {
+    //     return res.status(400).json({ message: "Missing googleToken" });
+    // }
+    // if (!googleNumID) {
+    //     return res.status(400).json({ message: "Missing googleNumID" });
+    // }
 
     try {
         const response = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${googleToken}`);

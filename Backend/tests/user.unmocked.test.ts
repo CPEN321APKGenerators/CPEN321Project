@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 import fs from "fs";
 
 describe('User APIs - No Mocks (Integration)', () => {
-  const testUserID = 'test-user-123';
+  const testUserID = 'llcce44@gmail.com';
   let unmocked_data_json: any = {}; // Default empty object
   try {
       if (fs.existsSync("./tests/unmocked_data.json")) {
@@ -31,7 +31,7 @@ describe('User APIs - No Mocks (Integration)', () => {
 
   afterAll(async () => {
     // Cleanup test data
-    await client.db("cpen321journal").collection("users").deleteMany({ userID: testUserID });
+    // await client.db("cpen321journal").collection("users").deleteMany({ userID: testUserID });
   });
 
   describe('GET /api/profile', () => {
@@ -62,6 +62,7 @@ describe('User APIs - No Mocks (Integration)', () => {
         .send({userID: "llcce44@gmail.com", preferred_name: "test user", googleToken: testGoogleToken});
 
         expect(res.statusCode).toEqual(200);
+        
     })
 
   });

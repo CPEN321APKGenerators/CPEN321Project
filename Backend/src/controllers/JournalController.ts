@@ -127,28 +127,23 @@ async function getEmbeddings(entry: string, activitiesTracking: {
 }
 const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
-const isValidBase64 = (str: string) => {
-    return /^data:image\/(png|jpeg|jpg);base64,[A-Za-z0-9+/=]+$/.test(str);
-};
+// const isValidBase64 = (str: string) => {
+//     return /^data:image\/(png|jpeg|jpg);base64,[A-Za-z0-9+/=]+$/.test(str);
+// };
 
 async function getGoogleNumID(userID: string): Promise<string | null> {
-    try {
-        // Access the users collection
-        const collection = client.db("cpen321journal").collection("users");
+    console.log("\n Checking MongoDB for userID:", `"${userID}"`, "Type:", typeof userID);
 
-        // Find the user by userID
-        const user = await collection.findOne({ userID });
+    const user = await client.db("cpen321journal").collection("users").findOne({});
+    console.log(" MongoDB user data:", user, "Type of stored userID:", typeof user?.userID);
 
-        // Check if user exists and return googleNumID
-        if (user && user.googleNumID) {
-            return user.googleNumID;
-        } else {
-            return ""; // If no user or googleNumID is found
-        }
-    } catch (error) {
-        console.error("Error retrieving googleNumID:", error);
-        throw error;
-    }
+    const query = { userID: String(userID).trim() }; // 🔹 Ensure it’s always a string
+    console.log("Query being used:", query);
+
+    const matchedUser = await client.db("cpen321journal").collection("users").findOne(query);
+    console.log("User Retrieved in getGoogleNumID:", matchedUser);
+
+    return matchedUser ? matchedUser.googleNumID : null;
 }
 
 export class JournalController {
@@ -164,7 +159,6 @@ export class JournalController {
         try {
             user = await client.db("cpen321journal").collection("users").findOne({ userID });
         } catch (error) {
-            console.error("Database error fetching user:", error);
             return res.status(500).json({ error: "Database error while retrieving user" });
         }
 

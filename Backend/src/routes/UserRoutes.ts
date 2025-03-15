@@ -10,7 +10,8 @@ export const UserRoutes = [
         action: controller.getUserProfile,
         validation: [
             query("userID").exists().isString()
-        ]
+        ],
+        middlewares: []
     },
     {
         method: "post",
@@ -19,7 +20,8 @@ export const UserRoutes = [
         validation: [
             body("userID").exists().isString(),
             body("googleToken").exists()
-        ]
+        ],
+        middlewares: []
     },
     {
         method: "get",
@@ -27,7 +29,8 @@ export const UserRoutes = [
         action: controller.isUserPaid,
         validation: [
             query("userID").exists().isString()
-        ]
+        ],
+        middlewares: []
     },
     {
         method: "post",
@@ -35,7 +38,8 @@ export const UserRoutes = [
         action: controller.upgradeUser,
         validation: [          
             body("userID").exists().isString()
-        ]
+        ],
+        middlewares: []
     },
     {
         method: "post",
@@ -44,7 +48,8 @@ export const UserRoutes = [
         validation: [
             body("userID").exists().isString(),
             body("fcmToken").exists()
-        ]
+        ],
+        middlewares: []
     },
     {
         method: "post",
@@ -53,6 +58,7 @@ export const UserRoutes = [
         validation: [
             body("userID").exists().isString(),
             body("updated_reminder").exists()
-        ]
+        ],
+        middlewares: []
     }
 ];
