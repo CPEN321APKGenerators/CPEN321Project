@@ -605,52 +605,6 @@ class ProfileManagement : AppCompatActivity() {
         }
     }
 
-    private fun User_paid_to_premium() {
-        val client = OkHttpClient()
-        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        val json = JSONObject().apply {
-            put("userID", userID)
-        }
-
-        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-
-        val request = Request.Builder()
-            .url("https://cpen321project-journal.duckdns.org/api/profile/isPaid")
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        "Payment update failed",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        Toast.makeText(
-                            applicationContext,
-                            "Payment saved successfully!, You are a premium user",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            applicationContext,
-                            "Error: ${response.body?.string()}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-        })
-    }
-
     private fun sendUserProfile(preferredName: String, activities: List<Activity>) {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)

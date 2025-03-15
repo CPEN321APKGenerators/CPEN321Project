@@ -83,5 +83,33 @@ describe('User APIs - With Mocks', () => {
     });
   });
 
+  describe('postFCMToken (Mocked)', () => {
+    // Test Case: Database error simulation
+    it('should return 500 on database error', async () => {
+      (client.db("cpen321journal").collection("users").updateOne as jest.Mock)
+        .mockRejectedValue(new Error('DB Error'));
+      
+      mockRequest = { body: { userID: 'valid-user', fcmToken:"ioerfrejio", timeOffset: "-7:00" } };
+      
+      await userController.storeFcmToken(mockRequest as Request, mockResponse as Response, jest.fn());
+      
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('changeReminder (Mocked)', () => {
+    // Test Case: Database error simulation
+    it('should return 500 on database error', async () => {
+      (client.db("cpen321journal").collection("users").updateOne as jest.Mock)
+        .mockRejectedValue(new Error('DB Error'));
+      
+      mockRequest = { body: { userID: 'test@gmail.com', fcmToken:"ioerfrejio", timeOffset: "-7:00" } };
+      
+      await userController.changeReminder(mockRequest as Request, mockResponse as Response, jest.fn());
+      
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+    });
+  });
+
   
 });
