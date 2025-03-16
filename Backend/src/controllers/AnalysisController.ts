@@ -29,6 +29,7 @@ export class AnalyticsController {
             if (!user) {
                 return res.status(404).json({ error: "User not found" });
             }
+
             const activities = user.activities_tracking || [];
 
             const overallScore = await unpackPastWeekStats(userID, date, activities, dates, emotionStats, activityStats);
@@ -44,7 +45,7 @@ export class AnalyticsController {
             return res.status(200).json({emotionStats, activityStats, overallScore, summary});
         } catch (error) {
             console.error("Database error:", error); 
-            return res.status(500).json({ error: "Internal server error" }); 
+            return res.status(500).json({ error: "Internal Server Error" }); 
         }
     }
     // async createOrUpddateAnalytics(req: Request, res: Response, next: NextFunction) {
