@@ -4,9 +4,18 @@ import { client } from '../services';
 import { ObjectId } from 'mongodb';
 import fs from "fs";
 
+/**
+ * Test Suite: User APIs - No Mocks (Integration)
+ * - This test suite covers **real backend interactions** for the User API.
+ * - It interacts with the actual database (no mocks used).
+ * - Tests focus on verifying the expected API behavior under real conditions.
+ */
+
 describe('User APIs - No Mocks (Integration)', () => {
   const testUserID = 'test@gmail.com';
   let unmocked_data_json: any = {}; // Default empty object
+
+  // Attempt to load external test data if available
   try {
       if (fs.existsSync("./tests/unmocked_data.json")) {
           unmocked_data_json = require("./unmocked_data.json");
@@ -16,12 +25,15 @@ describe('User APIs - No Mocks (Integration)', () => {
   } catch (error) {
       console.log("Warning: Failed to load unmocked_data.json. Using only environment variables.", error);
   }
-  const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken
-  const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID
+
+  const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken;
+  const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID;
   console.log(testGoogleToken);
 
+  /**
+   * Set up the test database state before running tests.
+   */
   beforeAll(async () => {
-    // Initialize test user
     await client.db("cpen321journal").collection("users").updateOne(
       { userID: "test@gmail.com" }, // Find existing user
       {
@@ -34,15 +46,25 @@ describe('User APIs - No Mocks (Integration)', () => {
       { upsert: true } // Insert if not found
     );
   });
-  
 
+  /**
+   * Cleanup: Remove test data after all tests have run.
+   */
   afterAll(async () => {
-    // Cleanup test data
     await client.db("cpen321journal").collection("users").deleteMany({ userID: "123445544545" });
   });
 
+  /**
+   * Test Group: GET /api/profile (Unmocked)
+   * - Tests retrieving user profiles from the real database.
+   */
   describe('GET /api/profile', () => {
-    // Test Case: Valid userID
+    /**
+     * Test Case: Valid userID
+     * - **Inputs:** GET request with a valid userID.
+     * - **Expected Status:** 200
+     * - **Expected Behavior:** Returns user profile with `preferred_name`.
+     */
     it('should return 200 with user profile when valid userID is provided', async () => {
       const res = await request(app)
         .get('/api/profile')
@@ -52,47 +74,64 @@ describe('User APIs - No Mocks (Integration)', () => {
       expect(res.body).toHaveProperty('preferred_name');
     });
 
-    // Test Case: Missing userID
+    /**
+     * Test Case: Missing userID
+     * - **Inputs:** GET request without userID.
+     * - **Expected Status:** 400
+     * - **Expected Behavior:** API should return a bad request response.
+     */
     it('should return 400 when userID is missing', async () => {
       const res = await request(app)
         .get('/api/profile');
       
       expect(res.statusCode).toEqual(400);
     });
-
-    
   });
 
+  /**
+   * Test Group: POST /api/profile (Unmocked)
+   * - Tests creating/updating user profiles in the real database.
+   */
   describe('POST /api/profile', () => {
-    // Test post an existing user
-    it ("shoudl return 200 for existing user when userID is in the database", async () => {
+    /**
+     * Test Case: Valid existing user update
+     * - **Inputs:** POST request with an existing userID.
+     * - **Expected Status:** 200
+     */
+    it ("should return 200 for existing user when userID is in the database", async () => {
         const res = await request(app)
         .post('/api/profile')
         .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken});
 
         expect(res.statusCode).toEqual(200);
-        
-    })
+    });
 
-    // Test post a new user
-    it ("shoudl return 200 for existing user when userID is in the database", async () => {
+    /**
+     * Test Case: Valid new user creation
+     * - **Inputs:** POST request with a new userID.
+     * - **Expected Status:** 200
+     */
+    it ("should return 200 for new user when userID is not in the database", async () => {
       const res = await request(app)
       .post('/api/profile')
       .send({userID: "123445544545", preferred_name: "test user", googleToken: testGoogleToken});
 
       expect(res.statusCode).toEqual(200);
-    })
+    });
 
-    // Test post a user + activity
-    it ("shoudl return 400 for wrong activity format", async () => {
+    /**
+     * Test Cases: Invalid activity tracking format
+     * - **Inputs:** POST request with incorrect activity format.
+     * - **Expected Status:** 400
+     */
+    it ("should return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
       .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: "ds"});
 
       expect(res.statusCode).toEqual(400);
-    })
+    });
 
-    // Test post a user + activity
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
@@ -101,7 +140,6 @@ describe('User APIs - No Mocks (Integration)', () => {
       expect(res.statusCode).toEqual(400);
     })
 
-    // Test post a user + activity
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
@@ -110,7 +148,6 @@ describe('User APIs - No Mocks (Integration)', () => {
       expect(res.statusCode).toEqual(400);
     })
 
-    // Test post a user + activity
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
@@ -119,7 +156,6 @@ describe('User APIs - No Mocks (Integration)', () => {
       expect(res.statusCode).toEqual(400);
     })
 
-    // Test post a user + activity
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
@@ -130,8 +166,16 @@ describe('User APIs - No Mocks (Integration)', () => {
 
   });
 
+  /**
+   * Test Group: GET /api/profile/isPaid (No Mocks)
+   * - Verifies user payment status retrieval.
+   */
   describe('GET /api/profile/isPaid', () => {
-    // Test get ispaid an existing user
+    /**
+     * Test Case: Existing user
+     * - **Inputs:** Valid `userID`
+     * - **Expected Behavior:** Should return **200** OK.
+     */
     it ("should return 200 for existing user when userID is in the database", async () => {
         const res = await request(app)
         .get('/api/profile/isPaid?userID=test@gmail.com')
@@ -140,8 +184,12 @@ describe('User APIs - No Mocks (Integration)', () => {
         
     })
 
-    // Test get ispaid a non-existing user
-    it ("should return 200 for existing user when userID is in the database", async () => {
+    /**
+     * Test Case: Non-existing user
+     * - **Inputs:** Invalid `userID`
+     * - **Expected Behavior:** Should return **404** Not Found.
+     */
+    it ("should return 404 for non-existing user", async () => {
       const res = await request(app)
       .get('/api/profile/isPaid?userID=2345678')
       
@@ -149,8 +197,11 @@ describe('User APIs - No Mocks (Integration)', () => {
     })
   });
 
+  /**
+   * Test Group: POST /api/profile/reminder (No Mocks)
+   * - Tests user reminder update.
+   */
   describe('POST /api/profile/reminder', () => {
-    // Test post reminder
     it ("should return 400 for no updated reminder field", async () => {
         const res = await request(app)
         .post('/api/profile/reminder')
@@ -160,8 +211,7 @@ describe('User APIs - No Mocks (Integration)', () => {
         
     })
 
-    // Test post reminder
-    it ("should return 200 for existing user when userID is in the database", async () => {
+    it ("should return 404 for non-existing user", async () => {
       const res = await request(app)
       .post('/api/profile/reminder')
       .send({ userID: "22343433434343", updated_reminder: {
@@ -175,7 +225,6 @@ describe('User APIs - No Mocks (Integration)', () => {
       expect(res.statusCode).toEqual(404);
     })
 
-    // Test post reminder
     it ("should return 200 for existing user when userID is in the database", async () => {
       const res = await request(app)
       .post('/api/profile/reminder')
@@ -188,9 +237,12 @@ describe('User APIs - No Mocks (Integration)', () => {
     })
   });
 
+  /**
+   * Test Group: POST /api/profile/fcmtoken (No Mocks)
+   * - Tests FCM token storage.
+   */
   describe('POST /api/profile/fcmtoken', () => {
-    // Test post fcmtoken
-    it ("should return 400 for no updated reminder field", async () => {
+    it ("should return 400 for missing fcmToken field", async () => {
         const res = await request(app)
         .post('/api/profile/fcmtoken')
         .send({ userID: "2234343" })
@@ -198,8 +250,7 @@ describe('User APIs - No Mocks (Integration)', () => {
         expect(res.statusCode).toEqual(400);
     })
 
-    // Test post fcmtoken
-    it ("should return 200 for existing user when userID is in the database", async () => {
+    it ("should return 400 for invalid userID", async () => {
       const res = await request(app)
       .post('/api/profile/fcmtoken')
       .send({ userID: "22343433434343", fcmToken: "ireofoej"})
@@ -207,8 +258,7 @@ describe('User APIs - No Mocks (Integration)', () => {
       expect(res.statusCode).toEqual(400);
     })
 
-    // Test post fcmtoken
-    it ("should return 200 for existing user when userID is in the database", async () => {
+    it ("should return 200 for valid user update", async () => {
       const res = await request(app)
       .post('/api/profile/fcmtoken')
       .send({ userID: "test@gmail.com", fcmToken: "ireofoej", timeOffset: "-07:00" });

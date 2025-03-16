@@ -56,7 +56,7 @@ export const JournalRoutes = [
         action: controller.getJournalFile,
         validation: [
             query("userID").exists().isString(),
-            query("format").exists().isIn(['pdf', 'csv']),
+            query("format").exists(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]

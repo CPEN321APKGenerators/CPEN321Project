@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 process.env.PORT = '880'; // Random port
-process.env.OPEN_API_KEY = 'randomopenapikeythatjustserveasaplaceholderpleasereplaceit'
+// process.env.OPEN_API_KEY = 'randomopenapikey'
 
 
 // Suppress console logs during tests

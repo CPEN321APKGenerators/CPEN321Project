@@ -2,6 +2,12 @@ import Stripe from "stripe";
 import request from "supertest";
 import app, { setStripeInstance } from "../index"; // Import setStripeInstance
 
+/**
+ * Test Suite: Mocked: POST /api/payment-sheet
+ * - This test suite **mocks Stripe API interactions** for the `/api/payment-sheet` endpoint.
+ * - Instead of using real Stripe API calls, we use **mock functions** to simulate responses and failures.
+ */
+
 // Manually mock the Stripe module
 const mockStripe = {
     customers: {
@@ -15,17 +21,50 @@ const mockStripe = {
     },
 };
 
-// Inject the mocked Stripe instance into the app
+// Inject the mocked Stripe instance into the app before tests
 beforeAll(() => {
     setStripeInstance(mockStripe as unknown as Stripe);
 });
 
 describe("Mocked: POST /api/payment-sheet", () => {
+    /**
+     * Clears all mock data after each test to avoid contamination.
+     */
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    // Test for a successful payment sheet creation
+    /**
+     * Test Case: Valid Payment Request - Stripe Success
+     * 
+     * - **Inputs:**
+     *   - Request Type: `POST`
+     *   - URL: `/api/payment-sheet`
+     *   - Body:
+     *     ```json
+     *     {
+     *       "userID": "user_123"
+     *     }
+     *     ```
+     * 
+     * - **Mock Behavior:**
+     *   - `mockStripe.customers.create` returns `{ id: "cus_test123" }`
+     *   - `mockStripe.ephemeralKeys.create` returns `{ secret: "ephemeral_key_test" }`
+     *   - `mockStripe.paymentIntents.create` returns `{ client_secret: "pi_test_secret" }`
+     * 
+     * - **Expected Behavior:**
+     *   - The API should return a **valid payment response**.
+     *   - Response status code: **200**
+     *   - Response body should contain:
+     *     ```json
+     *     {
+     *       "paymentIntent": "pi_test_secret",
+     *       "ephemeralKey": "ephemeral_key_test",
+     *       "customer": "cus_test123"
+     *     }
+     *     ```
+     *   - Each Stripe function should be called **exactly once**.
+     */
     test("Valid Payment Request - Stripe Success", async () => {
         // Mock Stripe responses
         mockStripe.customers.create.mockResolvedValue({ id: "cus_test123" });
@@ -46,7 +85,27 @@ describe("Mocked: POST /api/payment-sheet", () => {
         expect(mockStripe.paymentIntents.create).toHaveBeenCalledTimes(1);
     });
 
-    // Test when Stripe fails to create a customer
+    /**
+     * Test Case: Stripe Customer Creation Fails
+     * 
+     * - **Inputs:**
+     *   - Request Type: `POST`
+     *   - URL: `/api/payment-sheet`
+     *   - Body:
+     *     ```json
+     *     {
+     *       "userID": "user_123"
+     *     }
+     *     ```
+     * 
+     * - **Mock Behavior:**
+     *   - `mockStripe.customers.create` **throws an error** (`Customer creation failed`).
+     * 
+     * - **Expected Behavior:**
+     *   - The request should fail due to a Stripe error.
+     *   - Response status code: **500**
+     *   - `mockStripe.customers.create` should be called exactly **once**.
+     */
     test("Stripe Customer Creation Fails", async () => {
         mockStripe.customers.create.mockRejectedValue(new Error("Customer creation failed"));
 
@@ -58,7 +117,18 @@ describe("Mocked: POST /api/payment-sheet", () => {
         expect(mockStripe.customers.create).toHaveBeenCalledTimes(1);
     });
 
-    // Test when Ephemeral Key creation fails
+    /**
+     * Test Case: Stripe Ephemeral Key Creation Fails
+     * 
+     * - **Inputs:** (same as above)
+     * - **Mock Behavior:**
+     *   - `mockStripe.customers.create` returns `{ id: "cus_test123" }`
+     *   - `mockStripe.ephemeralKeys.create` **throws an error** (`Ephemeral key failed`).
+     * 
+     * - **Expected Behavior:**
+     *   - The request should fail due to a Stripe error.
+     *   - Response status code: **500**
+     */
     test("Stripe Ephemeral Key Creation Fails", async () => {
         mockStripe.customers.create.mockResolvedValue({ id: "cus_test123" });
         mockStripe.ephemeralKeys.create.mockRejectedValue(new Error("Ephemeral key failed"));
@@ -72,7 +142,19 @@ describe("Mocked: POST /api/payment-sheet", () => {
         expect(mockStripe.ephemeralKeys.create).toHaveBeenCalledTimes(1);
     });
 
-    // Test when Payment Intent creation fails
+    /**
+     * Test Case: Stripe Payment Intent Creation Fails
+     * 
+     * - **Inputs:** (same as above)
+     * - **Mock Behavior:**
+     *   - `mockStripe.customers.create` returns `{ id: "cus_test123" }`
+     *   - `mockStripe.ephemeralKeys.create` returns `{ secret: "ephemeral_key_test" }`
+     *   - `mockStripe.paymentIntents.create` **throws an error** (`Payment intent failed`).
+     * 
+     * - **Expected Behavior:**
+     *   - The request should fail due to a Stripe error.
+     *   - Response status code: **500**
+     */
     test("Stripe Payment Intent Creation Fails", async () => {
         mockStripe.customers.create.mockResolvedValue({ id: "cus_test123" });
         mockStripe.ephemeralKeys.create.mockResolvedValue({ secret: "ephemeral_key_test" });
@@ -88,7 +170,20 @@ describe("Mocked: POST /api/payment-sheet", () => {
         expect(mockStripe.paymentIntents.create).toHaveBeenCalledTimes(1);
     });
 
-    // Test for missing userID in request
+    /**
+     * Test Case: Missing `userID`
+     * 
+     * - **Inputs:**
+     *   - Request Type: `POST`
+     *   - URL: `/api/payment-sheet`
+     *   - Body:
+     *     ```json
+     *     {}
+     *     ```
+     * 
+     * - **Expected Behavior:**
+     *   - The request should return **500**, and response body should be **empty**.
+     */
     test("Missing userID", async () => {
         const res = await request(app).post("/api/payment-sheet").send({});
 

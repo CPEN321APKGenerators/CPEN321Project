@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Request, Response, NextFunction } from 'express';
 import { client } from "../../services";
 
-async function getGoogleNumID(userID: string): Promise<string | null> {
+export async function getGoogleNumID(userID: string): Promise<string | null> {
     console.log("\n Checking MongoDB for userID:", `"${userID}"`, "Type:", typeof userID);
 
     const user = await client.db("cpen321journal").collection("users").findOne({});

@@ -6,6 +6,14 @@ import { MongoClient, Db, Collection, Document, BulkWriteResult } from "mongodb"
 import { client } from "../services";
 import fs from "fs";
 
+/**
+ * Test Suite: Journal API - Mocked
+ * - This test suite covers **mocked** backend interactions for the Journal API.
+ * - Mocks are used to control and simulate behavior for:
+ *   - Database interactions (MongoDB service)
+ *   - Authentication failures (missing token)
+ */
+
 jest.mock("../services", () => ({
     client: {
         db: jest.fn(() => ({
@@ -17,8 +25,6 @@ jest.mock("../services", () => ({
         })),
     },
 }));
-
-
 
 // Mocked Tests (Database/API Failures)
 describe("Journal API - Mocked", () => {
@@ -48,6 +54,34 @@ describe("Journal API - Mocked", () => {
         jest.clearAllMocks();
     });
 
+    /**
+     * Test Case: Database failure when querying journal entry
+     * 
+     * - **Inputs:**
+     *   - Request: `POST /api/journal`
+     *   - Headers:
+     *     ```json
+     *     {
+     *       "Authorization": "Bearer <valid_token>"
+     *     }
+     *     ```
+     *   - Body:
+     *     ```json
+     *     {
+     *       "date": "2025-03-11",
+     *       "userID": "llcce44@gmail.com",
+     *       "text": "Today was a good day.",
+     *       "googleNumID": "<mock_google_num_id>"
+     *     }
+     *     ```
+     * 
+     * - **Mock Behavior:**
+     *   - `findOne`, `insertOne`, and `updateOne` are **mocked to throw errors** simulating database failures.
+     * 
+     * - **Expected Behavior:**
+     *   - The API should fail due to database query issues.
+     *   - Response status code: **500**
+     */
     it("should return an error when database query fails", async () => {
         const response = await request(app)
             .post("/api/journal")
@@ -57,6 +91,28 @@ describe("Journal API - Mocked", () => {
         expect(response.status).toBe(500);
     });
 
+    /**
+     * Test Case: Unauthorized request (missing token)
+     * 
+     * - **Inputs:**
+     *   - Request: `POST /api/journal`
+     *   - Body:
+     *     ```json
+     *     {
+     *       "date": "2025-03-11",
+     *       "userID": "llcce44@gmail.com",
+     *       "text": "Today was a good day.",
+     *       "googleNumID": "<mock_google_num_id>"
+     *     }
+     *     ```
+     * 
+     * - **Mock Behavior:**
+     *   - No token is provided in the request.
+     * 
+     * - **Expected Behavior:**
+     *   - The API should return an authentication failure.
+     *   - Response status code: **400**
+     */
     it("should return unauthorized when no token is provided", async () => {
         const response = await request(app)
             .post("/api/journal")

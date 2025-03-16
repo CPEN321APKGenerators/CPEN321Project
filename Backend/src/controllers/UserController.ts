@@ -31,16 +31,6 @@ if (!admin.apps.length) {
     }
 }
 
-
-const getServerOffset = () => {
-    const offset = new Date().getTimezoneOffset(); // in minutes
-    const absOffset = Math.abs(offset);
-    const hours = String(Math.floor(absOffset / 60)).padStart(2, '0');
-    const minutes = String(absOffset % 60).padStart(2, '0');
-    const sign = offset > 0 ? '-' : '+';
-    return `${sign}${hours}:${minutes}`;
-};
-
 const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
     const utcWeekdays = userWeekdays.map((day: any) => {
         // Get the current date and time in the user's timezone

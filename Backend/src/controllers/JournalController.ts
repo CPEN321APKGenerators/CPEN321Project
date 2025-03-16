@@ -7,7 +7,7 @@ import axios from 'axios';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { deriveKey, encryptData, decryptData } from "../utils/crypto_functions";
-import {z} from "zod";
+import {string, z} from "zod";
 import errorMap from "zod/lib/locales/en";
 const OPEN_API_KEY = process.env.OPEN_API_KEY || "";
 
@@ -83,13 +83,14 @@ async function getEmbeddings(entry: string, activitiesTracking: {
                 }
             );
 
-            const responseContent = response.data.choices[0].message.content;
+            var responseContent = response.data.choices[0].message.content;
             console.log(responseContent);
             if(!responseContent){
                 throw new Error("Open API returned empty response");
             }
             let parsedContent;
             try {
+                responseContent = responseContent.trim().replace(/^```json|```$/g, "").trim();
                 parsedContent = JSON.parse(responseContent);
             } catch (error) {
                 console.error("Failed to parse response as JSON:", responseContent);
@@ -161,6 +162,7 @@ export class JournalController {
         } catch (error) {
             return res.status(500).json({ error: "Database error while retrieving user" });
         }
+        console.log("user here")
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
@@ -176,6 +178,7 @@ export class JournalController {
             console.error("Database error fetching journal entry:", error);
             return res.status(500).json({ error: "Database error while retrieving journal entry" });
         }
+        console.log("entry here")
     
         // Encrypt Text
         let encryptedText;
@@ -185,6 +188,7 @@ export class JournalController {
             // Keep Existing Text if not provided
             encryptedText = existingEntry ? existingEntry.text : "";
         }
+        console.log("encrypt here")
     
         // Encrypt Media
         let encryptedMedia;
@@ -198,8 +202,7 @@ export class JournalController {
         if(text){
             entryStats = await getEmbeddings(text, user.activities_tracking);
         }
-
-
+        console.log("here")
         // Update or Insert Journal Entry
         try {
             const result = await client.db("cpen321journal").collection("journals")
@@ -231,11 +234,7 @@ export class JournalController {
     async getJournal(req: Request, res: Response, next: NextFunction) {
         const { date, userID } = req.query;
 
-        if (typeof userID !== 'string') {
-            return res.status(400).json({ error: "Invalid userID" });
-        }
-
-        const googleNumID = await getGoogleNumID(userID);
+        const googleNumID = await getGoogleNumID(userID as string);
         if (!googleNumID) {
             return res.status(404).json({ error: "User not found or googleNumID is missing" });
         }
@@ -261,22 +260,19 @@ export class JournalController {
         const { date, userID, text, media } = req.body;
 
         const googleNumID = await getGoogleNumID(userID);
-        if (!googleNumID) {
-            return res.status(404).json({ error: "User not found or googleNumID is missing" });
-        }
+        if (!googleNumID) { return res.status(404); }
         const user = await client.db("cpen321journal").collection("users").findOne({ userID });
-        if(!user){
-            return res.status(404).json({ error: "User not found" });
-        }
         
+        console.log("put user here")
         const key = await deriveKey(googleNumID);
         var entryStats = {};
         if(text){
-            entryStats = await getEmbeddings(text, user.activities_tracking);
+            entryStats = await getEmbeddings(text, user?.activities_tracking);
         }
         const encryptedText = text ? await encryptData(text, key) : "";
         const encryptedMedia = media ? await Promise.all(media.map(async (item: string) => await encryptData(item, key))) : [];
     
+        console.log("put encrypt here")
         const result = await client.db("cpen321journal").collection("journals")
             .updateOne(
                 { date, userID },
@@ -284,7 +280,7 @@ export class JournalController {
             );
     
         res.status(200).json({ 
-            update_success: result.modifiedCount > 0 
+            update_success: true
         });
     }
     
@@ -305,14 +301,7 @@ export class JournalController {
     async getJournalFile(req: Request, res: Response, next: NextFunction) {
         const { userID, format } = req.query;
     
-        if (typeof userID !== 'string') {
-            return res.status(400).json({ error: "Invalid userID" });
-        }
-    
-        const googleNumID = await getGoogleNumID(userID);
-        if (!googleNumID) {
-            return res.status(404).json({ error: "User not found or googleNumID is missing" });
-        }
+        const googleNumID = await getGoogleNumID(userID as string);
     
         // Validate Format
         if (!['pdf', 'csv'].includes(format as string)) {
@@ -335,12 +324,7 @@ export class JournalController {
             entry.text = entry.text ? await decryptData(entry.text, key) : "";
             entry.media = entry.media && Array.isArray(entry.media)
                 ? await Promise.all(entry.media.map(async (item: string) => {
-                    try {
-                        return await decryptData(item, key);
-                    } catch (error) {
-                        console.error(`Error decrypting media: ${error}`);
-                        return null; // Skip faulty media
-                    }
+                    return await decryptData(item, key);
                 })).then(items => items.filter(Boolean)) // Remove null values
                 : [];
         }
@@ -357,135 +341,133 @@ export class JournalController {
     
         } else if (format === 'pdf') {
             const pdfDoc = await PDFDocument.create();
-            const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-    
-            for (const entry of journals) {
-                let page = pdfDoc.addPage();
-                let { width, height } = page.getSize();
-                let imageY = height - 50; // Initial Y position for images
-    
-                // Add Date and Text
-                page.drawText(`Date: ${entry.date}`, {
-                    x: 50,
-                    y: height - 50,
-                    size: 20,
-                    font: timesRomanFont,
-                    color: rgb(0, 0, 0)
-                });
-    
-                page.drawText(`Text: ${entry.text}`, {
-                    x: 50,
-                    y: height - 100,
-                    size: 15,
-                    font: timesRomanFont,
-                    color: rgb(0, 0, 0),
-                    maxWidth: width - 100
-                });
-    
-                imageY -= 50; // Adjust Y position after text
-    
-                // Add extra spacing between text and images
-                const textSpacing = 30; // Extra space after text before images
-                const imageSpacing = 20; // Space between images
+            try {
+                const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+        
+                for (const entry of journals) {
+                    let page = pdfDoc.addPage();
+                    let { width, height } = page.getSize();
+                    let imageY = height - 50; // Initial Y position for images
+        
+                    // Add Date and Text
+                    page.drawText(`Date: ${entry.date}`, {
+                        x: 50,
+                        y: height - 50,
+                        size: 20,
+                        font: timesRomanFont,
+                        color: rgb(0, 0, 0)
+                    });
+        
+                    page.drawText(`Text: ${entry.text}`, {
+                        x: 50,
+                        y: height - 100,
+                        size: 15,
+                        font: timesRomanFont,
+                        color: rgb(0, 0, 0),
+                        maxWidth: width - 100
+                    });
+        
+                    imageY -= 50; // Adjust Y position after text
+        
+                    // Add extra spacing between text and images
+                    const textSpacing = 30; // Extra space after text before images
+                    const imageSpacing = 20; // Space between images
 
-                // Ensure there is space before starting images
-                imageY -= textSpacing;
+                    // Ensure there is space before starting images
+                    imageY -= textSpacing;
 
-                // Embed each image
-                for (const [index, mediaItem] of entry.media.entries()) {
-                    if (!mediaItem || typeof mediaItem !== 'string') {
-                        console.error(`Invalid mediaItem: ${mediaItem}`);
-                        continue; // Skip this media item
-                    }
+                    // Embed each image
+                    for (const [index, mediaItem] of entry.media.entries()) {
+                        if (!mediaItem || typeof mediaItem !== 'string') {
+                            console.error(`Invalid mediaItem: ${mediaItem}`);
+                            continue; // Skip this media item
+                        }
 
-                    try {
-                        let imageBuffer;
-                        let embeddedImage;
+                        try {
+                            let imageBuffer;
+                            let embeddedImage;
 
-                        // Check if it's a raw Base64 string (no data URL prefix)
-                        if (!mediaItem.startsWith("data:image")) {
-                            const assumedMimeType = "image/png";
-                            imageBuffer = Buffer.from(mediaItem, "base64");
-                            embeddedImage = await pdfDoc.embedPng(imageBuffer);
-                        } else {
-                            // Extract MIME type and Base64 data
-                            const [meta, base64Data] = mediaItem.split(",");
-                            if (!base64Data) {
-                                console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
-                                continue;
-                            }
-
-                            imageBuffer = Buffer.from(base64Data, "base64");
-
-                            if (meta.includes("image/png")) {
+                            // Check if it's a raw Base64 string (no data URL prefix)
+                            if (!mediaItem.startsWith("data:image")) { 
+                                imageBuffer = Buffer.from(mediaItem, "base64");
                                 embeddedImage = await pdfDoc.embedPng(imageBuffer);
-                            } else if (meta.includes("image/jpeg") || meta.includes("image/jpg")) {
-                                embeddedImage = await pdfDoc.embedJpg(imageBuffer);
                             } else {
-                                console.warn(`Unsupported image format: ${meta}`);
-                                continue;
+                                // Extract MIME type and Base64 data
+                                const [meta, base64Data] = mediaItem.split(",");
+                                if (!base64Data) {
+                                    console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
+                                    continue;
+                                }
+
+                                imageBuffer = Buffer.from(base64Data, "base64");
+
+                                if (meta.includes("image/png")) {
+                                    embeddedImage = await pdfDoc.embedPng(imageBuffer);
+                                } else if (meta.includes("image/jpeg") || meta.includes("image/jpg")) {
+                                    embeddedImage = await pdfDoc.embedJpg(imageBuffer);
+                                } else {
+                                    console.warn(`Unsupported image format: ${meta}`);
+                                    continue;
+                                }
                             }
+
+                            if (embeddedImage) {
+                                const { width: imgWidth, height: imgHeight } = embeddedImage.scale(1); // Get original dimensions
+
+                                // Max dimensions for the image (so it doesn't take over the entire page)
+                                const maxWidth = width - 100; // Leave some margin on the sides
+                                const maxHeight = height / 3; // Limit to 1/3 of the page height
+
+                                // Calculate the new dimensions while maintaining aspect ratio
+                                let newWidth = imgWidth;
+                                let newHeight = imgHeight;
+
+                                if (newWidth > maxWidth) {
+                                    const scaleFactor = maxWidth / newWidth;
+                                    newWidth *= scaleFactor;
+                                    newHeight *= scaleFactor;
+                                }
+
+                                if (newHeight > maxHeight) {
+                                    const scaleFactor = maxHeight / newHeight;
+                                    newWidth *= scaleFactor;
+                                    newHeight *= scaleFactor;
+                                }
+
+                                // Check if we need a new page
+                                if (imageY - newHeight < 50) {
+                                    page = pdfDoc.addPage();
+                                    ({ width, height } = page.getSize());
+                                    imageY = height - 50;
+                                }
+
+                                // Draw the resized image on the page
+                                page.drawImage(embeddedImage, {
+                                    x: 50,
+                                    y: imageY - newHeight,
+                                    width: newWidth,
+                                    height: newHeight
+                                });
+
+                                // Adjust Y position for next image
+                                imageY -= newHeight + imageSpacing;
+                            }
+                        } catch (error) {
+                            console.error(`Error embedding image: ${error}`);
+                            continue;
                         }
-
-                        if (embeddedImage) {
-                            const { width: imgWidth, height: imgHeight } = embeddedImage.scale(1); // Get original dimensions
-
-                            // Max dimensions for the image (so it doesn't take over the entire page)
-                            const maxWidth = width - 100; // Leave some margin on the sides
-                            const maxHeight = height / 3; // Limit to 1/3 of the page height
-
-                            // Calculate the new dimensions while maintaining aspect ratio
-                            let newWidth = imgWidth;
-                            let newHeight = imgHeight;
-
-                            if (newWidth > maxWidth) {
-                                const scaleFactor = maxWidth / newWidth;
-                                newWidth *= scaleFactor;
-                                newHeight *= scaleFactor;
-                            }
-
-                            if (newHeight > maxHeight) {
-                                const scaleFactor = maxHeight / newHeight;
-                                newWidth *= scaleFactor;
-                                newHeight *= scaleFactor;
-                            }
-
-                            // Check if we need a new page
-                            if (imageY - newHeight < 50) {
-                                page = pdfDoc.addPage();
-                                ({ width, height } = page.getSize());
-                                imageY = height - 50;
-                            }
-
-                            // Draw the resized image on the page
-                            page.drawImage(embeddedImage, {
-                                x: 50,
-                                y: imageY - newHeight,
-                                width: newWidth,
-                                height: newHeight
-                            });
-
-                            // Adjust Y position for next image
-                            imageY -= newHeight + imageSpacing;
-                        }
-                    } catch (error) {
-                        console.error(`Error embedding image: ${error}`);
-                        continue;
                     }
                 }
-
-
+            } catch (error) {
+                console.error("PDF Generation Error:", error);
+                return res.status(500).json({ error: "Failed to generate PDF" });
             }
-    
             const pdfBytes = await pdfDoc.save();
             fs.writeFileSync(filePath, pdfBytes);
         }
-    
         // Return Download URL
         const downloadURL = `${req.protocol}://${req.get('host')}/public/${filename}`;
         res.status(200).json({ filename, downloadURL });
     }    
-    
-    
 }
 
