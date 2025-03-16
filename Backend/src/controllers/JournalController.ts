@@ -264,30 +264,54 @@ export class JournalController {
     
 
     async putJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, text, media } = req.body;
+        const { date, userID, entry_changed, text, media, activities } = req.body;
 
         const googleNumID = await getGoogleNumID(userID);
         if (!googleNumID) { return res.status(404); }
-        const user = await client.db("cpen321journal").collection("users").findOne({ userID });
-        
-        console.log("put user here")
-        const key = await deriveKey(googleNumID);
-        var entryStats: { overallScore: number ; emotions: {[key: string]: number}; activities: { [key: string]: number }; } = { overallScore: 0, emotions: {}, activities: {} };
-        if(text){
-            entryStats = await getEmbeddings(text, user?.activities_tracking);
+        let user;
+        try {
+            user = await client.db("cpen321journal").collection("users").findOne({ userID });
+        } catch (error) {
+            return res.status(500).json({ error: "Database error while retrieving user" });
         }
 
-        const encryptedText = text ? await encryptData(text, key) : "";
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        
+        const key = await deriveKey(googleNumID);
+        var entryStats: { overallScore: number ; emotions: {[key: string]: number}; activities: { [key: string]: number }; } = { overallScore: 0, emotions: {}, activities: {} };
         const encryptedMedia = media ? await Promise.all(media.map(async (item: string) => await encryptData(item, key))) : [];
-    
-        console.log("put encrypt here")
-        const result = await client.db("cpen321journal").collection("journals")
+        // Indicates no changes other than to media
+        if((!text || !entry_changed) && !activities){
+            var result = await client.db("cpen321journal").collection("journals")
+            .updateOne(
+                { date, userID },
+                { $set: { media: encryptedMedia} }
+            );
+
+        }
+        // New entry, send to LLM api
+        else if(text && entry_changed){
+            entryStats = await getEmbeddings(text, user.activities_tracking);
+            const encryptedText = text ? await encryptData(text, key) : "";
+            
+            var result = await client.db("cpen321journal").collection("journals")
             .updateOne(
                 { date, userID },
                 { $set: { text: encryptedText, media: encryptedMedia , stats: entryStats} }
             );
-            console.log(entryStats)
-            console.log(entryStats.activities)
+
+        }
+        // Only activity (and possibly) media changed
+        else{
+            var result = await client.db("cpen321journal").collection("journals")
+            .updateOne(
+                { date, userID },
+                { $set: { media: encryptedMedia, "stats.activities": activities } }
+            );
+        }
+
             res.status(200).json({ activities: entryStats.activities,
             update_success: result.modifiedCount > 0 
         });
