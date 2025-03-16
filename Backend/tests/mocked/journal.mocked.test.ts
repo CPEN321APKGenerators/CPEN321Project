@@ -123,4 +123,125 @@ describe("Journal API - Mocked", () => {
 
         expect(response.status).toBe(400);
     });
+
+    /**
+     * **Test Case: Database failure when fetching a journal entry**
+     * - **Inputs:**
+     *   - Request: `GET /api/journal`
+     *   - Query Params: `{ date, userID, googleNumID }`
+     * - **Mock Behavior:**
+     *   - `findOne` is mocked to throw an error.
+     * - **Expected Behavior:**
+     *   - API should return **500 Internal Server Error**.
+     */
+    it("should return 500 when getting existing entry", async () => {
+        // Mocking the database call to return null (simulating failure)
+        jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockImplementationOnce(() => {
+            throw new Error("Database error");
+        });
+
+        // API Request
+        const response = await request(app)
+            .get("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .query({
+                date: "2025-03-11",
+                userID: "testtest@gmail.com",
+                googleNumID: google_num_id
+            });
+
+        // Assertions
+        expect(response.status).toBe(500);
+    });
+
+    /**
+     * **Test Case: Database failure when updating an entry**
+     * - **Inputs:**
+     *   - Request: `PUT /api/journal`
+     *   - Body: `{ date, userID, text, googleNumID }`
+     * - **Mock Behavior:**
+     *   - `updateOne` is mocked to throw an error.
+     * - **Expected Behavior:**
+     *   - API should return **500 Internal Server Error**.
+     */
+    it("should return 500 when updating existing entry", async () => {
+        // Mocking the database call to return null (simulating failure)
+        jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockImplementationOnce(() => {
+            throw new Error("Database error");
+        });
+
+        // API Request
+        const response = await request(app)
+            .put("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .send({
+                date: "2025-03-11",
+                userID: "testtest@gmail.com",
+                text: "helo",
+                googleNumID: google_num_id
+            });
+
+        // Assertions
+        expect(response.status).toBe(500);
+    });
+
+    /**
+     * **Test Case: Database failure when deleting an entry**
+     * - **Inputs:**
+     *   - Request: `DELETE /api/journal`
+     *   - Query Params: `{ date, userID, googleNumID }`
+     * - **Mock Behavior:**
+     *   - `findOne` is mocked to throw an error.
+     * - **Expected Behavior:**
+     *   - API should return **500 Internal Server Error**.
+     */
+    it("should return 500 when deleting entry", async () => {
+        // Mocking the database call to return null (simulating failure)
+        jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockImplementationOnce(() => {
+            throw new Error("Database error");
+        });
+
+        // API Request
+        const response = await request(app)
+            .delete("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .query({
+                date: "2025-03-11",
+                userID: "testtest@gmail.com",
+                googleNumID: google_num_id
+            });
+
+        // Assertions
+        expect(response.status).toBe(500);
+    });
+
+    /**
+     * **Test Case: Database failure when retrieving a file**
+     * - **Inputs:**
+     *   - Request: `GET /api/journal/file`
+     *   - Query Params: `{ userID, format, googleNumID }`
+     * - **Mock Behavior:**
+     *   - `findOne` is mocked to throw an error.
+     * - **Expected Behavior:**
+     *   - API should return **500 Internal Server Error**.
+     */
+    it("should return 500 when getting file", async () => {
+        // Mocking the database call to return null (simulating failure)
+        jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockImplementationOnce(() => {
+            throw new Error("Database error");
+        });
+
+        // API Request
+        const response = await request(app)
+            .get("/api/journal/file")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .query({
+                userID: "testtest@gmail.com",
+                format: "csv",
+                googleNumID: google_num_id
+            });
+
+        // Assertions
+        expect(response.status).toBe(500);
+    });
 });

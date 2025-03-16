@@ -207,4 +207,35 @@ describe('User APIs - With Mocks', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(500);
     });
   });
+
+  /**
+   * Test Group: getUserProfile (Mocked)
+   * - Relies on **mocked database service**
+   */
+  describe('getUserIsPaid (Mocked)', () => {
+    /**
+     * Test Case: Database error simulation
+     * 
+     * - **Inputs:**
+     *   - Request: `GET /user/profile/isPaid`
+     *   - Query Parameter: `userID=valid-user`
+     * 
+     * - **Mock Behavior:**
+     *   - `findOne` is **mocked to throw an error** (`DB Error`).
+     * 
+     * - **Expected Behavior:**
+     *   - The request should fail due to a database error.
+     *   - Response status code: **500**
+     */
+    it('should return 500 on database error', async () => {
+      (client.db("cpen321journal").collection("users").findOne as jest.Mock)
+        .mockRejectedValue(new Error('DB Error'));
+      
+      mockRequest = { query: { userID: 'valid-user' } };
+      
+      await userController.isUserPaid(mockRequest as Request, mockResponse as Response, jest.fn());
+      
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+    });
+  });
 });

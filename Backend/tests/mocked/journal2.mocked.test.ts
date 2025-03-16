@@ -110,10 +110,10 @@ describe("Journal 2 API - Mocked", () => {
     });
 
     /**
-     * **Test Group: getUserProfile (Mocked)**
+     * **Test Group: post /api/journal (Mocked)**
      * - Tests API error handling using database mocking.
      */
-    describe("getUserProfile (Mocked)", () => {
+    describe("post /api/journal (Mocked)", () => {
         
         /**
          * **Test Case: Database error simulation**
@@ -136,7 +136,7 @@ describe("Journal 2 API - Mocked", () => {
          */
         it("should return 500 when checking existing entry", async () => {
             // Mocking the database call to return null (simulating failure)
-            jest.spyOn(client.db().collection("journals"), "findOne").mockResolvedValueOnce(null);
+            jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockResolvedValueOnce(null);
 
             // API Request
             const response = await request(app)
@@ -153,44 +153,8 @@ describe("Journal 2 API - Mocked", () => {
             expect(response.status).toBe(500);
         });
 
-        // Uncomment below to test database update failures
-        /*
-        it("should return 500 when updating existing entry", async () => {
-            // Test Case Details:
-            // - Inputs:
-            //   - Authorization Header: Bearer {testGoogleToken}
-            //   - Payload:
-            //     {
-            //       "date": "2025-03-11",
-            //       "userID": "llcce44@gmail.com",
-            //       "text": "Testing...",
-            //       "googleNumID": google_num_id
-            //     }
-            // - Expected Status Code: 500 (Internal Server Error)
-            // - Expected Behavior:
-            //   - Simulates a database update failure.
-            //   - API should return a 500 status and log an appropriate error.
-            
-            // Mocking database update failure
-            const updateOneSpy = jest
-                .spyOn(client.db("cpen321journal").collection("journals"), "updateOne")
-                .mockRejectedValueOnce(new Error("Database update failed"));
 
-            // API Request
-            const response = await request(app)
-                .post("/api/journal")
-                .set("Authorization", "Bearer " + testGoogleToken)
-                .send({
-                    date: "2025-03-11",
-                    userID: "llcce44@gmail.com",
-                    text: "Testing...",
-                    googleNumID: google_num_id
-                });
-
-            // Assertions
-            expect(response.status).toBe(500);
-        });
-        */
+        
 
     });
 });

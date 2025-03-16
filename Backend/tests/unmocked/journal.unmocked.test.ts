@@ -132,48 +132,6 @@ describe("Journal API - Unmocked", () => {
         // Wait a bit to make sure MongoDB processes the insert
         await new Promise(resolve => setTimeout(resolve, 500));
     });
-    
-
-    /**
-     * Test Case: Create and Retrieve a Journal Entry
-     * 
-     * - **Inputs:**
-     *   - Request: `POST /api/journal`
-     *   - Headers: `Authorization: Bearer <valid_token>`
-     *   - Body:
-     *     ```json
-     *     {
-     *       "date": "2025-03-11",
-     *       "userID": "llcce44@gmail.com",
-     *       "content": "Today was a good day.",
-     *       "googleNumID": "<valid_google_id>"
-     *     }
-     *     ```
-     * - **Expected Behavior:**
-     *   - The journal entry should be created successfully.
-     *   - The `GET` request should retrieve the journal entry.
-     *   - Response status codes: **200** for both `POST` and `GET`.
-     */
-    it("should create and retrieve a journal entry", async () => {
-        const postResponse = await request(app)
-            .post("/api/journal")
-            .set("Authorization", "Bearer " + testGoogleToken)
-            .send(mockJournal);
-    
-        expect(postResponse.status).toBe(200);
-        expect(postResponse.body).toHaveProperty("message");
-    
-        // Wait for DB to update before retrieving
-        await new Promise(resolve => setTimeout(resolve, 500)); 
-    
-        const getResponse = await request(app)
-            .get("/api/journal")
-            .set("Authorization", "Bearer " + testGoogleToken)
-            .query({ date: mockJournal.date, userID: mockJournal.userID, googleNumID: google_num_id });
-    
-        expect(getResponse.status).toBe(200);
-        expect(getResponse.body).toHaveProperty("journal");
-    });
 
     /**
      * Test Case: Unauthorized Access - GoogleNumID Mismatch
@@ -259,6 +217,48 @@ describe("Journal API - Unmocked", () => {
 
         expect(response.status).toBe(403);
         expect(response.body).toHaveProperty("message", "Invalid Google token when authenticating");
+    });
+
+
+    /**
+     * Test Case: Create and Retrieve a Journal Entry
+     * 
+     * - **Inputs:**
+     *   - Request: `POST /api/journal`
+     *   - Headers: `Authorization: Bearer <valid_token>`
+     *   - Body:
+     *     ```json
+     *     {
+     *       "date": "2025-03-11",
+     *       "userID": "llcce44@gmail.com",
+     *       "content": "Today was a good day.",
+     *       "googleNumID": "<valid_google_id>"
+     *     }
+     *     ```
+     * - **Expected Behavior:**
+     *   - The journal entry should be created successfully.
+     *   - The `GET` request should retrieve the journal entry.
+     *   - Response status codes: **200** for both `POST` and `GET`.
+     */
+    it("should create and retrieve a journal entry", async () => {
+        const postResponse = await request(app)
+            .post("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .send(mockJournal);
+    
+        expect(postResponse.status).toBe(200);
+        expect(postResponse.body).toHaveProperty("message");
+    
+        // Wait for DB to update before retrieving
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+    
+        const getResponse = await request(app)
+            .get("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .query({ date: mockJournal.date, userID: mockJournal.userID, googleNumID: google_num_id });
+    
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body).toHaveProperty("journal");
     });
 
     /**
