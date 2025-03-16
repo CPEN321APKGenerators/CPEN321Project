@@ -1,13 +1,13 @@
 import request from "supertest";
-import app from "../index"; // Adjust based on your app entry point
+import app from "../../index"; // Adjust based on your app entry point
 import { jest } from "@jest/globals";
-import { JournalController } from "../src/controllers/JournalController";
+import { JournalController } from "../../src/controllers/JournalController";
 import { MongoClient, Db, Collection, Document, BulkWriteResult } from "mongodb";
-import { client } from "../services";
+import { client } from "../../services";
 
 const mockFindOne = jest.fn();
 
-jest.mock("../services", () => ({
+jest.mock("../../services", () => ({
     client: {
         db: jest.fn(() => ({
             collection: jest.fn(() => ({

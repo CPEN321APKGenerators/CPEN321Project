@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import request from "supertest";
-import app, { setStripeInstance } from "../index"; // Import setStripeInstance
+import app, { setStripeInstance } from "../../index"; // Import setStripeInstance
 
 /**
  * Test Suite: Mocked: POST /api/payment-sheet

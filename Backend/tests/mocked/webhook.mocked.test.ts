@@ -1,10 +1,10 @@
 import request from "supertest";
-import app from "../index"; // Adjust the path if needed
-import { client } from "../services";
-import { stopCronJob } from "../index";
+import app from "../../index"; // Adjust the path if needed
+import { client } from "../../services";
+import { stopCronJob } from "../../index";
 
 // Mocking the database service
-jest.mock("../services");
+jest.mock("../../services");
 
 describe("Mocked: POST /webhook", () => {
     let mockDb: any;

@@ -1,6 +1,6 @@
 import request from 'supertest';
-import { app } from '../index'; // Your Express app instance
-import { client } from '../services';
+import { app } from '../../index'; // Your Express app instance
+import { client } from '../../services';
 import { ObjectId } from 'mongodb';
 import fs from "fs";
 
@@ -17,8 +17,10 @@ describe('User APIs - No Mocks (Integration)', () => {
 
   // Attempt to load external test data if available
   try {
-      if (fs.existsSync("./tests/unmocked_data.json")) {
-          unmocked_data_json = require("./unmocked_data.json");
+      const dataFilePath = `${__dirname}/../unmocked_data.json`; // Adjusted path
+
+      if (fs.existsSync(dataFilePath)) {
+          unmocked_data_json = require(dataFilePath);
       } else {
           console.log("Warning: unmocked_data.json not found. Using only environment variables.");
       }

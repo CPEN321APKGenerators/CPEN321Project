@@ -14,12 +14,34 @@
 
 #### 2.1.1. Tests
 
-| **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
+| **Interface**           | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
 | **POST /user/login**          | [`tests/unmocked/authenticationLogin.test.js#L1`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google Authentication API, User DB |
 | **POST /study-groups/create** | ...                                                  | ...                                                | Study Group DB                     |
 | **GET /analytics**            | ...                                                  | [`tests/analytics.mocked.test.ts#L1`](#)           | User DB                            |
-| ...                           | ...                                                  | ...                                                | ...                                |
+| ...                           | ...                                                  | ...                                                | ...   
+                             |
+
+| **Interface**                 | **Describe Group Location, No Mocks** | **Describe Group Location, With Mocks** | **Mocked Components** |
+| ----------------------------- | ------------------------------------- | --------------------------------------- | ---------------------- |
+| **GET /name**                 | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/profile**         | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /storeFcmToken**       | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /changeReminder**      | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/journal**         | _To be filled_                        | _To be filled_                          | ['../services']       |
+| **GET /userProfile**          | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /userProfile**         | _To be filled_                        | _To be filled_                          | None                  |
+| **GET /api/profile**          | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/profile/fcmtoken**| _To be filled_                        | _To be filled_                          | None                  |
+| **GET /api/journal**          | _To be filled_                        | _To be filled_                          | None                  |
+| **GET /api/journal/file**     | _To be filled_                        | _To be filled_                          | None                  |
+| **PUT /api/journal**          | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/profile/reminder**| _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/payment**         | _To be filled_                        | _To be filled_                          | None                  |
+| **DELETE /api/journal**       | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /webhook**             | _To be filled_                        | _To be filled_                          | ['../services']       |
+| **GET /api/profile/isPaid**   | _To be filled_                        | _To be filled_                          | None                  |
+| **GET /analytics**            |                                       |                                         | User DB               |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
@@ -148,3 +170,151 @@ _(Placeholder for screenshots of Codacyâ€™s Issues page)_
   2. ...
 
 - ...
+
+
+# Testing and Code Review Report
+
+## 1. Change History
+
+| **Change Date** | **Modified Sections** | **Rationale** |
+| -------------- | --------------------- | ------------- |
+| _Nothing to show_ |
+
+---
+
+## 2. Back-end Test Specification: APIs
+
+### 2.1. Locations of Back-end Tests and Instructions to Run Them
+
+#### 2.1.1. Tests
+
+| **Interface**                 | **Describe Group Location, No Mocks** | **Describe Group Location, With Mocks** | **Mocked Components** |
+| ----------------------------- | ------------------------------------- | --------------------------------------- | ---------------------- |
+| **GET /name**                 | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/profile**         | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /storeFcmToken**       | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /changeReminder**      | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/journal**         | _To be filled_                        | _To be filled_                          | ['../services']       |
+| **GET /userProfile**          | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /userProfile**         | _To be filled_                        | _To be filled_                          | None                  |
+| **GET /api/profile**          | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/profile/fcmtoken**| _To be filled_                        | _To be filled_                          | None                  |
+| **GET /api/journal**          | _To be filled_                        | _To be filled_                          | None                  |
+| **GET /api/journal/file**     | _To be filled_                        | _To be filled_                          | None                  |
+| **PUT /api/journal**          | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/profile/reminder**| _To be filled_                        | _To be filled_                          | None                  |
+| **POST /api/payment**         | _To be filled_                        | _To be filled_                          | None                  |
+| **DELETE /api/journal**       | _To be filled_                        | _To be filled_                          | None                  |
+| **POST /webhook**             | _To be filled_                        | _To be filled_                          | ['../services']       |
+| **GET /api/profile/isPaid**   | _To be filled_                        | _To be filled_                          | None                  |
+
+#### 2.1.2. Commit Hash Where Tests Run
+
+`[Insert Commit SHA here]`
+
+#### 2.1.3. Explanation on How to Run the Tests
+
+1. **Clone the Repository**:
+   ```sh
+   git clone https://github.com/example/your-project.git
+   cd your-project
+   ```
+2. **Install Dependencies**:
+   ```sh
+   npm install
+   ```
+3. **Run Tests**:
+   ```sh
+   npm test
+   ```
+
+### 2.2. GitHub Actions Configuration Location
+
+`~/.github/workflows/backend-tests.yml`
+
+### 2.3. Jest Coverage Report Screenshots With Mocks
+
+_(Placeholder for Jest coverage screenshot with mocks enabled)_
+
+### 2.4. Jest Coverage Report Screenshots Without Mocks
+
+_(Placeholder for Jest coverage screenshot without mocks)_
+
+---
+
+## 3. Back-end Test Specification: Tests of Non-Functional Requirements
+
+### 3.1. Test Locations in Git
+
+| **Non-Functional Requirement**  | **Location in Git** |
+| ------------------------------- | ------------------- |
+| **Performance (Response Time)** | _To be filled_     |
+| **Security Testing**            | _To be filled_     |
+
+### 3.2. Test Verification and Logs
+
+- **Performance (Response Time)**
+  - **Verification:** This test simulates concurrent API calls to measure system response times under normal load. The goal is to ensure requests are handled within the expected threshold.
+  - **Log Output:**
+    ```
+    [Placeholder for response time test logs]
+    ```
+
+- **Security Testing**
+  - **Verification:** Ensures sensitive user data remains encrypted and cannot be accessed without proper authorization.
+  - **Log Output:**
+    ```
+    [Placeholder for security test logs]
+    ```
+
+---
+
+## 4. Front-end Test Specification
+
+### 4.1. Location in Git of Front-end Test Suite:
+
+`frontend/tests/`
+
+### 4.2. Tests
+
+- **Use Case: Login**
+  - **Expected Behaviors:**
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User enters credentials | Input valid email and password |
+    | 2. Clicks Login | Check login request and response |
+    | 3. Successful login | Redirect to dashboard |
+  - **Test Logs:**
+    ```
+    [Placeholder for login test logs]
+    ```
+
+---
+
+## 5. Automated Code Review Results
+
+### 5.1. Commit Hash Where Code Review Ran
+
+`[Insert Commit SHA here]`
+
+### 5.2. Unfixed Issues per Code Review Tool
+
+_(Placeholder for screenshots of Code Review report)_
+
+### 5.3. Justifications for Unfixed Issues
+
+- **Issue 1: [Example Issue]**
+  - **Location in Git:** _To be filled_
+  - **Justification:** _To be filled_
+
+---
+
+## Next Steps
+- Integrate test results into the report.
+- Add Jest coverage reports.
+- Complete the code review section based on automated tool results.
+
+---
+
+This document will be converted to PDF and pushed into the **documentation** folder in GitHub.
+

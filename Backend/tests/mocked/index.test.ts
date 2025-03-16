@@ -1,10 +1,10 @@
 import request from 'supertest';
-import app from '../index'; // Adjust path to match your project
-import { client } from '../services'; // Ensure this imports your MongoDB client
+import app from '../../index'; // Adjust path to match your project
+import { client } from '../../services'; // Ensure this imports your MongoDB client
 import cron from 'node-cron';
 import { MongoClient } from 'mongodb';
 import admin from 'firebase-admin';
-import { scheduleNotifications } from '../index';
+import { scheduleNotifications } from '../../index';
 
 let server: any;
 
@@ -81,7 +81,7 @@ describe('Firebase Admin Initialization', () => {
         }));
 
         const admin = require('firebase-admin');
-        require('../index'); // Load the app to trigger Firebase initialization check
+        require('../../index'); // Load the app to trigger Firebase initialization check
         expect(admin.initializeApp).not.toHaveBeenCalled();
     });
 });
@@ -113,7 +113,7 @@ describe('Stripe Secret Configuration', () => {
             throw new Error('Missing Stripe Secret Key!');
         });
 
-        expect(() => require('../index')).toThrow('Missing Stripe Secret Key!');
+        expect(() => require('../../index')).toThrow('Missing Stripe Secret Key!');
     });
 
     /**
@@ -127,7 +127,7 @@ describe('Stripe Secret Configuration', () => {
         const originalReadFileSync = fs.readFileSync;
 
         // Expected path for the Stripe secret file
-        const expectedPath = path.join(__dirname, '../src/config/cpen321project-stripe-secret.txt');
+        const expectedPath = path.join(__dirname, '../../src/config/cpen321project-stripe-secret.txt');
 
         // Mock readFileSync to throw only for the Stripe secret file
         jest.spyOn(fs, 'readFileSync').mockImplementation((filePath, ...args) => {
@@ -141,7 +141,7 @@ describe('Stripe Secret Configuration', () => {
         const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
         process.env.STRIPE_SECRET = 'env_secret';
-        require('../index'); // Load the app
+        require('../../index'); // Load the app
 
         expect(consoleWarnSpy).toHaveBeenCalledWith(
             'Stripe secret file not found, falling back to environment variable.'

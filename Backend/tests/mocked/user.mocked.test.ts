@@ -1,7 +1,7 @@
 import request from "supertest";
-import app from "../index";
-import { client } from "../services";
-import { UserController } from '../src/controllers/UserController';
+import app from "../../index";
+import { client } from "../../services";
+import { UserController } from '../../src/controllers/UserController';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import admin from 'firebase-admin';
@@ -15,7 +15,7 @@ import admin from 'firebase-admin';
  *   - Firebase authentication
  */
 
-jest.mock('../services', () => ({
+jest.mock('../../services', () => ({
   client: {
     db: jest.fn().mockReturnValue({
       collection: jest.fn().mockReturnValue({

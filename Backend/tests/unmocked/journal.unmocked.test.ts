@@ -1,9 +1,9 @@
 import request from "supertest";
-import app from "../index"; // Adjust based on your app entry point
+import app from "../../index"; // Adjust based on your app entry point
 import { jest } from "@jest/globals";
-import { JournalController } from "../src/controllers/JournalController";
+import { JournalController } from "../../src/controllers/JournalController";
 import { MongoClient, Db, Collection, Document, BulkWriteResult } from "mongodb";
-import { client } from "../services";
+import { client } from "../../services";
 import fs from "fs";
 
 
@@ -17,9 +17,12 @@ import fs from "fs";
  */
 describe("Journal API - Unmocked", () => {
     let unmocked_data_json: any = {}; // Default empty object
+    // Attempt to load external test data if available
     try {
-        if (fs.existsSync("./tests/unmocked_data.json")) {
-            unmocked_data_json = require("./unmocked_data.json");
+        const dataFilePath = `${__dirname}/../unmocked_data.json`; // Adjusted path
+
+        if (fs.existsSync(dataFilePath)) {
+            unmocked_data_json = require(dataFilePath);
         } else {
             console.log("Warning: unmocked_data.json not found. Using only environment variables.");
         }
