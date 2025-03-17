@@ -29,6 +29,8 @@
 | **GET /api/profile/isPaid**   |[`/Backend/tests/unmocked/user.unmocked.test.ts#L175`](#)|[`/Backend/tests/mocked/user.mocked.test.ts#L215`](#)| -                                             |
 | **POST /api/profile/reminder**|[`/Backend/tests/unmocked/user.unmocked.test.ts#L206`](#)|[`/Backend/tests/mocked/user.mocked.test.ts#L177`](#)| MongoDB Update Operations                     |
 | **POST /api/profile/fcmtoken**|[`/Backend/tests/unmocked/user.unmocked.test.ts#L246`](#)|[`/Backend/tests/mocked/user.mocked.test.ts#L139`](#)| Firebase Cloud Messaging (FCM)                |
+| **POST /api/chat**            |[`/Backend/tests/unmocked/chat.unmocked.test.ts#L50`](#) |[`/Backend/tests/mocked/chat.mocked.test.ts#L80`](#)| Rasa API (via HTTP), message validation          |
+| **POST /api/chat**            |[`/Backend/tests/unmocked/chat.unmocked.test.ts#L200`](#) |[`/Backend/tests/mocked/chat.mocked.test.ts#L110`](#)| MongoDB, Rasa Response, Auth Token             |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
@@ -82,6 +84,7 @@
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
 ![alt text](images/MockedAndUnmocked.png)
+![alt text](images/rasa_code_coverage.png)
 
 For coverage of journal controller, there are some lines that are implemented to support some extra actions of the application that couldn't be fully implemented end-to-end yet and this accounts for a considerable amount of the number of uncovered lines. A small portion of the uncovered lines is becasuse we don't call openapi with tests, we mock valid and invalid outputs for it. And the rest are checks for db to see if the db got values. 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1742247040638" clover="3.2.0">
-  <project timestamp="1742247040638" name="All files">
+<coverage generated="1742249556099" clover="3.2.0">
+  <project timestamp="1742249556099" name="All files">
     <metrics statements="43" coveredstatements="40" conditionals="18" coveredconditionals="16" methods="5" coveredmethods="4" elements="66" coveredelements="60" complexity="0" loc="43" ncloc="43" packages="1" files="1" classes="1"/>
     <file name="server.js" path="/home/nyi/CPEN321Project/Backend/rasa_api/server.js">
       <metrics statements="43" coveredstatements="40" conditionals="18" coveredconditionals="16" methods="5" coveredmethods="4"/>
