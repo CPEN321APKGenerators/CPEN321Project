@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - kevin/M5Fixes
 
 jobs:
   deploy:
@@ -118,6 +117,7 @@ jobs:
           TEST_GOOGLE_TOKEN: ${{ secrets.TEST_GOOGLE_TOKEN }}
           GOOGLE_NUM_ID: ${{ secrets.GOOGLE_NUM_ID }}
           OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
+          GOOGLE_USER_ID: ${{secrets.GOOGLE_USER_ID}}
         run: |
           cd Backend
           NODE_ENV=test npm test
