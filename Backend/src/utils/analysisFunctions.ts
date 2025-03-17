@@ -78,21 +78,18 @@ export class RelationshipLog {
         this.count++;
     }
 
-    removeEarliestLog(): void {
-        if (this.logs.length > 0) {
-            if (this.count === 1) {
-                this.avgDateDelay = 0;
-            } else {
-                this.avgDateDelay = (this.avgDateDelay * this.count - this.logs[0].dateDelay) / (this.count - 1);
-            }
-            this.logs.shift();
-            this.count--;
-        }
-    }
-
-    getLastLog(): { startDate: Date; latestDate: Date; dateDelay: number } | null {
-        return this.logs.length > 0 ? this.logs[this.logs.length - 1] : null;
-    }
+    // Unused for now, see releaseOldRelationships
+    // removeEarliestLog(): void {
+    //     if (this.logs.length > 0) {
+    //         if (this.count === 1) {
+    //             this.avgDateDelay = 0;
+    //         } else {
+    //             this.avgDateDelay = (this.avgDateDelay * this.count - this.logs[0].dateDelay) / (this.count - 1);
+    //         }
+    //         this.logs.shift();
+    //         this.count--;
+    //     }
+    // }
 
     updateLogLatestDate(latestDate: Date): void {
         if (this.logs.length > 0 && this.logs[this.logs.length - 1].latestDate < latestDate) {
@@ -103,9 +100,7 @@ export class RelationshipLog {
     getLogs(): { startDate: Date; latestDate: Date; dateDelay: number }[] {
         return this.logs;
     }
-    getAvgDateDelay(): number {
-        return this.avgDateDelay;
-    }
+
     convertSummaryEntry(activity: string, emotion: string, relationship: string): {activity: string, emotion: string, display: string} {
         const trendDescriptions : string[] = trendMap[relationship]; 
         const occurences = this.logs.length;
@@ -198,7 +193,7 @@ export function getWeekSummary(
         createNewRelations(relationshipMap, dateQueue, emotionQueue, activityQueue, emotionTrends, activityTrends, activityAverages);
         
     }
-
+    console.log(activityTrends, emotionTrends)
     const summary = relationshipMap.summarizeRelationships();
     return summary;
 
@@ -284,11 +279,12 @@ function outputTrend(dataArr: number[], trendArr: number[], incrThreshold: numbe
     if (!dataArr || dataArr.length < 2) return;
   
     for (let i = 0; i < dataArr.length - 1; i++) {
-        if(Number.isNaN(dataArr[i])){
+        if(Number.isNaN(dataArr[i+1] )|| dataArr[i+1] === null || !dataArr[i] === null || Number.isNaN(dataArr[i])){
             trendArr.push(0);
         } else if ((dataArr[i + 1] - dataArr[i]) > ( incrThreshold)) {
             trendArr.push(1);
         } else if (Math.abs(dataArr[i + 1] - dataArr[i]) > (decrThreshold)) {
+            console.log(dataArr, incrThreshold)
             trendArr.push(-1);
         } else {
             trendArr.push(0);
@@ -409,22 +405,23 @@ function deleteOldRelations(
         const activityTrendArr = activityTrends[activity];
         if (activityTrendArr.length === 6) {
             const removal = activityTrendArr.shift();
-            if (removal !== 0 && !Number.isNaN(removal)) {
-                if (activityTrendArr[0] !== removal) {
-                    endingActivityTrends.push([activity, removal]);
-                    if (activityTrendArr[0] !== 0 && !Number.isNaN(activityTrendArr[0])) {
-                        ongoingActivityTrends.push([activity, activityTrendArr[0]]);
-                    }
-                } else {
-                    ongoingActivityTrends.push([activity, removal]);
-                }
-                for (let ongoingIndex = 1; ongoingIndex < 2; ongoingIndex++) {
-                    const ongoingTrend = activityTrendArr[ongoingIndex];
-                    if (ongoingTrend !== activityTrendArr[ongoingIndex - 1] && ongoingTrend !== 0 && !Number.isNaN(ongoingTrend) ){
-                        ongoingActivityTrends.push([activity, ongoingTrend]);
-                    }
-                }
-            }
+            // Unused, see function releaseOldRelationships
+            // if (removal !== 0 && !Number.isNaN(removal)) {
+            //     if (activityTrendArr[0] !== removal) {
+            //         endingActivityTrends.push([activity, removal]);
+            //         if (activityTrendArr[0] !== 0 && !Number.isNaN(activityTrendArr[0])) {
+            //             ongoingActivityTrends.push([activity, activityTrendArr[0]]);
+            //         }
+            //     } else {
+            //         ongoingActivityTrends.push([activity, removal]);
+            //     }
+            //     for (let ongoingIndex = 1; ongoingIndex < 2; ongoingIndex++) {
+            //         const ongoingTrend = activityTrendArr[ongoingIndex];
+            //         if (ongoingTrend !== activityTrendArr[ongoingIndex - 1] && ongoingTrend !== 0 && !Number.isNaN(ongoingTrend) ){
+            //             ongoingActivityTrends.push([activity, ongoingTrend]);
+            //         }
+            //     }
+            // }
         }
     }
 
@@ -432,26 +429,27 @@ function deleteOldRelations(
         const emotionTrendArr = emotionTrends[emotion];
         if (emotionTrendArr.length === 6) {
             const removal = emotionTrendArr.shift();
-            if (removal !== 0 && !Number.isNaN(removal)) {
-                if (emotionTrendArr[0] !== removal) {
-                    endingEmotionTrends.push([emotion, removal]);
-                    if (emotionTrendArr[0] !== 0 && !Number.isNaN(emotionTrendArr[0])) {
-                        ongoingEmotionTrends.push([emotion, emotionTrendArr[0]]);
-                    }
-                } else {
-                    ongoingEmotionTrends.push([emotion, removal]);
-                }
-                for (let ongoingIndex = 1; ongoingIndex < 2; ongoingIndex++) {
-                    const ongoingTrend = emotionTrendArr[ongoingIndex];
-                    if (ongoingTrend !== emotionTrendArr[ongoingIndex - 1] && ongoingTrend !== 0 && !Number.isNaN(ongoingTrend)) {
-                        ongoingEmotionTrends.push([emotion, ongoingTrend]);
-                    }
-                }
-            }
+            // Unused, see function releaseOldRelationships
+            // if (removal !== 0 && !Number.isNaN(removal)) {
+            //     if (emotionTrendArr[0] !== removal) {
+            //         endingEmotionTrends.push([emotion, removal]);
+            //         if (emotionTrendArr[0] !== 0 && !Number.isNaN(emotionTrendArr[0])) {
+            //             ongoingEmotionTrends.push([emotion, emotionTrendArr[0]]);
+            //         }
+            //     } else {
+            //         ongoingEmotionTrends.push([emotion, removal]);
+            //     }
+            //     for (let ongoingIndex = 1; ongoingIndex < 2; ongoingIndex++) {
+            //         const ongoingTrend = emotionTrendArr[ongoingIndex];
+            //         if (ongoingTrend !== emotionTrendArr[ongoingIndex - 1] && ongoingTrend !== 0 && !Number.isNaN(ongoingTrend)) {
+            //             ongoingEmotionTrends.push([emotion, ongoingTrend]);
+            //         }
+            //     }
+            // }
         }
     }
-
-    releaseOldRelationships(relationshipMap, endingActivityTrends, ongoingActivityTrends, endingEmotionTrends, ongoingEmotionTrends);
+    // Unused for now, see function
+    // releaseOldRelationships(relationshipMap, endingActivityTrends, ongoingActivityTrends, endingEmotionTrends, ongoingEmotionTrends);
 }
 
 function enQueueNewTrends(
@@ -478,7 +476,7 @@ function enQueueNewTrends(
     }
   }
   
-  
+// Unused for now since we regenerate the last week every time and intial values for trends are zero in queue
 function releaseOldRelationships(
     relationshipMap: RelationshipMap, 
     endingActivityTrends: any[], 
@@ -486,20 +484,20 @@ function releaseOldRelationships(
     endingEmotionTrends: any[], 
     ongoingEmotionTrends: any[]
 ): void {
-    for (const [endingActivity, activityTrend] of endingActivityTrends) {
-        for (const [endingEmotion, emotionTrend] of endingEmotionTrends) {
-            relationshipMap.getRelation(endingActivity, endingEmotion)?.[getRelType(emotionTrend, activityTrend)]?.removeEarliestLog();
-        }
-        for (const [ongoingEmotion, emotionTrend] of ongoingEmotionTrends) {
-            relationshipMap.getRelation(endingActivity, ongoingEmotion)?.[getRelType(emotionTrend, activityTrend)]?.removeEarliestLog();
-        }
-    }
+    // for (const [endingActivity, activityTrend] of endingActivityTrends) {
+    //     for (const [endingEmotion, emotionTrend] of endingEmotionTrends) {
+    //         relationshipMap.getRelation(endingActivity, endingEmotion)?.[getRelType(emotionTrend, activityTrend)]?.removeEarliestLog();
+    //     }
+    //     for (const [ongoingEmotion, emotionTrend] of ongoingEmotionTrends) {
+    //         relationshipMap.getRelation(endingActivity, ongoingEmotion)?.[getRelType(emotionTrend, activityTrend)]?.removeEarliestLog();
+    //     }
+    // }
 
-    for (const [endingEmotion, emotionTrend] of endingEmotionTrends) {
-        for (const [ongoingActivity, activityTrend] of ongoingActivityTrends) {
-            relationshipMap.getRelation(ongoingActivity, endingEmotion)?.[getRelType(emotionTrend, activityTrend)]?.removeEarliestLog();
-        }
-    }
+    // for (const [endingEmotion, emotionTrend] of endingEmotionTrends) {
+    //     for (const [ongoingActivity, activityTrend] of ongoingActivityTrends) {
+    //         relationshipMap.getRelation(ongoingActivity, endingEmotion)?.[getRelType(emotionTrend, activityTrend)]?.removeEarliestLog();
+    //     }
+    // }
 }
 
 function markNewRelationships(

@@ -50,4 +50,14 @@ describe("Analytics API - Mocked", () => {
 
         expect(response.status).toBe(400);
     });
+
+    it("should return an error if date is not valid", async () => {
+
+        const response = await request(app)
+            .get("/api/analytics")
+            .query({ userID: "user_123", date: "Not Valid Date" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("Invalid date format");
+    });
 });
