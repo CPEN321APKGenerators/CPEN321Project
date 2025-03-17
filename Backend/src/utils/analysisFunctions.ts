@@ -227,7 +227,6 @@ export async function unpackPastWeekStats(
         const formattedDate = statDate.toISOString().split('T')[0];
         dates.push(statDate);
         const entry = await client.db("cpen321journal").collection("journals").findOne({ userID: userID, date: formattedDate });
-    
         if (!entry && !prevEntry) {
             for (const activity of Object.keys(activityStats)) {
                 activityStats[activity].push(NaN);
@@ -238,7 +237,7 @@ export async function unpackPastWeekStats(
         }
         else if (!entry && prevEntry) {
             for (const activity of Object.keys(activityStats)) {
-                activityStats[activity].push(0);
+                activityStats[activity].push(NaN);
             }
             for (const emotion of Object.keys(emotionStats)) {
                 emotionStats[emotion].push(emotionStats[emotion][emotionStats[emotion].length - 1]);
@@ -246,11 +245,11 @@ export async function unpackPastWeekStats(
         }
         else if(entry){
             for (const activity of Object.keys(activityStats)) {
-                const activityStat = entry.stats.activities[activity] || NaN;
-                activityStats[activity].push(activityStat);
+                const activityStat = entry.stats.activities[activity];
+                activityStats[activity].push(activityStat !== undefined ? activityStat : NaN);
             }
             for (const emotion of Object.keys(emotionStats)) {
-                const emotionStat = entry.stats.emotions[emotion] || NaN;
+                const emotionStat = entry.stats.emotions[emotion];
                 emotionStats[emotion].push(emotionStat);
             }
             if(entry.stats.overallScore){
