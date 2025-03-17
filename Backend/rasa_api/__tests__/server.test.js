@@ -1,8 +1,8 @@
 const axios = require("axios");
-const { app, server } = require("../server");  
+const { app, server } = require("../server"); 
+const request = require("supertest");
 jest.mock("axios");
 
-jest.mock("axios");
 
 // Suppress logs in tests
 beforeAll(() => {
