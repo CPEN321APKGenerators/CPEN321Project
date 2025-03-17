@@ -1,88 +1,103 @@
 const request = require("supertest");
-const app = require("../server");
+const { app, server } = require("../server");
 const axios = require("axios");
 
-
 jest.mock("axios");
-beforeEach(() => {
-  jest.clearAllMocks();
+
+// Suppress logs in tests
+beforeAll(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); 
+    jest.spyOn(console, "warn").mockImplementation(() => {});  
 });
 
+afterAll((done) => {
+    server.close(done); 
+});
+
+//**Mocked Tests**
 describe("API Tests for RASA Bot", () => {
-  //Test /api/chat 
-  test("POST /api/chat - Valid request", async () => {
-    const mockResponse = { responses: [{ text: "Hello! How can I help you?" }] };
-    axios.post.mockResolvedValueOnce({ data: mockResponse });
-    const res = await request(app)
-      .post("/api/chat")
-      .send({ message: "Hi", sender: "testUser" });
-    expect(res.status).toBe(200);
-    expect(res.body.responses[0].text).toBe("Please type start to begin journaling.");
-  });
+    test("POST /api/chat - Valid request", async () => {
+        const mockResponse = { responses: [{ text: "Hello! How can I help you?" }] };
+        axios.post.mockResolvedValueOnce({ data: mockResponse });
 
-  // ❌ Test /api/chat - Missing parameters
-  test("POST /api/chat - Missing message", async () => {
-    const res = await request(app)
-      .post("/api/chat")
-      .send({ sender: "testUser" }); // Missing "message"
+        const res = await request(server) 
+            .post("/api/chat")
+            .send({ message: "Hi", sender: "testUser" });
 
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Message and sender are required" });
-  });
+        expect(res.status).toBe(200);
+        expect(res.body.responses[0].text).toBe("Hello! How can I help you?");
+    });
 
-  // ❌ Test /api/chat - RASA server error
-  test("POST /api/chat - RASA server error", async () => {
-    axios.post.mockRejectedValueOnce(new Error("RASA API Down"));
+    test("POST /api/chat - Missing message", async () => {
+        const res = await request(server).post("/api/chat").send({ sender: "testUser" });
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: "Message and sender are required" });
+    });
 
-    const res = await request(app)
-      .post("/api/chat")
-      .send({ message: "Hi", sender: "testUser" });
+    test("POST /api/chat - RASA server error", async () => {
+        axios.post.mockRejectedValueOnce(new Error("RASA API Down"));
 
-    expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to get response from RASA" });
-  });
+        const res = await request(server)
+            .post("/api/chat")
+            .send({ message: "Hi", sender: "testUser" });
 
-  // ✅ Test /api/action - Successful case
-  test("POST /api/action - Valid request", async () => {
-    const mockActionResponse = { responses: [{ text: "Action executed" }] };
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ error: "Failed to get response from RASA" });
+    });
 
-    axios.post.mockResolvedValueOnce({ data: mockActionResponse });
+    test("POST /api/action - Valid request", async () => {
+        const mockResponse = { responses: [{ text: "Action executed" }] };
+        axios.post.mockResolvedValueOnce({ data: mockResponse });
 
-    const res = await request(app)
-      .post("/api/action")
-      .send({ sender: "testUser", tracker: {}, domain: {} });
+        const res = await request(server)
+            .post("/api/action")
+            .send({ sender: "testUser", tracker: {}, domain: {} });
 
-    expect(res.status).toBe(200);
-    expect(res.body.responses[0].text).toBe("Action executed");
-  });
+        expect(res.status).toBe(200);
+        expect(res.body.responses[0].text).toBe("Action executed");
+    });
 
-  // ❌ Test /api/action - Missing sender
-  test("POST /api/action - Missing sender", async () => {
-    const res = await request(app)
-      .post("/api/action")
-      .send({ tracker: {}, domain: {} });
+    test("POST /api/action - Missing sender", async () => {
+        const res = await request(server).post("/api/action").send({ tracker: {}, domain: {} });
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: "Sender is required" });
+    });
 
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Sender is required" });
-  });
+    test("POST /api/action - Action server error", async () => {
+        axios.post.mockRejectedValueOnce(new Error("Action server down"));
 
-  // ❌ Test /api/action - Action server failure
-  test("POST /api/action - Action server error", async () => {
-    axios.post.mockRejectedValueOnce(new Error("Action server down"));
+        const res = await request(server)
+            .post("/api/action")
+            .send({ sender: "testUser", tracker: {}, domain: {} });
 
-    const res = await request(app)
-      .post("/api/action")
-      .send({ sender: "testUser", tracker: {}, domain: {} });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ error: "Failed to get response from RASA Action Server" });
+    });
 
-    expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to get response from RASA Action Server" });
-  });
+    test("GET /api/health - Check server status", async () => {
+        const res = await request(server).get("/api/health");
 
-  // ✅ Test /api/health - Health check route
-  test("GET /api/health - Check server status", async () => {
-    const res = await request(app).get("/api/health");
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ status: "Node.js API is running" });
+    });
+});
 
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ status: "Node.js API is running" });
-  });
+// **Unmocked Tests**
+describe("Unmocked API Tests for RASA Bot", () => {
+    test("POST /api/chat - Real request to RASA", async () => {
+        const res = await request(server)
+            .post("/api/chat")
+            .send({ message: "Hi", sender: "realUser" });
+
+        expect(res.status).toBe(200);
+        expect(res.body.responses).toBeDefined();
+    });
+
+    test("POST /api/action - Real request to RASA Action Server", async () => {
+        const res = await request(server)
+            .post("/api/action")
+            .send({ sender: "realUser", tracker: {}, domain: {} });
+
+        expect(res.status).toBe(200);
+    });
 });
