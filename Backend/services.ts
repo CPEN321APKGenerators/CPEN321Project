@@ -1,8 +1,6 @@
 import { MongoClient } from "mongodb";
 
-const dbUri = process.env.DB_URI;
-if (!dbUri) {
-    throw new Error("DB_URI environment variable is not set");
-}
-
-export const client = new MongoClient(dbUri);
+// export const client = new MongoClient(process.env.DB_URI ?? "mongodb://localhost:27017");
+export const client: MongoClient = new MongoClient(
+    process.env.DB_URI ?? "mongodb://localhost:27017"
+  );

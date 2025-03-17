@@ -75,77 +75,81 @@ class AnalyticsActivity : AppCompatActivity() {
                     return
                 }
 
-                try {
-                    val jsonResponse = JSONObject(responseBody)
-
-                    val emotionStats = jsonResponse.getJSONObject("emotionStats")
-                    val activityStats = jsonResponse.getJSONObject("activityStats")
-                    val overallScore = jsonResponse.optDouble("overallScore", -1.0)
-                    val summaryArray = jsonResponse.getJSONArray("summary")
-
-                    val summaryList = mutableListOf<String>()
-                    for (i in 0 until summaryArray.length()) {
-                        val summaryItem = summaryArray.getJSONObject(i)
-                        val activity = summaryItem.getString("activity")
-                        val emotion = summaryItem.getString("emotion")
-                        val displayText = summaryItem.getString("display")
-                        summaryList.add("$activity - $emotion: $displayText")
-                    }
-
-                    // Convert emotionStats JSON into a usable format
-                    val newEmotionsData = mutableMapOf<String, List<Float>>()
-                    val keys = emotionStats.keys()
-                    while (keys.hasNext()) {
-                        val key = keys.next()
-                        val valuesArray = emotionStats.getJSONArray(key)
-                        val valuesList = mutableListOf<Float>()
-                        for (i in 0 until valuesArray.length()) {
-                            val value = valuesArray.optDouble(i, 0.0)
-                            valuesList.add(value.toFloat())
-                        }
-                        newEmotionsData[key] = valuesList
-                    }
-                    emotionsData = newEmotionsData
-
-                    val newActivityData = mutableMapOf<String, List<Float>>()
-                    val activityKeys = activityStats.keys()
-                    while (activityKeys.hasNext()) {
-                        val key = activityKeys.next()
-                        val valuesArray = activityStats.getJSONArray(key)
-                        val valuesList = mutableListOf<Float>()
-                        for (i in 0 until valuesArray.length()) {
-                            val value = valuesArray.optDouble(i, 0.0)
-                            valuesList.add(value.toFloat())
-                        }
-                        newActivityData[key] = valuesList
-                    }
-                    activitiesData = newActivityData
-
-                    runOnUiThread {
-                        updateOverallScore(overallScore)
-                        updateSummary(summaryList)
-                        setupEmotionFilter(
-                            activitiesData,
-                            selectedActivities,
-                            binding.activitiesChart,
-                            binding.activityfilterButton
-                        )
-                        setupEmotionFilter(
-                            emotionsData,
-                            selectedEmotions,
-                            binding.analyticsChart,
-                            binding.emotionFilterButton
-                        )
-                    }
-                } catch (e: JSONException) {
-                    Log.e("Analytics Fetch", "Error parsing JSON response", e)
-                }
+                processAnalyticsData(responseBody)
             }
 
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Analytics Fetch", "Error fetching analytics data", e)
             }
         })
+    }
+
+    private fun processAnalyticsData(responseBody: String) {
+        try {
+            val jsonResponse = JSONObject(responseBody)
+
+            val emotionStats = jsonResponse.getJSONObject("emotionStats")
+            val activityStats = jsonResponse.getJSONObject("activityStats")
+            val overallScore = jsonResponse.optDouble("overallScore", -1.0)
+            val summaryArray = jsonResponse.getJSONArray("summary")
+
+            val summaryList = mutableListOf<String>()
+            for (i in 0 until summaryArray.length()) {
+                val summaryItem = summaryArray.getJSONObject(i)
+                val activity = summaryItem.getString("activity")
+                val emotion = summaryItem.getString("emotion")
+                val displayText = summaryItem.getString("display")
+                summaryList.add("$activity - $emotion: $displayText")
+            }
+
+            // Convert emotionStats JSON into a usable format
+            val newEmotionsData = mutableMapOf<String, List<Float>>()
+            val keys = emotionStats.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                val valuesArray = emotionStats.getJSONArray(key)
+                val valuesList = mutableListOf<Float>()
+                for (i in 0 until valuesArray.length()) {
+                    val value = valuesArray.optDouble(i, 0.0)
+                    valuesList.add(value.toFloat())
+                }
+                newEmotionsData[key] = valuesList
+            }
+            emotionsData = newEmotionsData
+
+            val newActivityData = mutableMapOf<String, List<Float>>()
+            val activityKeys = activityStats.keys()
+            while (activityKeys.hasNext()) {
+                val key = activityKeys.next()
+                val valuesArray = activityStats.getJSONArray(key)
+                val valuesList = mutableListOf<Float>()
+                for (i in 0 until valuesArray.length()) {
+                    val value = valuesArray.optDouble(i, 0.0)
+                    valuesList.add(value.toFloat())
+                }
+                newActivityData[key] = valuesList
+            }
+            activitiesData = newActivityData
+
+            runOnUiThread {
+                updateOverallScore(overallScore)
+                updateSummary(summaryList)
+                setupEmotionFilter(
+                    activitiesData,
+                    selectedActivities,
+                    binding.activitiesChart,
+                    binding.activityfilterButton
+                )
+                setupEmotionFilter(
+                    emotionsData,
+                    selectedEmotions,
+                    binding.analyticsChart,
+                    binding.emotionFilterButton
+                )
+            }
+        } catch (e: JSONException) {
+            Log.e("Analytics Fetch", "Error parsing JSON response", e)
+        }
     }
 
     private fun setupChart(activitiesChart: LineChart) {

@@ -110,18 +110,7 @@ class ProfileManagement : AppCompatActivity() {
             sendUserProfile(preferredName, activitiesList)
         }
 
-        if (checkSelfPermission(permissionsArr[0]) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, permissionsArr, 200)
-        }
-        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "General Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
+        setUpNotificationChannel()
 
         // Apply window insets for proper layout
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_view)) { v, insets ->
@@ -189,6 +178,21 @@ class ProfileManagement : AppCompatActivity() {
         setupDayCircles()
         highlightSelectedDays()
 
+    }
+
+    private fun setUpNotificationChannel() {
+        if (checkSelfPermission(permissionsArr[0]) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, permissionsArr, 200)
+        }
+        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "General Notifications",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
     // Function to show input dialog for adding an activity
