@@ -23,7 +23,7 @@ class ActionSaveMessage(Action):
         if not all([date, userID, google_token, message]):
             logging.error("Missing required journal entry fields.")
             dispatcher.utter_message(text="Failed to save journal entry. Missing information.")
-            return [400]  
+            return []
 
         # Construct request payload
         payload = {
@@ -38,20 +38,14 @@ class ActionSaveMessage(Action):
             "Authorization": f"Bearer {google_token}"
         }
 
-        try:
-            # Send request to journal API
-            response = requests.post("https://cpen321project-journal.duckdns.org/api/journal", json=payload, headers=headers)
+        # Send request to journal API
+        response = requests.post("https://cpen321project-journal.duckdns.org/api/journal", json=payload, headers=headers)
 
-            if response.status_code == 200:
-                logging.info("Journal entry saved successfully.")
-                dispatcher.utter_message(text="Your journal entry has been saved successfully.")
-                return [200]  
-            else:
-                logging.error(f"Failed to save journal entry. Status: {response.status_code}, Response: {response.text}")
-                dispatcher.utter_message(text="Failed to save journal entry. Please try again later.")
-                return [500]  
-
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error during journal entry API call: {e}")
+        if response.status_code == 200:
+            logging.info("Journal entry saved successfully.")
+            dispatcher.utter_message(text="Your journal entry has been saved successfully.")
+        else:
+            logging.error(f"Failed to save journal entry. Status: {response.status_code}, Response: {response.text}")
             dispatcher.utter_message(text="Failed to save journal entry. Please try again later.")
-            return [500]  
+
+        return []

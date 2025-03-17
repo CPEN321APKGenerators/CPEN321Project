@@ -14,7 +14,7 @@ afterAll((done) => {
     server.close(done); 
 });
 
-//**Mocked Tests**
+//Mocked Tests
 describe("API Tests for RASA Bot", () => {
     test("POST /api/chat - Valid request", async () => {
         const mockResponse = { responses: [{ text: "Please type start to begin journaling." }] };
@@ -82,10 +82,10 @@ describe("API Tests for RASA Bot", () => {
     });
 });
 
-// **Unmocked Tests**
+// **Unmocked Tests
 describe("Unmocked API Tests for RASA Bot", () => {
     test("POST /api/chat - Real request to RASA", async () => {
-        await new Promise((resolve) => setTimeout(resolve, 3000)); // Add delay for stability
+        await new Promise((resolve) => setTimeout(resolve, 3000)); 
     
         const res = await request(server)
             .post("/api/chat")
@@ -94,7 +94,7 @@ describe("Unmocked API Tests for RASA Bot", () => {
     
         console.log("🔍 Debug Jest API Response:", res.status, JSON.stringify(res.body, null, 2));
     
-        expect(res.status).toBe(200);  // Expect 200 only if RASA is working correctly
+        expect(res.status).toBe(200);  
         expect(res.body.responses).toBeDefined();
     });
 
