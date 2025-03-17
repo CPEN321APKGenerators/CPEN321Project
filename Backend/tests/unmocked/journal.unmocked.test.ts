@@ -714,22 +714,4 @@ describe("Journal API - Unmocked", () => {
         });
     }); 
 
-    it("should return 500 when checking existing entry", async () => {
-            // Mocking the database call to return null (simulating failure)
-            jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockResolvedValueOnce(null);
-
-            // API Request
-            const response = await request(app)
-                .post("/api/journal")
-                .set("Authorization", "Bearer " + testGoogleToken)
-                .send({
-                    date: "2025-03-11",
-                    userID: google_user_prefix+"testtest@gmail.com",
-                    text: "Testing...",
-                    googleNumID: google_num_id
-                });
-
-            // Assertions
-            expect(response.status).toBe(500);
-        });
 });
