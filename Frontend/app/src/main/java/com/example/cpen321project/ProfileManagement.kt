@@ -92,24 +92,7 @@ class ProfileManagement : AppCompatActivity() {
         selectedDays.clear()
         selectedDays.addAll(savedDays.map { it.toInt() })
 
-
-        saveSettingsButton.setOnClickListener {
-            // Get selected time from TimePicker
-            val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
-            val minute =
-                if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
-            val formattedTime = String.format("%02d:%02d", hour, minute)
-            val preferredName = preferredNameText.text.toString().trim()
-
-            // Save the selected days locally
-            val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            prefs.edit().putStringSet("SelectedDays", selectedDays.map { it.toString() }.toSet())
-                .apply()
-
-            sendReminderSettings(selectedDays, formattedTime)
-            sendUserProfile(preferredName, activitiesList)
-        }
-
+        saveSettingsSetOnClick(saveSettingsButton, timePicker, preferredNameText)
         setUpNotificationChannel()
 
         // Apply window insets for proper layout
@@ -154,6 +137,39 @@ class ProfileManagement : AppCompatActivity() {
         paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
 
 //        "http://10.0.2.2:3001/api/payment-sheet".httpPost()
+        PostPaymentSheet(jsonBody)
+
+        // Ensure ListView expands correctly inside ScrollView
+        updateListViewHeight()
+        setupDayCircles()
+        highlightSelectedDays()
+
+    }
+
+    private fun saveSettingsSetOnClick(
+        saveSettingsButton: Button,
+        timePicker: TimePicker,
+        preferredNameText: EditText
+    ) {
+        saveSettingsButton.setOnClickListener {
+            // Get selected time from TimePicker
+            val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
+            val minute =
+                if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
+            val formattedTime = String.format("%02d:%02d", hour, minute)
+            val preferredName = preferredNameText.text.toString().trim()
+
+            // Save the selected days locally
+            val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            prefs.edit().putStringSet("SelectedDays", selectedDays.map { it.toString() }.toSet())
+                .apply()
+
+            sendReminderSettings(selectedDays, formattedTime)
+            sendUserProfile(preferredName, activitiesList)
+        }
+    }
+
+    private fun PostPaymentSheet(jsonBody: JSONObject) {
         "https://cpen321project-journal.duckdns.org/api/payment-sheet".httpPost()
             .header("Content-Type" to "application/json")
             .body(jsonBody.toString())
@@ -172,12 +188,6 @@ class ProfileManagement : AppCompatActivity() {
                     Log.e(TAG, "Failed to get payment sheet: ${result}")
                 }
             }
-
-        // Ensure ListView expands correctly inside ScrollView
-        updateListViewHeight()
-        setupDayCircles()
-        highlightSelectedDays()
-
     }
 
     private fun setUpNotificationChannel() {
