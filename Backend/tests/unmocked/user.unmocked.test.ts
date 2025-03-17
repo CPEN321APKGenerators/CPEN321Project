@@ -12,7 +12,6 @@ import fs from "fs";
  */
 
 describe('User APIs - No Mocks (Integration)', () => {
-  const testUserID = 'test@gmail.com';
   let unmocked_data_json: any = {}; // Default empty object
 
   // Attempt to load external test data if available
@@ -30,6 +29,9 @@ describe('User APIs - No Mocks (Integration)', () => {
 
   const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken;
   const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID;
+  const google_user_prefix = process.env.GOOGLE_USER_PREFIX || unmocked_data_json.google_user_prefix;
+  const testUserID = google_user_prefix+"123@gmail.com"
+
   console.log(testGoogleToken);
 
   /**
@@ -37,10 +39,32 @@ describe('User APIs - No Mocks (Integration)', () => {
    */
   beforeAll(async () => {
     await client.db("cpen321journal").collection("users").updateOne(
-      { userID: "test@gmail.com" }, // Find existing user
+      { userID: google_user_prefix+"test@gmail.com" }, // Find existing user
       {
           $set: {
-              userID: "test@gmail.com",
+              userID: google_user_prefix+"test@gmail.com",
+              isPaid: false,
+              googleNumID: google_num_id
+          }
+      },
+      { upsert: true } // Insert if not found
+    );
+    await client.db("cpen321journal").collection("users").updateOne(
+      { userID: google_user_prefix+"123@gmail.com" }, // Find existing user
+      {
+          $set: {
+              userID: google_user_prefix+"123@gmail.com",
+              isPaid: false,
+              googleNumID: google_num_id
+          }
+      },
+      { upsert: true } // Insert if not found
+    );
+    await client.db("cpen321journal").collection("users").updateOne(
+      { userID: google_user_prefix+"@gmail.com" }, // Find existing user
+      {
+          $set: {
+              userID: google_user_prefix+"@gmail.com",
               isPaid: false,
               googleNumID: google_num_id
           }
@@ -53,7 +77,7 @@ describe('User APIs - No Mocks (Integration)', () => {
    * Cleanup: Remove test data after all tests have run.
    */
   afterAll(async () => {
-    await client.db("cpen321journal").collection("users").deleteMany({ userID: "123445544545" });
+    await client.db("cpen321journal").collection("users").deleteMany({ userID: google_user_prefix+"123445544545" });
   });
 
   /**
@@ -103,7 +127,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("should return 200 for existing user when userID is in the database", async () => {
         const res = await request(app)
         .post('/api/profile')
-        .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken});
+        .send({userID: google_user_prefix+"test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken});
 
         expect(res.statusCode).toEqual(200);
     });
@@ -116,7 +140,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("should return 200 for new user when userID is not in the database", async () => {
       const res = await request(app)
       .post('/api/profile')
-      .send({userID: "123445544545", preferred_name: "test user", googleToken: testGoogleToken});
+      .send({userID: google_user_prefix+"123445544545", preferred_name: "test user", googleToken: testGoogleToken});
 
       expect(res.statusCode).toEqual(200);
     });
@@ -129,7 +153,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("should return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
-      .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: "ds"});
+      .send({userID: google_user_prefix+"test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: "ds"});
 
       expect(res.statusCode).toEqual(400);
     });
@@ -137,7 +161,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
-      .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: ["ds"]});
+      .send({userID: google_user_prefix+"test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: ["ds"]});
 
       expect(res.statusCode).toEqual(400);
     })
@@ -145,7 +169,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
-      .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: [{ name: 'Exercise', averageValue: 'not a number', unit: 'Hours' }]});
+      .send({userID: google_user_prefix+"test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: [{ name: 'Exercise', averageValue: 'not a number', unit: 'Hours' }]});
 
       expect(res.statusCode).toEqual(400);
     })
@@ -153,7 +177,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
-      .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: [{ name: 3434, averageValue: 'not a number', unit: 'Hours' }]});
+      .send({userID: google_user_prefix+"test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: [{ name: 3434, averageValue: 'not a number', unit: 'Hours' }]});
 
       expect(res.statusCode).toEqual(400);
     })
@@ -161,7 +185,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("shoudl return 400 for wrong activity format", async () => {
       const res = await request(app)
       .post('/api/profile')
-      .send({userID: "test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: [{ name: "exercise", averageValue: 34, unit: 'Hrs' }]});
+      .send({userID: google_user_prefix+"test@gmail.com", preferred_name: "test user", googleToken: testGoogleToken, activities_tracking: [{ name: "exercise", averageValue: 34, unit: 'Hrs' }]});
 
       expect(res.statusCode).toEqual(400);
     })
@@ -180,7 +204,8 @@ describe('User APIs - No Mocks (Integration)', () => {
      */
     it ("should return 200 for existing user when userID is in the database", async () => {
         const res = await request(app)
-        .get('/api/profile/isPaid?userID=test@gmail.com')
+        .get('/api/profile/isPaid')
+        .query({userID:google_user_prefix+"test@gmail.com"})
         
         expect(res.statusCode).toEqual(200);
         
@@ -230,7 +255,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("should return 200 for existing user when userID is in the database", async () => {
       const res = await request(app)
       .post('/api/profile/reminder')
-      .send({ userID: "test@gmail.com", updated_reminder: {
+      .send({ userID: google_user_prefix+"test@gmail.com", updated_reminder: {
         Weekday: [1], // Monday in user's timezone
         time: '21:00' // 9 PM PDT (UTC-7)
         } });
@@ -263,7 +288,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it ("should return 200 for valid user update", async () => {
       const res = await request(app)
       .post('/api/profile/fcmtoken')
-      .send({ userID: "test@gmail.com", fcmToken: "ireofoej", timeOffset: "-07:00" });
+      .send({ userID: google_user_prefix+"test@gmail.com", fcmToken: "ireofoej", timeOffset: "-07:00" });
       
       expect(res.statusCode).toEqual(200);
     })

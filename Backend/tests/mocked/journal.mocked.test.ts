@@ -44,11 +44,13 @@ describe("Journal API - Mocked", () => {
     }
     const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken
     const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID
+    const google_user_prefix = process.env.GOOGLE_USER_PREFIX || unmocked_data_json.google_user_prefix;
+    const test_main_user_id = google_user_prefix+"@gmail.com"
     console.log(testGoogleToken);
 
     const mockJournal = {
         date: "2025-03-11",
-        userID: "llcce44@gmail.com",
+        userID: test_main_user_id,
         text: "Today was a good day.",
         googleNumID: google_num_id
     };
@@ -146,7 +148,7 @@ describe("Journal API - Mocked", () => {
             .set("Authorization", "Bearer " + testGoogleToken)
             .query({
                 date: "2025-03-11",
-                userID: "testtest@gmail.com",
+                userID: google_user_prefix+"testtest@gmail.com",
                 googleNumID: google_num_id
             });
 
@@ -176,7 +178,7 @@ describe("Journal API - Mocked", () => {
             .set("Authorization", "Bearer " + testGoogleToken)
             .send({
                 date: "2025-03-11",
-                userID: "testtest@gmail.com",
+                userID: google_user_prefix+"testtest@gmail.com",
                 text: "helo",
                 googleNumID: google_num_id
             });
@@ -207,7 +209,7 @@ describe("Journal API - Mocked", () => {
             .set("Authorization", "Bearer " + testGoogleToken)
             .query({
                 date: "2025-03-11",
-                userID: "testtest@gmail.com",
+                userID: google_user_prefix+"testtest@gmail.com",
                 googleNumID: google_num_id
             });
 
@@ -236,7 +238,7 @@ describe("Journal API - Mocked", () => {
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
             .query({
-                userID: "testtest@gmail.com",
+                userID: google_user_prefix+"testtest@gmail.com",
                 format: "csv",
                 googleNumID: google_num_id
             });
