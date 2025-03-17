@@ -17,7 +17,7 @@ afterAll((done) => {
 //**Mocked Tests**
 describe("API Tests for RASA Bot", () => {
     test("POST /api/chat - Valid request", async () => {
-        const mockResponse = { responses: [{ text: "Hello! How can I help you?" }] };
+        const mockResponse = { responses: [{ text: "Please type start to begin journaling." }] };
         axios.post.mockResolvedValueOnce({ data: mockResponse });
 
         const res = await request(server) 
@@ -25,7 +25,7 @@ describe("API Tests for RASA Bot", () => {
             .send({ message: "Hi", sender: "testUser" });
 
         expect(res.status).toBe(200);
-        expect(res.body.responses[0].text).toBe("Hello! How can I help you?");
+        expect(res.body.responses[0].text).toBe("Please type start to begin journaling.");
     });
 
     test("POST /api/chat - Missing message", async () => {
@@ -85,11 +85,16 @@ describe("API Tests for RASA Bot", () => {
 // **Unmocked Tests**
 describe("Unmocked API Tests for RASA Bot", () => {
     test("POST /api/chat - Real request to RASA", async () => {
+        await new Promise((resolve) => setTimeout(resolve, 3000)); // Add delay for stability
+    
         const res = await request(server)
             .post("/api/chat")
-            .send({ message: "Hi", sender: "realUser" });
-
-        expect(res.status).toBe(200);
+            .set("Content-Type", "application/json")
+            .send({ message: "Hello", sender: "user123" });
+    
+        console.log("🔍 Debug Jest API Response:", res.status, JSON.stringify(res.body, null, 2));
+    
+        expect(res.status).toBe(200);  // Expect 200 only if RASA is working correctly
         expect(res.body.responses).toBeDefined();
     });
 
