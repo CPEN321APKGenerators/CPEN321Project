@@ -118,6 +118,7 @@ jobs:
           GOOGLE_NUM_ID: ${{ secrets.GOOGLE_NUM_ID }}
           OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
           GOOGLE_USER_ID: ${{secrets.GOOGLE_USER_ID}}
+          GOOGLE_USER_PREFIX: ${{ secrets.GOOGLE_USER_PREFIX }}
         run: |
           cd Backend
           NODE_ENV=test npm test

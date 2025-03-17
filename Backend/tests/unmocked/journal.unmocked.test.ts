@@ -31,40 +31,41 @@ describe("Journal API - Unmocked", () => {
     }
     const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken;
     const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID;
-    const googleUserID = process.env.GOOGLE_USER_ID || unmocked_data_json.userID;
-    const dummy_token = "eyJhbGciOiJub25lIn0.eyJleHAiOjE4OTM0NTYwMDB9." // Expires in 2030
+    const dummy_token = "eyJhbGciOiJub25lIn0.eyJleHAiOjE4OTM0NTYwMDB9."; // Expires in 2030
+    const google_user_prefix = unmocked_data_json.googleUserPrefix;
+    const main_test_userID = String(google_user_prefix)+"@gmail.com";
 
     const mockJournal = {
         date: "2025-03-11",
-        userID: googleUserID,
+        userID: main_test_userID,
         content: "Today was a good day.",
         googleNumID: google_num_id,
     };
 
     const mockJournal2 = {
         date: "2025-03-11",
-        userID: googleUserID,
+        userID: main_test_userID,
         content: "Today was a good day.",
         media: ["data:image/png;base64,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"],
         googleNumID: google_num_id
     };
     const mockJournal_jpeg = {
         date: "2025-03-14",
-        userID: googleUserID,
+        userID: main_test_userID,
         content: "Today was a good day.",
         media: ["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ=="],
         googleNumID: google_num_id
     };
     const mockJournal_gif = {
-        date: "2025-03-15",
-        userID: googleUserID,
+        date: "2025-02-15",
+        userID: main_test_userID,
         content: "Today was a good day.",
         media: ["data:image/gif;base64,R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="],
         googleNumID: google_num_id
     };
     const mockJournal_nobase65data = {
         date: "2025-03-15",
-        userID: googleUserID,
+        userID: main_test_userID,
         content: "Today was a good day.",
         media: ["R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="],
         googleNumID: google_num_id
@@ -83,10 +84,28 @@ describe("Journal API - Unmocked", () => {
         // console.log("Database cleaned. Inserting user...");
     
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: googleUserID }, // Find existing user
+            { userID: main_test_userID }, // Find existing user
             {
                 $set: {
-                    userID: googleUserID,
+                    userID: main_test_userID,
+                    isPaid: false,
+                    googleNumID: google_num_id,
+                    "activities_tracking": [
+                    {
+                        "name": "sleep",
+                        "averageValue": 7,
+                        "unit": "Hours"
+                    }
+                ]
+                }
+            },
+            { upsert: true } // Insert if not found
+        );
+        await client.db("cpen321journal").collection("users").updateOne(
+            { userID: google_user_prefix+"testtest@gmail.com" }, // Find existing user
+            {
+                $set: {
+                    userID: google_user_prefix+"testtest@gmail.com",
                     isPaid: false,
                     googleNumID: google_num_id
                 }
@@ -94,31 +113,20 @@ describe("Journal API - Unmocked", () => {
             { upsert: true } // Insert if not found
         );
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "testtest@gmail.com" }, // Find existing user
+            { userID: google_user_prefix+"testnogooglenumid@gmail.com" }, // Find existing user
             {
                 $set: {
-                    userID: "testtest@gmail.com",
-                    isPaid: false,
-                    googleNumID: google_num_id
-                }
-            },
-            { upsert: true } // Insert if not found
-        );
-        await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "testnogooglenumid@gmail.com" }, // Find existing user
-            {
-                $set: {
-                    userID: "testtest@gmail.com",
+                    userID:google_user_prefix+"testnogooglenumid@gmail.com",
                     isPaid: false
                 }
             },
             { upsert: true } // Insert if not found
         );
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "testnojournal@gmail.com" }, // Find existing user
+            { userID: google_user_prefix+"testnojournal@gmail.com" }, // Find existing user
             {
                 $set: {
-                    userID: "testnojournal@gmail.com",
+                    userID: google_user_prefix+"testnojournal@gmail.com",
                     isPaid: false,
                     googleNumID: google_num_id
                 }
@@ -127,7 +135,7 @@ describe("Journal API - Unmocked", () => {
         );
     
         // 🔍 Check if the user was inserted
-        const testUser = await client.db("cpen321journal").collection("users").findOne({ userID: googleUserID });
+        const testUser = await client.db("cpen321journal").collection("users").findOne({ userID: main_test_userID });
         console.log("Inserted User After Cleanup:", testUser);
     
         // Wait a bit to make sure MongoDB processes the insert
@@ -286,7 +294,7 @@ describe("Journal API - Unmocked", () => {
             .set("Authorization", "Bearer " + testGoogleToken)
             .send({ 
                 date: "2025-03-11",
-                userID: "234@gmail.com", 
+                userID: google_user_prefix+"234@gmail.com", 
                 googleNumID: google_num_id 
             });
 
@@ -297,7 +305,7 @@ describe("Journal API - Unmocked", () => {
         const getResponse = await request(app)
             .get("/api/journal")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({ date: mockJournal.date, userID: "2434", googleNumID: google_num_id });
+            .query({ date: mockJournal.date, userID: google_user_prefix+"2434", googleNumID: google_num_id });
     
         expect(getResponse.status).toBe(404);
     });
@@ -330,7 +338,7 @@ describe("Journal API - Unmocked", () => {
             .set("Authorization", "Bearer " + testGoogleToken)
             .send({
                 date: "2025-03-10",
-                userID: googleUserID,
+                userID: main_test_userID,
                 content: "Today was a good day.",
                 googleNumID: google_num_id,
             });
@@ -338,7 +346,7 @@ describe("Journal API - Unmocked", () => {
             const putResponse = await request(app)
             .put("/api/journal")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .send({ date: "2025-03-10", userID: googleUserID, googleNumID: google_num_id, text: "help"});
+            .send({ date: "2025-03-10", userID: main_test_userID, googleNumID: google_num_id, text: "help"});
             
             // expect(putResponse.status).toBe(200);
             console.log("put Journal: ", putResponse)
@@ -370,14 +378,14 @@ describe("Journal API - Unmocked", () => {
             // Setup initial entry
             await client.db("cpen321journal").collection("journals").insertOne({
                 date: "2025-03-13",
-                userID: googleUserID,
+                userID: main_test_userID,
                 media: []
             });
         
             const response = await request(app)
             .delete("/api/journal")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({ date: "2025-03-13", userID: googleUserID, googleNumID: google_num_id});
+            .query({ date: "2025-03-13", userID: main_test_userID, googleNumID: google_num_id});
         
             // Check response
             expect(response.status).toBe(200);
@@ -425,7 +433,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: googleUserID, format:"csv"})
+            .query({userID: main_test_userID, format:"csv"})
         
             // Check response
             expect(response.status).toBe(200);
@@ -463,7 +471,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: googleUserID, format:"pdf"})
+            .query({userID: main_test_userID, format:"pdf"})
         
             // Check response
             expect(response.status).toBe(200);
@@ -493,7 +501,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: "testtestnonexist@gmail.com", format:"csv"})
+            .query({userID: google_user_prefix+"testtestnonexist@gmail.com", format:"csv"})
         
             // Check response
             expect(response.status).toBe(403);
@@ -522,7 +530,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: "testtest@gmail.com", format:"xslx"})
+            .query({userID: google_user_prefix+"testtest@gmail.com", format:"xslx"})
         
             // Check response
             expect(response.status).toBe(400);
@@ -532,7 +540,7 @@ describe("Journal API - Unmocked", () => {
             // Setup initial entry
             await client.db("cpen321journal").collection("journals").insertOne(
                 {
-                    userID: "testtest@gmail.com",
+                    userID: google_user_prefix+"testtest@gmail.com",
                     date: "2025-03-03",
                     media: [234]
                 },
@@ -541,7 +549,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: googleUserID, format:"csv"})
+            .query({userID: main_test_userID, format:"csv"})
         
             // Check response
             expect(response.status).toBe(200);
@@ -550,7 +558,7 @@ describe("Journal API - Unmocked", () => {
 
             await client.db("cpen321journal").collection("journals").deleteOne(
                 {
-                    userID: "testtest@gmail.com",
+                    userID: google_user_prefix+"testtest@gmail.com",
                     date: "2025-03-03",
                     media: [234]
                 },
@@ -579,7 +587,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: "testnojournal@gmail.com", format:"csv"})
+            .query({userID: google_user_prefix+"testnojournal@gmail.com", format:"csv"})
         
             // Check response
             expect(response.status).toBe(404);
@@ -617,7 +625,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: googleUserID, format:"pdf"})
+            .query({userID: main_test_userID, format:"pdf"})
         
             // Check response
             expect(response.status).toBe(200);
@@ -657,7 +665,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: googleUserID, format:"pdf"})
+            .query({userID: main_test_userID, format:"pdf"})
         
             // Check response
             expect(response.status).toBe(200);
@@ -697,7 +705,7 @@ describe("Journal API - Unmocked", () => {
             const response = await request(app)
             .get("/api/journal/file")
             .set("Authorization", "Bearer " + testGoogleToken)
-            .query({userID: googleUserID, format:"pdf"})
+            .query({userID: main_test_userID, format:"pdf"})
         
             // Check response
             expect(response.status).toBe(200);
@@ -706,11 +714,22 @@ describe("Journal API - Unmocked", () => {
         });
     }); 
 
+    it("should return 500 when checking existing entry", async () => {
+            // Mocking the database call to return null (simulating failure)
+            jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockResolvedValueOnce(null);
+
+            // API Request
+            const response = await request(app)
+                .post("/api/journal")
+                .set("Authorization", "Bearer " + testGoogleToken)
+                .send({
+                    date: "2025-03-11",
+                    userID: google_user_prefix+"testtest@gmail.com",
+                    text: "Testing...",
+                    googleNumID: google_num_id
+                });
+
+            // Assertions
+            expect(response.status).toBe(500);
+        });
 });
-
-
-
-
-
-
-

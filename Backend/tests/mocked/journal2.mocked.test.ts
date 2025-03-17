@@ -31,13 +31,15 @@ describe("Journal 2 API - Mocked", () => {
     // Fetch test credentials (Token & GoogleNumID) from environment or JSON
     const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken;
     const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID;
+    const google_user_prefix = process.env.GOOGLE_USER_PREFIX || unmocked_data_json.google_user_prefix;
+    const test_main_user_id = google_user_prefix+"@gmail.com"
 
     console.log(testGoogleToken);
 
     // Mocked journal entry for test cases
     const mockJournal = {
         date: "2025-03-11",
-        userID: "llcce44@gmail.com",
+        userID: test_main_user_id,
         text: "Today was a good day.",
         googleNumID: google_num_id
     };
@@ -53,10 +55,10 @@ describe("Journal 2 API - Mocked", () => {
      */
     beforeAll(async () => {
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "testllcce44@gmail.com" }, // Test user 1
+            { userID: google_user_prefix+"test"+test_main_user_id+"@gmail.com" }, // Test user 1
             {
                 $set: {
-                    userID: "testllcce44@gmail.com",
+                    userID: google_user_prefix+"test"+test_main_user_id+"@gmail.com",
                     isPaid: false,
                     googleNumID: google_num_id
                 }
@@ -65,10 +67,10 @@ describe("Journal 2 API - Mocked", () => {
         );
 
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "testtest@gmail.com" }, // Test user 2
+            { userID: google_user_prefix+"testtest@gmail.com" }, // Test user 2
             {
                 $set: {
-                    userID: "testtest@gmail.com",
+                    userID: google_user_prefix+"testtest@gmail.com",
                     isPaid: false,
                     googleNumID: google_num_id
                 }
@@ -77,10 +79,10 @@ describe("Journal 2 API - Mocked", () => {
         );
 
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "testnogooglenumid@gmail.com" }, // Test user 3 (without googleNumID)
+            { userID: google_user_prefix+"testnogooglenumid@gmail.com" }, // Test user 3 (without googleNumID)
             {
                 $set: {
-                    userID: "testnogooglenumid@gmail.com",
+                    userID: google_user_prefix+"testnogooglenumid@gmail.com",
                     isPaid: false
                 }
             },
@@ -144,7 +146,7 @@ describe("Journal 2 API - Mocked", () => {
                 .set("Authorization", "Bearer " + testGoogleToken)
                 .send({
                     date: "2025-03-11",
-                    userID: "testtest@gmail.com",
+                    userID: google_user_prefix+"testtest@gmail.com",
                     text: "Testing...",
                     googleNumID: google_num_id
                 });

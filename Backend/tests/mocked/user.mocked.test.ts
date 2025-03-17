@@ -5,6 +5,26 @@ import { UserController } from '../../src/controllers/UserController';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import admin from 'firebase-admin';
+import fs from "fs";
+
+let unmocked_data_json: any = {}; // Default empty object
+// Attempt to load external test data if available
+try {
+    const dataFilePath = `${__dirname}/../unmocked_data.json`; // Adjusted path
+
+    if (fs.existsSync(dataFilePath)) {
+        unmocked_data_json = require(dataFilePath);
+    } else {
+        console.log("Warning: unmocked_data.json not found. Using only environment variables.");
+    }
+} catch (error) {
+    console.log("Warning: Failed to load unmocked_data.json. Using only environment variables.", error);
+}
+const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken;
+const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID;
+const dummy_token = "eyJhbGciOiJub25lIn0.eyJleHAiOjE4OTM0NTYwMDB9." // Expires in 2030
+const google_user_prefix = process.env.GOOGLE_USER_PREFIX || unmocked_data_json.google_user_prefix;
+const test_main_user_id = google_user_prefix+"@gmail.com"
 
 /**
  * Test Suite: User APIs - With Mocks
@@ -44,7 +64,7 @@ describe('User APIs - With Mocks', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   const mockUser = {
-    userID: 'mock-user-123',
+    userID: google_user_prefix+'mock-user-123',
     isPaid: false
   };
 
@@ -83,7 +103,7 @@ describe('User APIs - With Mocks', () => {
       (client.db("cpen321journal").collection("users").findOne as jest.Mock)
         .mockRejectedValue(new Error('DB Error'));
       
-      mockRequest = { query: { userID: 'valid-user' } };
+      mockRequest = { query: { userID: google_user_prefix+'valid-user' } };
       
       await userController.getUserProfile(mockRequest as Request, mockResponse as Response, jest.fn());
       
@@ -121,7 +141,7 @@ describe('User APIs - With Mocks', () => {
       
       mockRequest = {
         body: {
-          userID: 'new-user',
+          userID: google_user_prefix+'new-user',
           googleToken: 'invalid-token'
         }
       };
@@ -162,7 +182,7 @@ describe('User APIs - With Mocks', () => {
       (client.db("cpen321journal").collection("users").updateOne as jest.Mock)
         .mockRejectedValue(new Error('DB Error'));
       
-      mockRequest = { body: { userID: 'valid-user', fcmToken:"ioerfrejio", timeOffset: "-7:00" } };
+      mockRequest = { body: { userID: google_user_prefix+'valid-user', fcmToken:"ioerfrejio", timeOffset: "-7:00" } };
       
       await userController.storeFcmToken(mockRequest as Request, mockResponse as Response, jest.fn());
       
@@ -200,7 +220,7 @@ describe('User APIs - With Mocks', () => {
       (client.db("cpen321journal").collection("users").updateOne as jest.Mock)
         .mockRejectedValue(new Error('DB Error'));
       
-      mockRequest = { body: { userID: 'test@gmail.com', fcmToken:"ioerfrejio", timeOffset: "-7:00" } };
+      mockRequest = { body: { userID: google_user_prefix+'test@gmail.com', fcmToken:"ioerfrejio", timeOffset: "-7:00" } };
       
       await userController.changeReminder(mockRequest as Request, mockResponse as Response, jest.fn());
       
@@ -231,7 +251,7 @@ describe('User APIs - With Mocks', () => {
       (client.db("cpen321journal").collection("users").findOne as jest.Mock)
         .mockRejectedValue(new Error('DB Error'));
       
-      mockRequest = { query: { userID: 'valid-user' } };
+      mockRequest = { query: { userID: google_user_prefix+'valid-user' } };
       
       await userController.isUserPaid(mockRequest as Request, mockResponse as Response, jest.fn());
       
