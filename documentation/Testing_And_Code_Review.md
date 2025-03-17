@@ -84,7 +84,7 @@
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
 ![alt text](images/MockedAndUnmocked.png)
-![alt text](images/rasa_code_coverage.PNG)
+![alt text](images/rasa_code_coverage_unmocked.PNG)
 
 For coverage of journal controller, there are some lines that are implemented to support some extra actions of the application that couldn't be fully implemented end-to-end yet and this accounts for a considerable amount of the number of uncovered lines. A small portion of the uncovered lines is becasuse we don't call openapi with tests, we mock valid and invalid outputs for it. And the rest are checks for db to see if the db got values. 
 
