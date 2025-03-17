@@ -292,7 +292,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
 3. **Usability**
     - **Description**: 
         - Operations for users managing journal entries should take less than 3 clicks.
-    - **Justification**: Minimizing the number of clicks required to perform operations makes it so that the user can get to adding or viewing journal entries quickly so that people who are more impulsive for entries are more likely to remain consistent with journaling. Three was chosen based on surveys of what people would find an ofputting amount of interaction to be able to create a journal log.
+    - **Justification**: Minimizing the number of clicks required to perform operations makes it so that the user can get to adding or viewing journal entries quickly so that people who are more impulsive for entries are more likely to remain consistent with journaling. Three was chosen based on surveys of what people would find an of putting amount of interaction to be able to create a journal log.
 
 
 ## 4. Designs Specification

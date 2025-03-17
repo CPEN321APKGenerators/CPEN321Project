@@ -94,6 +94,7 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 | ------------------------------- | ------------------------------------------------ |
 | **Performance (Response Time)** | [`tests/nonfunctional/response_time.test.js`](#) |
 | **Chat Data Security**          | [`tests/nonfunctional/chat_security.test.js`](#) |
+| **Usability (Frontend)**        | ['Frontend/app/src/androidTest/java/com/example/cpen321project/Nonfunctional_clicks_test.kt'](#)|
 
 ### 3.2. Test Verification and Logs
 
@@ -112,7 +113,35 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     [Placeholder for chat security test logs]
     ```
 
----
+- **Usability (Frontend)**
+  - **Verification:** This test simulates user interaction with the journal feature by performing multiple clicks (less than the threshold), including selecting dates, typing journal entries, sending messages, and confirming deletions. The test verifies that each step, from creating, editing and deleting journal entries, functions correctly in the app within 3 clicks as discussed din the requirements. The test also ensures that UI elements such as the chat input field, send button, delete button, and confirmation dialogs are displayed and intractable.
+  - **Log Output**
+
+      | **Timestamp**            | **Process ID**   | **Test Suite**  | **Package Name**                  | **Log Level** | **Description**                                                                                          |
+      |--------------------------|------------------|-----------------|-----------------------------------|---------------|----------------------------------------------------------------------------------------------------------|
+      | 2025-03-17 12:10:59.548  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Starting test: Usability for managing journal                                                              |
+      | 2025-03-17 12:10:59.548  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Test for Creating: Clicking on an unhighlighted date, Click 1                                               |
+      | 2025-03-17 12:11:02.040  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Checking if chat input is displayed                                                                       |
+      | 2025-03-17 12:11:02.083  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Typing start message: Start                                                                                |
+      | 2025-03-17 12:11:06.285  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking send chat button. Click 2                                                                         |
+      | 2025-03-17 12:11:08.049  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Typing journal entry: I had a good balance between work and fun today. Days like this remind me why balance is so important. |
+      | 2025-03-17 12:11:18.738  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking send chat button again. Click 3                                                                   |
+      | 2025-03-17 12:11:24.313  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Done in 3 clicks. Clicking back button to entries. Now delete                                               |
+      | 2025-03-17 12:11:29.143  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Checking if calendar view is displayed                                                                    |
+      | 2025-03-17 12:11:29.168  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Testing: Deleting                                                                                         |
+      | 2025-03-17 12:11:30.171  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking on a highlighted date. Click 1                                                                    |
+      | 2025-03-17 12:11:32.967  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Checking if delete button is displayed                                                                    |
+      | 2025-03-17 12:11:32.975  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking delete button, click 2                                                                            |
+      | 2025-03-17 12:11:37.264  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Checking if confirmation dialog is displayed                                                             |
+      | 2025-03-17 12:11:38.285  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking Yes to confirm deletion, Click 3                                                                  |
+      | 2025-03-17 12:11:42.460  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Testing: Editing                                                                                          |
+      | 2025-03-17 12:11:43.461  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking on a highlighted date, Click 1                                                                    |
+      | 2025-03-17 12:11:44.879  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Checking if Save Entry button is displayed                                                                |
+      | 2025-03-17 12:11:45.504  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking edit button, Click 2                                                                              |
+      | 2025-03-17 12:11:47.414  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Typing additional text: . I also played soccer to make my day feel even better                            |
+      | 2025-03-17 12:11:54.350  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Clicking Save Entry button, click 3                                                                       |
+      | 2025-03-17 12:11:58.373  | 7938-7967        | EspressoTest     | com.example.cpen321project        | D             | Checking if calendar view is displayed                                                                    |
+
 
 ## 4. Front-end Test Specification (For REFERENCE DELETE AFTER)
 
