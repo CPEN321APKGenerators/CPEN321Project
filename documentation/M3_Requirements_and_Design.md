@@ -10,6 +10,7 @@
 | Mar. 1st | Functional Requirements| Updated based on implementation |
 | Mar. 2nd | Non-functional requiresments, Sequence Diagram, Dependency Diagram  | Updated based on implementation |
 | Mar. 3rd | Complex feature section updated with the new complex feature. Pseudocode also added. Also changed diagrams to distinguish LLM weight analysis and week overview analytics. Lastly gave a bit more justification for our non-functional requirements. | Updated based on implementation |
+| Mar. 16th | Display Sentiment Trends in Analytics, Exporting the entries | Updated based on implementation. Detailed the steps for selecting emotions and activities in the new multi-selection pop-ups and chart updates after applying selections. |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
@@ -70,13 +71,12 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
         - **Description**: Export all the Journal Entries as PDF or CSV file.
         - **Primary actor(s)**:  User, Paid User
         - **Main success scenario**:
-        1. The user selects a highlighted date that already has a journal entry 
-        2. The user clicks the export button.
-        2. The chatbot asks for the preferred export format PDF or CSV.
+        1. The user clicks on the export button
+        2. The pop up asks for the preferred export format PDF or CSV.
         3. The user selects a format.
         4. The download url link is copied to user's clipboard.
         - **Failure scenario(s)**:
-        - 2a. User clicks the Export button, but nothing happens.
+        - 1a. User clicks the Export button, but nothing happens.
             - 2a1.  The system displays an error message & prompts the user to try again.
         - 4a. The url of the download is not copied to clipboard
             - 4a1. The system displays the error message and prompts the user to try again
@@ -102,39 +102,30 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
     Journal Entries stored on the db are analyzed the text and a sentiment score is generated.
 
     - **Detailed Flow for Each Independent Scenario**:
-    1. **Compute Sentiment Score (Backend)**
-        - **Description**: Sentiment Analysis and Generate Score.
-        - **Primary actor(s)**: ML Model or API (depending on complexity)
-        - **Main success scenario**: 
-        1. When a user creates or edits a journal entry, the system automatically analyzes the sentiment of the text.
-        2. The sentiment score is stored in the database alongside the journal entry.
-
-        - **Failure scenario(s)**:
-        -1a. User submits an entry, but the sentiment analysis process fails.
-            -1a1. The system logs the issue and retries the analysis.
-
-        - 2a. Sentiment score is generated but not stored in the database
-            -2a1. The system attempts to resave the data
-            -2a2.  If resaving fails, an error message is displayed.
-
-    2. **Display Sentiment Trends in Analytics**
+    1. **Display Sentiment Trends in Analytics**
         - **Description**: Display an overview of the user’s mood over a period of time.
         - **Primary actor(s)**: User, Paid User
         - **Main success scenario**: 
-        1. The user clicks on the Analytics button on top of the calander.
-        2. visual graphs of sentiment trends over a period of time is then displayed.
-        3. User is able to chose Monthly/weekly, Pie Chart, Frequently used words in entries, etc..
+        1. The user clicks on the **Analytics** button.
+        2. A new screen or view appears with two buttons: one for **Activity** and one for **Emotion**.
+        3. The user clicks on the **Activity** button.
+        4. A **multi-selection pop-up** is displayed with various activities for the user to choose from (e.g., "Sleep," "Exercise").
+        5. The user selects the activities they want to include in the chart.
+        6. The user clicks **Apply** to confirm the selection.
+        7. The chart is updated to display the selected activities.
+        8. Alternatively, the user can follow the same steps for emotions by clicking on the **Emotion** button instead of the **Activity** button.
+        
         - **Failure scenario(s)**: 
-        - 1a. User clicks Analytics, but sentiment data retrieval fails
-           - 1a1. The system retries fetching data.
-           - 1a2. If unsuccessful, an error message is displayed.
+        - 1a. **User clicks Analytics**, but sentiment data retrieval fails.
+            - 1a1. The system retries fetching data.
+            - 1a2. If unsuccessful, an error message is displayed.
 
-        - 2a. User attempts to view a chart, but does not render
-           - 2a1. The system refreshes the UI and attempts to reload the chart.
+        - 2a. **User attempts to view a chart**, but it does not render.
+            - 2a1. The system refreshes the UI and attempts to reload the chart.
 
-        - 3a. User does not have enough journal entries for meaningful analysis.
-           - 3a1. A message informs the user that more entries are needed.
-           - 3a2. The system suggests journaling more frequently.
+        - 3a. **User does not have enough journal entries** for meaningful analysis.
+            - 3a1. A message informs the user that more entries are needed.
+            - 3a2. The system suggests journaling more frequently.
 
 3. **Manage Profile** 
     - **Overview**:

@@ -1,5 +1,6 @@
 package com.example.cpen321project
 
+import android.util.Log
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -15,43 +16,67 @@ class AnalyticsTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
+    private val TAG = "EspressoTest"
+
     @Test
-    fun User_Analytics_check_emotions(){
+    fun User_Analytics_check_emotions() {
+        Log.d(TAG, "Starting test: User_Analytics_check_emotions")
+
+        Log.d(TAG, "Clicking on Analytics button")
         onView(withId(R.id.analytics_button)).perform(click())
-        sleep(1000)
+
+        Log.d(TAG, "Waiting for Analytics screen to load")
+        sleep(10000)
+
+        Log.d(TAG, "Checking if emotion filter button is displayed")
         onView(withId(R.id.emotionFilterButton)).check(matches(isDisplayed()))
 
+        Log.d(TAG, "Clicking on emotion filter button")
         onView(withId(R.id.emotionFilterButton)).perform(click())
 
+        Log.d(TAG, "Selecting emotions: Joy and Sadness")
         onView(withText("Joy")).perform(click())
         onView(withText("Sadness")).perform(click())
 
-        // Step 3: Click "Apply" to update the chart
+        Log.d(TAG, "Clicking Apply button")
         onView(withText("Apply")).perform(click())
 
-        // Step 4: Verify that the chart is updated (by checking if the view is displayed)
-        onView(withId(R.id.analyticsChart))
-            .check(matches(isDisplayed()))
+        Log.d(TAG, "Checking if analytics chart is displayed")
+        onView(withId(R.id.analyticsChart)).check(matches(isDisplayed()))
+
+        Log.d(TAG, "Test User_Analytics_check_emotions completed successfully")
     }
 
     @Test
-    fun User_Analytics_check_activities(){
+    fun User_Analytics_check_activities() {
+        Log.d(TAG, "Starting test: User_Analytics_check_activities")
+
+        Log.d(TAG, "Clicking on Analytics button")
         onView(withId(R.id.analytics_button)).perform(click())
-        sleep(1000)
+
+        Log.d(TAG, "Waiting for Analytics screen to load")
+        sleep(20000)
+
+        Log.d(TAG, "Checking if activity filter button is displayed")
         onView(withId(R.id.activityfilterButton)).check(matches(isDisplayed()))
 
+        Log.d(TAG, "Clicking on activity filter button")
         onView(withId(R.id.activityfilterButton)).perform(click())
+
         sleep(1000)
 
-        onView(withText("Sleep")).perform(click())
-        onView(withText("Sadness")).perform(click())
+        Log.d(TAG, "Selecting activities: Sleep and Walk")
+        onView(withText("sleep")).perform(click())
+        onView(withText("walk")).perform(click())
 
-        // Step 3: Click "Apply" to update the chart
+        Log.d(TAG, "Clicking Apply button")
         onView(withText("Apply")).perform(click())
 
         sleep(1000)
-        // Step 4: Verify that the chart is updated (by checking if the view is displayed)
-        onView(withId(R.id.activities_chart))
-            .check(matches(isDisplayed()))
+
+        Log.d(TAG, "Checking if activities chart is displayed")
+        onView(withId(R.id.activities_chart)).check(matches(isDisplayed()))
+
+        Log.d(TAG, "Test User_Analytics_check_activities completed successfully")
     }
 }

@@ -114,11 +114,11 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 
 ---
 
-## 4. Front-end Test Specification
+## 4. Front-end Test Specification (For REFERENCE DELETE AFTER)
 
 ### 4.1. Location in Git of Front-end Test Suite:
 
-`frontend/src/androidTest/java/com/studygroupfinder/`
+`Frontend/app/src/androidTest/java/com/example/cpen321project`
 
 ### 4.2. Tests
 
@@ -155,6 +155,264 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     ```
 
 - **...**
+## 4. Front-end Test Specification
+
+### 4.1. Location in Git of Front-end Test Suite:
+
+`Frontend/app/src/androidTest/java/com/example/cpen321project`
+
+### 4.2. Tests
+
+- **Use Case: User Click on Unhighlighted Create Entry**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on an unhighlighted date. | Click on an unhighlighted date in `calenderrecycleView`. |
+    | 2. The chat input field is displayed. | Check that `chatInput` is displayed. |
+    | 3. User enters a start message. | Input "Start" in `chatInput`, close keyboard, and click `sendChatButton`. |
+    | 4. User enters a journal entry. | Input "I had a good balance between work and fun today. Days like this remind me why balance is so important." in `chatInput`, close keyboard, and click `sendChatButton`. |
+    | 5. The entry is saved, and the calendar refreshes. | Click `Backbuttonentries`, check that `calenderrecycleView` is displayed with the date highlighted. |
+
+  - **Test Logs:**
+    ```
+    [Placeholder for Espresso test execution logs]
+    ```
+
+- **Use Case: User Click on Highlighted Edit Entry**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on a highlighted date. | Click on a highlighted date in `calenderrecycleView`. |
+    | 2. The edit button is displayed. | Check that `Saveentrybutton` is displayed. |
+    | 3. User clicks edit and modifies the journal entry. | Click `editbutton`, input ". I also played soccer to make my day feel even better" in `journalEntryInput`, close keyboard, and click `Saveentrybutton`. |
+    | 4. The entry is saved, and the calendar refreshes. | Check that `calenderrecycleView` is displayed with the date still highlighted. |
+
+  - **Test Logs:**
+
+      | Timestamp                | Process ID | Test Suite | Package Name              | Log Level | Description                                     |
+      |--------------------------|------------|------------|---------------------------|-----------|-------------------------------------------------|
+      | 2025-03-17 10:41:30.810  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Starting test: B_User_click_on_higlighted_edit_entry |
+      | 2025-03-17 10:41:31.813  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Clicking on a highlighted date                |
+      | 2025-03-17 10:41:33.215  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Checking if Save Entry button is displayed     |
+      | 2025-03-17 10:41:53.756  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Clicking edit button                          |
+      | 2025-03-17 10:41:54.782  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Typing additional text: . I also played soccer to make my day feel even better |
+      | 2025-03-17 10:41:59.951  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Clicking Save Entry button                    |
+      | 2025-03-17 10:42:02.737  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Checking if calendar view is displayed        |
+      | 2025-03-17 10:42:02.752  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Verifying if the date is still highlighted    |
+      | 2025-03-17 10:42:02.768  | 31252-31279 | EspressoTest | com.example.cpen321project  | D         | Test B_User_click_on_higlighted_edit_entry completed successfully |
+
+- **Use Case: User Click on Highlighted Delete Entry**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on a highlighted date. | Click on a highlighted date in `calenderrecycleView`. |
+    | 2. The delete button is displayed. | Check that `deletebutton` is displayed. |
+    | 3. User clicks delete and confirms. | Click `deletebutton`, verify "Delete Journal Entry" dialog, click "Yes". |
+    | 4. The entry is deleted, and the calendar refreshes. | Check that `calenderrecycleView` is displayed, ensuring the date is no longer highlighted. |
+
+  - **Test Logs:**
+    
+      | Timestamp           | Process ID | Test Suite     | Package Name                     | Log Level | Description                                      |
+      |---------------------|------------|---------------|----------------------------------|-----------|--------------------------------------------------|
+      | 2025-03-17 10:15:02.584 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Starting test: C_User_click_on_higlighted_delete_entry |
+      | 2025-03-17 10:15:03.585 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Clicking on a highlighted date                  |
+      | 2025-03-17 10:15:05.517 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Checking if delete button is displayed          |
+      | 2025-03-17 10:15:05.751 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Clicking delete button                         |
+      | 2025-03-17 10:15:07.640 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Checking if confirmation dialog is displayed   |
+      | 2025-03-17 10:15:08.864 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Clicking Yes to confirm deletion               |
+      | 2025-03-17 10:15:10.990 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Verifying if the date is no longer highlighted |
+      | 2025-03-17 10:15:11.174 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Test C_User_click_on_higlighted_delete_entry completed successfully |
+
+- **Use Case: User Clicks Future Date**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User navigates to the next month. | Click `Next_month_button`. |
+    | 2. User clicks on a future date. | Click on a date in `calenderrecycleView`. |
+    | 3. The app displays a toast message. | Verify "Cannot add a journal for future dates!" toast message. |
+
+  - **Test Logs:**
+
+      | Timestamp           | Process ID | Test Suite     | Package Name                     | Log Level | Description                                      |
+      |---------------------|------------|---------------|----------------------------------|-----------|--------------------------------------------------|
+      | 2025-03-17 10:15:12.770 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Starting test: D_User_clicks_future_date        |
+      | 2025-03-17 10:15:14.186 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Clicking on a future date                      |
+      | 2025-03-17 10:15:15.504 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Checking if toast message is displayed         |
+      | 2025-03-17 10:15:15.509 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Test D_User_clicks_future_date completed successfully |
+
+
+
+- **Use Case: User Cannot Upload Image**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on a date. | Click on a date in `calenderrecycleView`. |
+    | 2. User tries to upload an image. | Click `addimageButton`. |
+    | 3. The app displays a toast message. | Verify "Upgrade to upload media!" toast message. |
+
+  - **Test Logs:**
+
+      | Timestamp           | Process ID | Test Suite     | Package Name                     | Log Level | Description                                      |
+      |---------------------|------------|---------------|----------------------------------|-----------|--------------------------------------------------|
+      | 2025-03-17 10:15:17.433 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Starting test: E_User_cannot_upload_image       |
+      | 2025-03-17 10:15:19.197 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Clicking add image button                      |
+      | 2025-03-17 10:15:20.769 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Checking if upgrade toast message is displayed |
+      | 2025-03-17 10:15:20.770 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Test E_User_cannot_upload_image completed successfully |
+
+
+- **Use Case: User Exports Journal**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks export. | Click `export_button`. |
+    | 2. The app displays a confirmation message. | Verify "File URL copied to clipboard!" toast message. |
+
+  - **Test Logs:**
+
+      | Timestamp           | Process ID | Test Suite     | Package Name                     | Log Level | Description                                      |
+      |---------------------|------------|---------------|----------------------------------|-----------|--------------------------------------------------|
+      | 2025-03-17 10:15:23.259 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Starting test: F_User_export_journal            |
+      | 2025-03-17 10:15:23.368 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Clicking export button                         |
+      | 2025-03-17 10:15:25.153 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Checking if file copied toast message is displayed |
+      | 2025-03-17 10:15:25.159 | 24435-24462 | EspressoTest | com.example.cpen321project | D         | Test F_User_export_journal completed successfully |
+
+
+- **Use Case: Paid User Uploads an Image (Camera)**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on a date. | Click on a date in `calenderrecycleView`. |
+    | 2. User clicks the add image button. | Click `addimageButton`. |
+    | 3. Upload media popup appears. | Check that "Upload Media" popup is displayed. |
+    | 4. User selects "Take a Photo". | Click "Take a Photo". |
+    
+  - **Test Logs:**
+
+      | Timestamp                | Process ID | Test Suite | Package Name              | Log Level | Description                                     |
+      |--------------------------|------------|------------|---------------------------|-----------|-------------------------------------------------|
+      | 2025-03-17 10:34:50.735  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Starting test: A_User_Upload_Image_popup_check_camera |
+      | 2025-03-17 10:34:50.735  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on date 1 in calendar                |
+      | 2025-03-17 10:34:52.978  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Checking if add image button is displayed     |
+      | 2025-03-17 10:34:54.249  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on add image button                  |
+      | 2025-03-17 10:34:54.936  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Checking if Upload Media popup is displayed   |
+      | 2025-03-17 10:34:54.949  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on Take a Photo option               |
+      | 2025-03-17 10:34:55.274  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Test A_User_Upload_Image_popup_check_camera completed successfully |
+
+- **Use Case: Paid User Uploads an Image (Gallery)**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on a date. | Click on a date in `calenderrecycleView`. |
+    | 2. User clicks the add image button. | Click `addimageButton`. |
+    | 3. Upload media popup appears. | Check that "Upload Media" popup is displayed. |
+    | 4. User selects "Select from Gallery". | Click "Select from Gallery". |
+    
+  - **Test Logs:**
+
+      | Timestamp                | Process ID | Test Suite | Package Name              | Log Level | Description                                     |
+      |--------------------------|------------|------------|---------------------------|-----------|-------------------------------------------------|
+      | 2025-03-17 10:34:56.815  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Starting test: B_User_Upload_Image_popup_check_device |
+      | 2025-03-17 10:34:56.816  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on date 1 in calendar                |
+      | 2025-03-17 10:34:58.551  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Checking if add image button is displayed     |
+      | 2025-03-17 10:34:59.567  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on add image button                  |
+      | 2025-03-17 10:35:00.165  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Checking if Upload Media popup is displayed   |
+      | 2025-03-17 10:35:00.174  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on Select from Gallery option        |
+      | 2025-03-17 10:35:00.739  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Test B_User_Upload_Image_popup_check_device completed successfully |
+
+
+- **Use Case: Paid User Deletes an Image**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on a date with an existing image. | Click on a date in `calenderrecycleView`. |
+    | 2. User clicks on the journal image. | Click `journalImageView`. |
+    | 3. Delete image popup appears. | Check that "Delete Image" popup is displayed. |
+    | 4. User confirms deletion. | Click "Delete". |
+    
+  - **Test Logs:**
+
+      | Timestamp                | Process ID | Test Suite | Package Name              | Log Level | Description                                     |
+      |--------------------------|------------|------------|---------------------------|-----------|-------------------------------------------------|
+      | 2025-03-17 10:35:02.147  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Starting test: C_User_Deletes_existing_Image_popup_check |
+      | 2025-03-17 10:35:02.147  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on date 12 in calendar               |
+      | 2025-03-17 10:35:03.508  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Checking if add image button is displayed     |
+      | 2025-03-17 10:35:04.521  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking on journal image view                |
+      | 2025-03-17 10:35:05.282  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Checking if Delete Image popup is displayed   |
+      | 2025-03-17 10:35:06.293  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Clicking Delete button                        |
+      | 2025-03-17 10:35:06.643  | 29605-29633 | EspressoTest | com.example.cpen321project  | D         | Test C_User_Deletes_existing_Image_popup_check completed successfully |
+
+- **Use Case: User Checks Analytics for Emotions**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on analytics button. | Click `analytics_button`. |
+    | 2. Emotion filter button is displayed. | Check that `emotionFilterButton` is displayed. |
+    | 3. User opens emotion filter. | Click `emotionFilterButton`. |
+    | 4. User selects "Joy" and "Sadness". | Click "Joy", then click "Sadness". |
+    | 5. User applies the filter. | Click "Apply". |
+    | 6. The analytics chart updates. | Check that `analyticsChart` is displayed. |
+    
+  - **Test Logs:**
+      | Timestamp            | Process ID | Thread ID | Tag          | Package                               | Log Level | Message |
+      |----------------------|-----------|-----------|-------------|--------------------------------------|-----------|---------------------------------------------------------------|
+      | 2025-03-17 10:03:05.619 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Starting test: User_Analytics_check_emotions |
+      | 2025-03-17 10:03:05.619 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Clicking on Analytics button |
+      | 2025-03-17 10:03:07.069 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Waiting for Analytics screen to load |
+      | 2025-03-17 10:03:17.070 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Checking if emotion filter button is displayed |
+      | 2025-03-17 10:03:17.092 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Clicking on emotion filter button |
+      | 2025-03-17 10:03:18.052 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Selecting emotions: Joy and Sadness |
+      | 2025-03-17 10:03:18.761 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Clicking Apply button |
+      | 2025-03-17 10:03:19.285 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Checking if analytics chart is displayed |
+      | 2025-03-17 10:03:19.308 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Test User_Analytics_check_emotions completed successfully |
+
+
+- **Use Case: User Checks Analytics for Activities**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. User clicks on analytics button. | Click `analytics_button`. |
+    | 2. Activity filter button is displayed. | Check that `activityfilterButton` is displayed. |
+    | 3. User opens activity filter. | Click `activityfilterButton`. |
+    | 4. User selects "Sleep" and "Sadness". | Click "Sleep", then click "Sadness". |
+    | 5. User applies the filter. | Click "Apply". |
+    | 6. The activities chart updates. | Check that `activities_chart` is displayed. |
+    
+  - **Test Logs:**
+      | Timestamp            | Process ID | Thread ID | Tag          | Package                               | Log Level | Message |
+      |----------------------|-----------|-----------|-------------|--------------------------------------|-----------|---------------------------------------------------------------|
+      | 2025-03-17 10:03:21.658 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Starting test: User_Analytics_check_activities |
+      | 2025-03-17 10:03:21.658 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Clicking on Analytics button |
+      | 2025-03-17 10:03:22.459 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Waiting for Analytics screen to load |
+      | 2025-03-17 10:03:42.462 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Checking if activity filter button is displayed |
+      | 2025-03-17 10:03:42.477 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Clicking on activity filter button |
+      | 2025-03-17 10:03:44.314 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Selecting activities: Sleep and Walk |
+      | 2025-03-17 10:03:45.486 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Clicking Apply button |
+      | 2025-03-17 10:03:46.931 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Checking if activities chart is displayed |
+      | 2025-03-17 10:03:46.945 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Test User_Analytics_check_activities completed successfully |
+
+
 
 ---
 

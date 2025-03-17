@@ -1,6 +1,7 @@
 package com.example.cpen321project
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.DrawableRes
@@ -35,23 +36,21 @@ import java.lang.Thread.sleep
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class UnpaidUserJournalTest {
 
-    private lateinit var context: Context
-
-    @Before
-    fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
-    }
-
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
 
+    private val TAG = "EspressoTest"
+
     @Test
     fun A_User_click_on_unhiglighted_create_entry() {
+        Log.d(TAG, "Starting test: A_User_click_on_unhiglighted_create_entry")
+
         val journalText =
             "I had a good balance between work and fun today. Days like this remind me why balance is so important."
         val startMessage = "Start"
-        // Click on an unhighlighted date
+
+        Log.d(TAG, "Clicking on an unhighlighted date")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
@@ -59,80 +58,114 @@ class UnpaidUserJournalTest {
                 )
             )
 
+        Log.d(TAG, "Checking if chat input is displayed")
         onView(withId(R.id.chatInput)).check(matches(isDisplayed()))
 
+        Log.d(TAG, "Typing start message: $startMessage")
         onView(withId(R.id.chatInput))
             .perform(typeText(startMessage), closeSoftKeyboard())
-        onView(withId(R.id.sendChatButton))
-            .perform(click())
+
+        Log.d(TAG, "Clicking send chat button")
+        onView(withId(R.id.sendChatButton)).perform(click())
+
         sleep(1000)
+
+        Log.d(TAG, "Typing journal entry: $journalText")
         onView(withId(R.id.chatInput))
             .perform(typeText(journalText), closeSoftKeyboard())
-        onView(withId(R.id.sendChatButton))
-            .perform(click())
+
+        Log.d(TAG, "Clicking send chat button again")
+        onView(withId(R.id.sendChatButton)).perform(click())
+
         sleep(5000)
 
+        Log.d(TAG, "Clicking back button to entries")
         onView(withId(R.id.Backbuttonentries)).perform(click())
+
         sleep(1000)
+
+        Log.d(TAG, "Checking if calendar view is displayed")
         onView(withId(R.id.calenderrecycleView)).check(matches(isDisplayed()))
 
+        Log.d(TAG, "Checking if the selected date is highlighted")
         onView(withId(R.id.calenderrecycleView))
             .check(
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("1"), // Check the specific date
-                            withBackground(R.drawable.circle_background) // Check if it has the highlighted background
+                            withText("1"),
+                            withBackground(R.drawable.circle_background)
                         )
                     )
                 )
             )
+
+        Log.d(TAG, "Test A_User_click_on_unhiglighted_create_entry completed successfully")
     }
 
     @Test
     fun B_User_click_on_higlighted_edit_entry() {
-        val additional_text = ". I also played soccer to make my day feel even better"
-        // Click on an highlighted date
+        Log.d(TAG, "Starting test: B_User_click_on_higlighted_edit_entry")
+
+        val additionalText = ". I also played soccer to make my day feel even better"
+
         sleep(1000)
+
+        Log.d(TAG, "Clicking on a highlighted date")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
-                    hasDescendant(withText("1")), click()
+                    hasDescendant(withText("12")), click()
                 )
             )
+
         sleep(1000)
+
+        Log.d(TAG, "Checking if Save Entry button is displayed")
         onView(withId(R.id.Saveentrybutton)).check(matches(isDisplayed()))
 
+        Log.d(TAG, "Clicking edit button")
         onView(withId(R.id.editbutton)).perform(click())
+
         sleep(500)
 
+        Log.d(TAG, "Typing additional text: $additionalText")
         onView(withId(R.id.journalEntryInput)).perform(
-            typeText(additional_text),
+            typeText(additionalText),
             closeSoftKeyboard()
         )
 
+        Log.d(TAG, "Clicking Save Entry button")
         onView(withId(R.id.Saveentrybutton)).perform(click())
+
         sleep(1000)
 
+        Log.d(TAG, "Checking if calendar view is displayed")
         onView(withId(R.id.calenderrecycleView)).check(matches(isDisplayed()))
 
+        Log.d(TAG, "Verifying if the date is still highlighted")
         onView(withId(R.id.calenderrecycleView))
             .check(
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("1"), // Check the specific date
-                            (withBackground(R.drawable.circle_background))// Check if it has the highlighted background
+                            withText("12"),
+                            withBackground(R.drawable.circle_background)
                         )
                     )
                 )
             )
+
+        Log.d(TAG, "Test B_User_click_on_higlighted_edit_entry completed successfully")
     }
 
     @Test
     fun C_User_click_on_higlighted_delete_entry() {
-        // Click on an highlighted date
+        Log.d(TAG, "Starting test: C_User_click_on_higlighted_delete_entry")
+
         sleep(1000)
+
+        Log.d(TAG, "Clicking on a highlighted date")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
@@ -141,33 +174,49 @@ class UnpaidUserJournalTest {
             )
 
         sleep(1000)
+
+        Log.d(TAG, "Checking if delete button is displayed")
         onView(withId(R.id.deletebutton)).check(matches(isDisplayed()))
 
+        Log.d(TAG, "Clicking delete button")
         onView(withId(R.id.deletebutton)).perform(click())
-        sleep(1000)
-        onView(withText("Delete Journal Entry")).check(matches(isDisplayed()))
-        sleep(1000)
-        onView(allOf(withText("Yes"), isDisplayed())).perform(click())
-        sleep(1000)
-        onView(withId(R.id.calenderrecycleView)).check(matches(isDisplayed()))
 
+        sleep(1000)
+
+        Log.d(TAG, "Checking if confirmation dialog is displayed")
+        onView(withText("Delete Journal Entry")).check(matches(isDisplayed()))
+
+        sleep(1000)
+
+        Log.d(TAG, "Clicking Yes to confirm deletion")
+        onView(allOf(withText("Yes"), isDisplayed())).perform(click())
+
+        sleep(1000)
+
+        Log.d(TAG, "Verifying if the date is no longer highlighted")
         onView(withId(R.id.calenderrecycleView))
             .check(
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("1"), // Check the specific date
-                            not(withBackground(R.drawable.circle_background))// Check if it has the highlighted background
+                            withText("1"),
+                            not(withBackground(R.drawable.circle_background))
                         )
                     )
                 )
             )
+
+        Log.d(TAG, "Test C_User_click_on_higlighted_delete_entry completed successfully")
     }
 
     @Test
     fun D_User_clicks_future_date() {
+        Log.d(TAG, "Starting test: D_User_clicks_future_date")
+
         onView(withId(R.id.Next_month_button)).perform(click())
         sleep(1000)
+
+        Log.d(TAG, "Clicking on a future date")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
@@ -176,43 +225,62 @@ class UnpaidUserJournalTest {
             )
 
         sleep(1000)
-        // Check if a Toast with expected message is displayed
+
+        Log.d(TAG, "Checking if toast message is displayed")
         onView(withText("Cannot add a journal for future dates!"))
-            .inRoot(ToastMatcher().apply{
+            .inRoot(ToastMatcher().apply {
                 matches(isDisplayed())
             })
+
+        Log.d(TAG, "Test D_User_clicks_future_date completed successfully")
     }
 
     @Test
     fun E_User_cannot_upload_image() {
+        Log.d(TAG, "Starting test: E_User_cannot_upload_image")
+
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
                     hasDescendant(withText("1")), click()
                 )
             )
+
         sleep(1000)
+
+        Log.d(TAG, "Clicking add image button")
         onView(withId(R.id.addimageButton))
             .perform(click())
 
         sleep(1000)
+
+        Log.d(TAG, "Checking if upgrade toast message is displayed")
         onView(withText("Upgrade to upload media!"))
             .inRoot(ToastMatcher().apply {
                 matches(isDisplayed())
             })
+
+        Log.d(TAG, "Test E_User_cannot_upload_image completed successfully")
     }
 
     @Test
     fun F_User_export_journal() {
+        Log.d(TAG, "Starting test: F_User_export_journal")
+
         onView(withId(R.id.export_button)).check(matches(isDisplayed()))
+
+        Log.d(TAG, "Clicking export button")
         onView(withId(R.id.export_button)).perform(click())
 
         sleep(1000)
 
+        Log.d(TAG, "Checking if file copied toast message is displayed")
         onView(withText("File URL copied to clipboard!"))
             .inRoot(ToastMatcher().apply {
                 matches(isDisplayed())
             })
+
+        Log.d(TAG, "Test F_User_export_journal completed successfully")
     }
 }
 

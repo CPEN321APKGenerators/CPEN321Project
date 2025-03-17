@@ -1,5 +1,6 @@
 package com.example.cpen321project
 
+import android.util.Log
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -21,11 +22,16 @@ import java.lang.Thread.sleep
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class PaidUserJournalTest {
 
+    private val TAG = "EspressoTest"
+
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
-    fun A_User_Upload_Image_popup_check_camera(){
+    fun A_User_Upload_Image_popup_check_camera() {
+        Log.d(TAG, "Starting test: A_User_Upload_Image_popup_check_camera")
+
+        Log.d(TAG, "Clicking on date 1 in calendar")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
@@ -34,18 +40,28 @@ class PaidUserJournalTest {
             )
         sleep(1000)
 
+        Log.d(TAG, "Checking if add image button is displayed")
         onView(withId(R.id.addimageButton)).check(matches(isDisplayed()))
 
         sleep(1000)
 
+        Log.d(TAG, "Clicking on add image button")
         onView(withId(R.id.addimageButton)).perform(click())
+
+        Log.d(TAG, "Checking if Upload Media popup is displayed")
         onView(withText("Upload Media")).check(matches(isDisplayed()))
+
+        Log.d(TAG, "Clicking on Take a Photo option")
         onView(withText("Take a Photo")).perform(click())
 
+        Log.d(TAG, "Test A_User_Upload_Image_popup_check_camera completed successfully")
     }
 
     @Test
-    fun B_User_Upload_Image_popup_check_device(){
+    fun B_User_Upload_Image_popup_check_device() {
+        Log.d(TAG, "Starting test: B_User_Upload_Image_popup_check_device")
+
+        Log.d(TAG, "Clicking on date 1 in calendar")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
@@ -54,17 +70,28 @@ class PaidUserJournalTest {
             )
         sleep(1000)
 
+        Log.d(TAG, "Checking if add image button is displayed")
         onView(withId(R.id.addimageButton)).check(matches(isDisplayed()))
 
         sleep(1000)
 
+        Log.d(TAG, "Clicking on add image button")
         onView(withId(R.id.addimageButton)).perform(click())
+
+        Log.d(TAG, "Checking if Upload Media popup is displayed")
         onView(withText("Upload Media")).check(matches(isDisplayed()))
+
+        Log.d(TAG, "Clicking on Select from Gallery option")
         onView(withText("Select from Gallery")).perform(click())
 
+        Log.d(TAG, "Test B_User_Upload_Image_popup_check_device completed successfully")
     }
+
     @Test
-    fun C_User_Deletes_existing_Image_popup_check(){
+    fun C_User_Deletes_existing_Image_popup_check() {
+        Log.d(TAG, "Starting test: C_User_Deletes_existing_Image_popup_check")
+
+        Log.d(TAG, "Clicking on date 12 in calendar")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
@@ -73,13 +100,21 @@ class PaidUserJournalTest {
             )
         sleep(1000)
 
+        Log.d(TAG, "Checking if add image button is displayed")
         onView(withId(R.id.addimageButton)).check(matches(isDisplayed()))
 
         sleep(1000)
 
+        Log.d(TAG, "Clicking on journal image view")
         onView(withId(R.id.journalImageView)).perform(click())
+
+        Log.d(TAG, "Checking if Delete Image popup is displayed")
         onView(withText("Delete Image")).check(matches(isDisplayed()))
         sleep(1000)
+
+        Log.d(TAG, "Clicking Delete button")
         onView(withText("Delete")).perform(click())
+
+        Log.d(TAG, "Test C_User_Deletes_existing_Image_popup_check completed successfully")
     }
 }
