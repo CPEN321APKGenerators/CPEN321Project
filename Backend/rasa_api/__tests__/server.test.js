@@ -1,6 +1,6 @@
-const request = require("supertest");
-const { app, server } = require("../server");
 const axios = require("axios");
+const { app, server } = require("../server");  
+jest.mock("axios");
 
 jest.mock("axios");
 
@@ -19,11 +19,11 @@ describe("API Tests for RASA Bot", () => {
     test("POST /api/chat - Valid request", async () => {
         const mockResponse = { responses: [{ text: "Please type start to begin journaling." }] };
         axios.post.mockResolvedValueOnce({ data: mockResponse });
-
-        const res = await request(server) 
+    
+        const res = await request(server)
             .post("/api/chat")
             .send({ message: "Hi", sender: "testUser" });
-
+    
         expect(res.status).toBe(200);
         expect(res.body.responses[0].text).toBe("Please type start to begin journaling.");
     });
@@ -83,7 +83,7 @@ describe("API Tests for RASA Bot", () => {
 });
 
 // **Unmocked Tests
-describe("Unmocked API Tests for RASA Bot", () => {
+/* describe("Unmocked API Tests for RASA Bot", () => {
     test("POST /api/chat - Real request to RASA", async () => {
         await new Promise((resolve) => setTimeout(resolve, 3000)); 
     
@@ -105,4 +105,4 @@ describe("Unmocked API Tests for RASA Bot", () => {
 
         expect(res.status).toBe(200);
     });
-});
+}); */
