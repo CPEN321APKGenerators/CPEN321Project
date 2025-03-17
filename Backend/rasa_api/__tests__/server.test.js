@@ -2,13 +2,13 @@ const axios = require("axios");
 const { app, server } = require("../server");
 const request = require("supertest");
 
-jest.mock("axios");  
+jest.mock("axios", () => ({
+    post: jest.fn()
+  }));
 
 beforeAll(() => {
     jest.spyOn(console, "error").mockImplementation(() => {});  
     jest.spyOn(console, "warn").mockImplementation(() => {});  
-
-    axios.post.mockResolvedValueOnce = jest.fn(); 
 });
 
 afterAll((done) => {
@@ -17,7 +17,7 @@ afterAll((done) => {
 
 // Mocked Tests
 describe("API Tests for RASA Bot", () => {
-/*     test("POST /api/chat - Valid request", async () => {
+    test("POST /api/chat - Valid request", async () => {
         const mockResponse = { responses: [{ text: "Please type start to begin journaling." }] };
         axios.post.mockResolvedValueOnce({ data: mockResponse });
 
@@ -27,7 +27,7 @@ describe("API Tests for RASA Bot", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.responses[0].text).toBe("Please type start to begin journaling.");
-    }); */
+    });
 
     test("POST /api/chat - Missing message", async () => {
         const res = await request(server).post("/api/chat").send({ sender: "testUser" });
@@ -46,7 +46,7 @@ describe("API Tests for RASA Bot", () => {
         expect(res.body).toEqual({ error: "Failed to get response from RASA" });
     });
 
-/*     test("POST /api/action - Valid request", async () => {
+    test("POST /api/action - Valid request", async () => {
         const mockResponse = { responses: [{ text: "Action executed" }] };
         axios.post.mockResolvedValueOnce({ data: mockResponse });
 
@@ -56,7 +56,7 @@ describe("API Tests for RASA Bot", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.responses[0].text).toBe("Action executed");
-    }); */
+    });
 
     test("POST /api/action - Missing sender", async () => {
         const res = await request(server).post("/api/action").send({ tracker: {}, domain: {} });
