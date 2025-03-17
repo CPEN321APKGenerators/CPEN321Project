@@ -12,7 +12,7 @@
 
 ### 2.1. Locations of Back-end Tests and Instructions to Run Them
 
-#### 2.1.1. Tests
+#### 2.1.1. Tests (update line numbers)
 
 | **Interface**                 | **Describe Group Location, No Mocks**          | **Describe Group Location, With Mocks**      | **Mocked Components**                          |
 |-------------------------------|-----------------------------------------------|-----------------------------------------------|-----------------------------------------------|
@@ -46,6 +46,8 @@
     export MONGODB_URI=`mongodb://mongo:27017`
     export STRIPE_SECRET=`your_stripe_accuont's_secret_key`
     export OPEN_API_KEY=`valid_open_ai_api_key`
+    export GOOGLE_USER_PREFIX= XXX
+    export GOOGLE_USER_ID=XXX@gmail.com
 
     or create a new file called `.env` inside `/Backend` folder, put these variables in .env like this:
     ```
@@ -53,13 +55,16 @@
     PORT=3001
     OPEN_API_KEY=valid_open_ai_api_key
     STRIPE_SECRET=your_stripe_accuont's_secret_key
+    GOOGLE_USER_PREFIX=XXX
+    GOOGLE_USER_ID=XXX@gmail.com
     ```
   3.  Set up variables for testing by creating a file called `unmocked_data.json` inside `/Backend/tests` folder. Put these information in it like this:
   ```
   {
     "testGoogleToken": "this google token must be valid and corresponds to the google num id you put below",
     "googleNumID": "this field is a series of numbers of your google account numeric id",
-    "OPEN_API_KEY": "valid_open_ai_api_key"
+    "OPEN_API_KEY": "valid_open_ai_api_key",
+    "googleUserPrefix": "XXX",
   }
   ```
 
@@ -93,9 +98,64 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 | **Non-Functional Requirement**  | **Location in Git**                              |
 | ------------------------------- | ------------------------------------------------ |
 | **Performance (Response Time)** | [`tests/nonfunctional/response_time.test.js`](#) |
-| **Chat Data Security**          | [`tests/nonfunctional/chat_security.test.js`](#) |
+| **Encryption of Entries**          | [`tests/nonfunctional/chat_security.test.js`](#) |
 
 ### 3.2. Test Verification and Logs
+
+- **Journal Data Security**
+  - **Verification:** This test ensures that journal entries are properly encrypted before being stored in the database. The test creates a sample journal entry through the API and retrieves the stored data directly from MongoDB. The retrieved entry is then checked to confirm that it does not match the plaintext input, indicating successful encryption. Additionally, the system is tested for correct decryption by retrieving the entry to verify that it matches the original input. This guarantees that encryption and decryption mechanisms work as expected and that journal entries remain secure in storage.
+  - **Log Output**
+    ```
+    console.log
+    Starting test: Encrypt and Retrieve Journal Entry
+
+      at tests/unmocked/journal.unmocked.test.ts:267:17
+
+      console.log
+        Sending POST /api/journal request to create journal entry...
+
+          at tests/unmocked/journal.unmocked.test.ts:269:17
+
+    POST /api/journal 200 74 - 61.322 ms
+      console.log
+        Received response: 200 {
+          activities: {},
+          message: 'Existing journal entry updated successfully!'
+        }
+
+          at tests/unmocked/journal.unmocked.test.ts:275:17
+
+      console.log
+        Fetching stored entry directly from Mongo database...
+
+          at tests/unmocked/journal.unmocked.test.ts:279:17
+
+      console.log
+        Checking encryption...
+
+          at tests/unmocked/journal.unmocked.test.ts:283:17
+
+      console.log
+        Encryption verified: Stored content does not match original input.
+
+          at tests/unmocked/journal.unmocked.test.ts:286:17
+
+      console.log
+        Retrieving journal entry via GET /api/journal ...
+
+          at tests/unmocked/journal.unmocked.test.ts:291:17
+          
+    GET /api/journal?date=2025-03-11&userID=llcce44%40gmail.com&googleNumID=102768322270580370699 200 4824 - 60.818 ms
+      console.log
+        Received response: 200 {
+          journal: {
+            text: 'Testing...',
+            media: [
+              'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAA...'
+            ]
+          }
+        }
+    ```
 
 - **Performance (Response Time)**
 
@@ -105,12 +165,7 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     [Placeholder for response time test logs]
     ```
 
-- **Chat Data Security**
-  - **Verification:** ...
-  - **Log Output**
-    ```
-    [Placeholder for chat security test logs]
-    ```
+
 
 ---
 
@@ -452,151 +507,3 @@ _(Placeholder for screenshots of Codacyâ€™s Issues page)_
   2. ...
 
 - ...
-
-
-# Testing and Code Review Report
-
-## 1. Change History
-
-| **Change Date** | **Modified Sections** | **Rationale** |
-| -------------- | --------------------- | ------------- |
-| _Nothing to show_ |
-
----
-
-## 2. Back-end Test Specification: APIs
-
-### 2.1. Locations of Back-end Tests and Instructions to Run Them
-
-#### 2.1.1. Tests
-
-| **Interface**                 | **Describe Group Location, No Mocks** | **Describe Group Location, With Mocks** | **Mocked Components** |
-| ----------------------------- | ------------------------------------- | --------------------------------------- | ---------------------- |
-| **GET /name**                 | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /api/profile**         | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /storeFcmToken**       | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /changeReminder**      | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /api/journal**         | _To be filled_                        | _To be filled_                          | ['../services']       |
-| **GET /userProfile**          | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /userProfile**         | _To be filled_                        | _To be filled_                          | None                  |
-| **GET /api/profile**          | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /api/profile/fcmtoken**| _To be filled_                        | _To be filled_                          | None                  |
-| **GET /api/journal**          | _To be filled_                        | _To be filled_                          | None                  |
-| **GET /api/journal/file**     | _To be filled_                        | _To be filled_                          | None                  |
-| **PUT /api/journal**          | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /api/profile/reminder**| _To be filled_                        | _To be filled_                          | None                  |
-| **POST /api/payment**         | _To be filled_                        | _To be filled_                          | None                  |
-| **DELETE /api/journal**       | _To be filled_                        | _To be filled_                          | None                  |
-| **POST /webhook**             | _To be filled_                        | _To be filled_                          | ['../services']       |
-| **GET /api/profile/isPaid**   | _To be filled_                        | _To be filled_                          | None                  |
-
-#### 2.1.2. Commit Hash Where Tests Run
-
-`[Insert Commit SHA here]`
-
-#### 2.1.3. Explanation on How to Run the Tests
-
-1. **Clone the Repository**:
-   ```sh
-   git clone https://github.com/example/your-project.git
-   cd your-project
-   ```
-2. **Install Dependencies**:
-   ```sh
-   npm install
-   ```
-3. **Run Tests**:
-   ```sh
-   npm test
-   ```
-
-### 2.2. GitHub Actions Configuration Location
-
-`~/.github/workflows/backend-tests.yml`
-
-### 2.3. Jest Coverage Report Screenshots With Mocks
-
-_(Placeholder for Jest coverage screenshot with mocks enabled)_
-
-### 2.4. Jest Coverage Report Screenshots Without Mocks
-
-_(Placeholder for Jest coverage screenshot without mocks)_
-
----
-
-## 3. Back-end Test Specification: Tests of Non-Functional Requirements
-
-### 3.1. Test Locations in Git
-
-| **Non-Functional Requirement**  | **Location in Git** |
-| ------------------------------- | ------------------- |
-| **Performance (Response Time)** | _To be filled_     |
-| **Security Testing**            | _To be filled_     |
-
-### 3.2. Test Verification and Logs
-
-- **Performance (Response Time)**
-  - **Verification:** This test simulates concurrent API calls to measure system response times under normal load. The goal is to ensure requests are handled within the expected threshold.
-  - **Log Output:**
-    ```
-    [Placeholder for response time test logs]
-    ```
-
-- **Security Testing**
-  - **Verification:** Ensures sensitive user data remains encrypted and cannot be accessed without proper authorization.
-  - **Log Output:**
-    ```
-    [Placeholder for security test logs]
-    ```
-
----
-
-## 4. Front-end Test Specification
-
-### 4.1. Location in Git of Front-end Test Suite:
-
-`frontend/tests/`
-
-### 4.2. Tests
-
-- **Use Case: Login**
-  - **Expected Behaviors:**
-    | **Scenario Steps** | **Test Case Steps** |
-    | ------------------ | ------------------- |
-    | 1. User enters credentials | Input valid email and password |
-    | 2. Clicks Login | Check login request and response |
-    | 3. Successful login | Redirect to dashboard |
-  - **Test Logs:**
-    ```
-    [Placeholder for login test logs]
-    ```
-
----
-
-## 5. Automated Code Review Results
-
-### 5.1. Commit Hash Where Code Review Ran
-
-`[Insert Commit SHA here]`
-
-### 5.2. Unfixed Issues per Code Review Tool
-
-_(Placeholder for screenshots of Code Review report)_
-
-### 5.3. Justifications for Unfixed Issues
-
-- **Issue 1: [Example Issue]**
-  - **Location in Git:** _To be filled_
-  - **Justification:** _To be filled_
-
----
-
-## Next Steps
-- Integrate test results into the report.
-- Add Jest coverage reports.
-- Complete the code review section based on automated tool results.
-
----
-
-This document will be converted to PDF and pushed into the **documentation** folder in GitHub.
-
