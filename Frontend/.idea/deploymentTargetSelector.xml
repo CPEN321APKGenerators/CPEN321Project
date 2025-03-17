@@ -5,6 +5,13 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="UnpaidUserJournalTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="PaidUserJournalTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+
       <SelectionState runConfigName="viewUserPaidProfile()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
@@ -18,6 +25,7 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="ProfileManagementTest">
+
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
