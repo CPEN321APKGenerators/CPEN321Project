@@ -366,12 +366,15 @@ export class JournalController {
         // Generate File Based on Format
         const filename = `${uuidv4()}.${format}`;
         const filePath = path.join(__dirname, `../../public/${filename}`);
+        console.log("filename: ", filename)
+        console.log("filepath: ", filePath)
     
         if (format === 'csv') {
             // Generate CSV
             const json2csvParser = new Parser({ fields: ['date', 'text', 'media'] });
             const csv = json2csvParser.parse(journals);
             fs.writeFileSync(filePath, csv);
+            console.log("csv generated successful")
     
         } else if (format === 'pdf') {
             const pdfDoc = await PDFDocument.create();
@@ -412,10 +415,7 @@ export class JournalController {
 
                     // Embed each image
                     for (const [index, mediaItem] of entry.media.entries()) {
-                        if (!mediaItem || typeof mediaItem !== 'string') {
-                            console.error(`Invalid mediaItem: ${mediaItem}`);
-                            continue; // Skip this media item
-                        }
+                        if (!mediaItem || typeof mediaItem !== 'string') { continue; }
 
                         try {
                             let imageBuffer;
@@ -428,10 +428,7 @@ export class JournalController {
                             } else {
                                 // Extract MIME type and Base64 data
                                 const [meta, base64Data] = mediaItem.split(",");
-                                if (!base64Data) {
-                                    console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
-                                    continue;
-                                }
+                                if (!base64Data) { continue; }
 
                                 imageBuffer = Buffer.from(base64Data, "base64");
 
@@ -458,14 +455,12 @@ export class JournalController {
 
                                 if (newWidth > maxWidth) {
                                     const scaleFactor = maxWidth / newWidth;
-                                    newWidth *= scaleFactor;
-                                    newHeight *= scaleFactor;
+                                    newWidth *= scaleFactor; newHeight *= scaleFactor;
                                 }
 
                                 if (newHeight > maxHeight) {
                                     const scaleFactor = maxHeight / newHeight;
-                                    newWidth *= scaleFactor;
-                                    newHeight *= scaleFactor;
+                                    newWidth *= scaleFactor; newHeight *= scaleFactor;
                                 }
 
                                 // Check if we need a new page
@@ -493,11 +488,11 @@ export class JournalController {
                     }
                 }
             } catch (error) {
-                console.error("PDF Generation Error:", error);
                 return res.status(500).json({ error: "Failed to generate PDF" });
             }
             const pdfBytes = await pdfDoc.save();
             fs.writeFileSync(filePath, pdfBytes);
+            console.log("pdf generated")
         }
         // Return Download URL
         const downloadURL = `${req.protocol}://${req.get('host')}/public/${filename}`;
