@@ -83,7 +83,9 @@
 
 ![alt text](images/MockedAndUnmocked.png)
 
+For coverage of journal controller, there are some lines that are implemented to support some extra actions of the application that couldn't be fully implemented end-to-end yet and this accounts for a considerable amount of the number of uncovered lines. A small portion of the uncovered lines is becasuse we don't call openapi with tests, we mock valid and invalid outputs for it. And the rest are checks for db to see if the db got values. 
 
+For analysisFunctions, the two uncovered lines are checks within the data structure functions made that are never supposed to be triggered by it's use, but are useful to checking for valid inputs to the functions.
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
