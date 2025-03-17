@@ -17,3 +17,4 @@ __pycache__/
 *.pyo
 *.tar.gz
 *.log
+/rasa_api/node_modules/
