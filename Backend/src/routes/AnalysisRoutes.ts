@@ -11,6 +11,7 @@ export const AnalysisRoutes = [
         validation: [
             query("userID").exists().isString(),
             query("date").exists().isString()
-        ]
+        ],
+        middlewares: []
     }
 ];

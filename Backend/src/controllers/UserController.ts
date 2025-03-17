@@ -31,16 +31,6 @@ if (!admin.apps.length) {
     }
 }
 
-
-const getServerOffset = () => {
-    const offset = new Date().getTimezoneOffset(); // in minutes
-    const absOffset = Math.abs(offset);
-    const hours = String(Math.floor(absOffset / 60)).padStart(2, '0');
-    const minutes = String(absOffset % 60).padStart(2, '0');
-    const sign = offset > 0 ? '-' : '+';
-    return `${sign}${hours}:${minutes}`;
-};
-
 const convertToUtc = (userTime: any, userOffset: any, userWeekdays: any) => {
     const utcWeekdays = userWeekdays.map((day: any) => {
         // Get the current date and time in the user's timezone
@@ -213,7 +203,7 @@ export class UserController {
                 const result = await client.db("cpen321journal").collection("users").insertOne(newUser);
     
                 if (result.acknowledged) {
-                    res.status(201).json(newUser);  // Return the newly created profile
+                    res.status(200).json(newUser);  // Return the newly created profile
                 } else {
                     res.status(500).json({ error: "Failed to create user profile" });
                 }
@@ -228,10 +218,6 @@ export class UserController {
     // Check if User is Paid
     async isUserPaid(req: Request, res: Response, next: NextFunction) {
         const { userID } = req.query;
-
-        if (!userID) {
-            return res.status(400).json({ error: "userID is required" });
-        }
 
         try {
             // Find user by userID
@@ -252,51 +238,9 @@ export class UserController {
         }
     }
 
-    async upgradeUser(req: Request, res: Response, next: NextFunction) {
-        const {userID} = req.body;
-    
-        if (!userID) {
-            return res.status(400).json({ error: "userID is required" });
-        }
-        try {
-            // Check if the user already exists
-            const existingUser = await client.db("cpen321journal").collection("users").findOne({ userID });
-    
-            if (existingUser) {
-                // User exists, update the provided fields only
-                const updatedFields: any = {
-                    updatedAt: new Date()
-                };
-    
-                updatedFields.isPaid = true;
-                await client.db("cpen321journal").collection("users").updateOne(
-                    { userID },
-                    { $set: updatedFields }
-                );
-    
-                // Return the updated profile
-                return res.status(200).json({
-                    message: "User profile updated successfully",
-                    updatedFields
-                });
-    
-            } else {
-                console.log(console.log("user id not found: ", userID));
-                res.status(404).json({ error: "User does not exist."});
-            }
-        } catch (err) {
-            console.error("Error upgrading user:", err);
-            res.status(500).json({ error: "Internal server error" });
-        }
-    }
-
    // Update Reminder Settings
     async changeReminder(req: Request, res: Response, next: NextFunction) {
         const { updated_reminder, userID } = req.body;
-
-        if (!updated_reminder || !userID) {
-            return res.status(400).json({ error: "updated_reminder and userID are required" });
-        }
 
         try {
             // Fetch user timeOffset

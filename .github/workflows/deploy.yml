@@ -35,15 +35,6 @@ jobs:
         uses: supercharge/mongodb-github-action@1.7.0
         with:
           mongodb-version: '5.0' # Use the version that matches your local MongoDB
-  
-      - name: Run Tests with Secrets
-        env:
-          FIREBASE_CONFIG: ${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }} 
-          STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
-          SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
-        run: |
-          cd Backend
-          NODE_ENV=test npm test
 
       - name: Rebuild and Deploy
         uses: appleboy/ssh-action@master
@@ -87,3 +78,45 @@ jobs:
             docker-compose down
             docker-compose --env-file .env build
             docker-compose --env-file .env up -d
+
+  auto-backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_KEY}}
+          source: "."
+          target: "/home/ubuntu/cpen321journal"
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22 # is it?
+  
+      - name: Install Dependencies
+        run: |
+          cd Backend
+          npm install
+      
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: '5.0' # Use the version that matches your local MongoDB
+  
+      - name: Run Tests with Secrets
+        env:
+          FIREBASE_CONFIG: ${{ secrets.GOOGLE_CLOUD_KEY_FIREBASE }} 
+          STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
+          SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
+          TEST_GOOGLE_TOKEN: ${{ secrets.TEST_GOOGLE_TOKEN }}
+          GOOGLE_NUM_ID: ${{ secrets.GOOGLE_NUM_ID }}
+          OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
+        run: |
+          cd Backend
+          NODE_ENV=test npm test

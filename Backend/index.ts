@@ -32,67 +32,52 @@ if (!admin.apps.length) {
 }
 
 // Read the secret as a string
-const stripeSecret = process.env.STRIPE_SECRET || (() => {
+const stripeSecret = (() => {
     try {
-        return fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
+      return fs.readFileSync(path.join(__dirname, './src/config/cpen321project-stripe-secret.txt'), 'utf8').trim();
     } catch (error) {
-        console.warn("Stripe secret file not found, falling back to environment variable.");
-        return "";
+      console.warn("Stripe secret file not found, falling back to environment variable.");
+      return process.env.STRIPE_SECRET || "";
     }
 })();
 
 if (!stripeSecret) {
     throw new Error("Missing Stripe Secret Key!");
 }
-console.log(stripeSecret)
+
+console.log(stripeSecret);
 // const OtherRoutes=[]
 const Routes = [...AnalysisRoutes, ...JournalRoutes, ...UserRoutes];
 // const Routes = [...JournalRoutes];
 
 Routes.forEach((route) => {
+    // Middleware to check for validation errors
+    const checkValidationErrors = (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+    };
+
+    // Middleware to handle the controller action and errors
+    const handleController = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await route.action(req, res, next);
+        } catch (err) {
+            console.error(err);
+            res.sendStatus(500);
+        }
+    };
+
+    // Apply the route with all necessary middleware
     (app as any)[route.method](
         route.route,
-        route.validation,
-        async (req: Request, res: Response, next: NextFunction) => {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                /* If there are validation errors, send a response with the error messages */
-                return res.status(400).send({ errors: errors.array() });
-            }
-            try {
-                await route.action(
-                    req,
-                    res,
-                    next,
-                );
-            } catch (err) {
-                console.log(err)
-                return res.sendStatus(500); // Don't expose internal server workings
-            }
-        },
+        [...route.validation], // Express-validator checks
+        checkValidationErrors, // Check for validation errors
+        ...route.middlewares, // Custom middlewares (e.g., verifyGoogleToken)
+        handleController // Controller action
     );
-});
-
-// Route to get server IP address
-app.get('/server-ip', (req, res) => {
-    const serverip = req.socket.localAddress; // Server's IP address
-    res.json({ serverIP: serverip });
-});
-
-// Route to get server local time
-app.get('/server-time', (req, res) => {
-    const now = new Date();
-    const timeZoneOffset = -now.getTimezoneOffset(); // Offset in minutes
-
-    const hoursOffset = Math.floor(timeZoneOffset / 60);
-    const minutesOffset = timeZoneOffset % 60;
-    const secondsOffset = minutesOffset * 60;
-
-    const offsetString = `GMT${hoursOffset >= 0 ? '+' : ''}${String(hoursOffset).padStart(2, '0')}:${String(secondsOffset).padStart(2, '0')}`;
-    const timeString = now.toLocaleTimeString('en-GB', { hour12: false }); // 24-hour format
-
-    const serverStr = `${timeString} ${offsetString}`;
-    res.json({ serverTime: serverStr });
 });
 
 // Route to get your name
@@ -107,24 +92,21 @@ app.get('/', (req, res) => {
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-
 // Do NOT start the server if in test environment
 if (process.env.NODE_ENV !== 'test') {
     client.connect().then(() => {
       console.log("MongoDB Client connected");
-      
       // Main server
       app.listen(process.env.PORT, () => {
         console.log("Listening on port " + process.env.PORT);
       });
-  
       // Stripe webhook server
       app.listen(4242, () => console.log('Webhook Running on port 4242'));
     }).catch(err => {
       console.log(err);
       client.close();
     });
-  }
+}
 
 export { app };
 
@@ -191,37 +173,6 @@ app.post('/api/payment-sheet', async (req, res) => {
 // at https://dashboard.stripe.com/webhooks
 // const endpointSecret = 'whsec_...';
 
-
-// app.listen(4242, () => console.log('Webhook Running on port 4242'));
-
-// app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
-//   let event = request.body;
-//   console.log("webhook event: ", event)
-
-//   // Handle the event
-//   switch (event.type) {
-//     case 'payment_intent.succeeded':
-//         const paymentIntent = event.data.object;
-//         console.log(`PaymentIntent for ${paymentIntent.amount} was successful! from webhook!`);
-//         console.log("payment intent userID: ", paymentIntent.metadata);
-//         console.log("payment intent userID: ", paymentIntent.metadata.userID);
-//         // Then define and call a method to handle the successful payment intent.
-//         handlePaymentIntentSucceeded(paymentIntent);
-//         break;
-//     case 'payment_method.attached':
-//       const paymentMethod = event.data.object;
-//       // Then define and call a method to handle the successful attachment of a PaymentMethod.
-//       // handlePaymentMethodAttached(paymentMethod);
-//       break;
-//     default:
-//       // Unexpected event type
-//       console.log(`Unhandled event type ${event.type}.`);
-//   }
-
-//   // Return a 200 response to acknowledge receipt of the event
-//   response.send();
-// });
-
 app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
     let event = request.body;
     console.log("webhook event: ", event);
@@ -278,7 +229,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
 
 let cronJob: any;  // Add a reference to the cron job
 
-async function scheduleNotifications() {
+export async function scheduleNotifications() {
     cronJob = cron.schedule('* * * * *', async () => {
         console.log('Checking for scheduled notifications...');
         try {

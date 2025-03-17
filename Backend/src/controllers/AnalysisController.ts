@@ -27,7 +27,7 @@ export class AnalyticsController {
         try {
             const user = await client.db("cpen321journal").collection("users").findOne({ userID });
             if (!user) {
-                return res.status(404).json({ error: "User not found-" });
+                return res.status(404).json({ error: "User not found" });
             }
             const activities = user.activities_tracking || [];
 
@@ -43,7 +43,8 @@ export class AnalyticsController {
             }
             return res.status(200).json({emotionStats, activityStats, overallScore, summary});
         } catch (error) {
-            return next(error);
+            console.error("Database error:", error); 
+            return res.status(500).json({ error: "Internal server error" }); 
         }
     }
     // async createOrUpddateAnalytics(req: Request, res: Response, next: NextFunction) {

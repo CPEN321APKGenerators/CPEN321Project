@@ -232,7 +232,7 @@ class ProfileManagement : AppCompatActivity() {
             if (activityName.isNotEmpty() && averageValue > 0) {
                 addNewActivity(activityName, averageValue, unit)
             } else {
-                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -243,13 +243,15 @@ class ProfileManagement : AppCompatActivity() {
 
     // Function to show edit/delete options on long press
     private fun showEditDeleteDialog(position: Int) {
-        val options = arrayOf("Edit", "Delete")
+//        val options = arrayOf("Edit", "Delete")
+        val options = arrayOf("Delete")
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose an option")
         builder.setItems(options) { _, which ->
             when (which) {
-                0 -> showEditActivityDialog(position)  // Edit selected
-                1 -> deleteActivity(position)           // Delete selected
+//                0 -> showEditActivityDialog(position)  // Edit selected
+//                1 -> deleteActivity(position)           // Delete selected
+                0 -> deleteActivity(position)
             }
         }
         builder.show()
@@ -306,7 +308,7 @@ class ProfileManagement : AppCompatActivity() {
                 activitiesAdapter.notifyDataSetChanged()
                 updateListViewHeight()
             } else {
-                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -382,7 +384,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Reminder updated successfully!",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 } else {
@@ -391,7 +393,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Failed to update reminder settings",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -403,7 +405,7 @@ class ProfileManagement : AppCompatActivity() {
                     Toast.makeText(
                         this@ProfileManagement,
                         "Connection error. Please try again.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -526,7 +528,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Failed to get user profile",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -538,7 +540,7 @@ class ProfileManagement : AppCompatActivity() {
                     Toast.makeText(
                         this@ProfileManagement,
                         "Connection error. Please try again.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -603,52 +605,6 @@ class ProfileManagement : AppCompatActivity() {
         }
     }
 
-    private fun User_paid_to_premium() {
-        val client = OkHttpClient()
-        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        val json = JSONObject().apply {
-            put("userID", userID)
-        }
-
-        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-
-        val request = Request.Builder()
-            .url("https://cpen321project-journal.duckdns.org/api/profile/isPaid")
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        "Payment update failed",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        Toast.makeText(
-                            applicationContext,
-                            "Payment saved successfully!, You are a premium user",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            applicationContext,
-                            "Error: ${response.body?.string()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        })
-    }
-
     private fun sendUserProfile(preferredName: String, activities: List<Activity>) {
         val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .getString("GoogleUserID", null)
@@ -691,7 +647,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Profile updated successfully!",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 } else {
@@ -701,7 +657,7 @@ class ProfileManagement : AppCompatActivity() {
                         Toast.makeText(
                             this@ProfileManagement,
                             "Failed to update profile",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -713,7 +669,7 @@ class ProfileManagement : AppCompatActivity() {
                     Toast.makeText(
                         this@ProfileManagement,
                         "Connection error. Please try again.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }

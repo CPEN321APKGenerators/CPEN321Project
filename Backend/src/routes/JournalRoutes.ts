@@ -50,49 +50,13 @@ export const JournalRoutes = [
         ],
         middlewares: [verifyGoogleToken]
     },
-    /* THESE ARE NOT BEING USED */
-    // {
-    //     method: "post",
-    //     route: "/api/journal/media",
-    //     action: controller.postJournalMedia,
-    //     validation: [
-    //         body("date").exists().isISO8601(),
-    //         body("userID").exists().isString(),
-    //         body("media").isArray(),
-    //         header("authorization").exists().withMessage("Authorization header is required")
-    //     ],
-    //     middlewares: [verifyGoogleToken]
-    // },
-    // {
-    //     method: "delete",
-    //     route: "/api/journal/media",
-    //     action: controller.deleteJournalMedia,
-    //     validation: [
-    //         query("date").exists().isISO8601(),
-    //         query("userID").exists().isString(),
-    //         query("media").exists().isString(),
-    //         header("authorization").exists().withMessage("Authorization header is required")
-    //     ],
-    //     middlewares: [verifyGoogleToken]
-    // },
-    // {
-    //     method: "get",
-    //     route: "/api/journal/media",
-    //     action: controller.getJournalMedia,
-    //     validation: [
-    //         query("date").exists().isISO8601(),
-    //         query("userID").exists().isString(),
-    //         header("authorization").exists().withMessage("Authorization header is required")
-    //     ],
-    //     middlewares: [verifyGoogleToken]
-    // },
     {
         method: "get",
         route: "/api/journal/file",
         action: controller.getJournalFile,
         validation: [
             query("userID").exists().isString(),
-            query("format").exists().isIn(['pdf', 'csv']),
+            query("format").exists(),
             header("authorization").exists().withMessage("Authorization header is required")
         ],
         middlewares: [verifyGoogleToken]

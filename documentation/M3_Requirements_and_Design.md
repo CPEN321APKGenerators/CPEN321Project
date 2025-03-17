@@ -313,7 +313,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
             - **Purpose**: Retrieve a user's profile information.
             - **Request Parameters**: userID: Required, string.
             - **Response**:
-            - Status Code: 201 Created
+            - Status Code: 200 Created
                 Response Body:
                 ```
                 {
@@ -369,7 +369,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
             }
             ```
             - **Response**:
-                - Status Code: 201 Created or 200 OK
+                - Status Code: 200 Created or 200 OK
                     Response Body:
                     ```
                     {
@@ -437,7 +437,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
             }
             ```
             - **Response**:
-                - Status Code: 201 Created
+                - Status Code: 200 Created
                     Response Body:
                     ```
                     {
@@ -530,7 +530,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
             }
             ```
             - **Response**:
-                - Status Code: 201 Created
+                - Status Code: 200 Created
                     Response Body:
                     ```
                     {
