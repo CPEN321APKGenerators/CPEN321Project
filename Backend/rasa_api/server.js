@@ -26,10 +26,10 @@ if (!isTestEnv) {
     }
 }
 
-
 const RASA_SERVER_URL = process.env.RASA_SERVER_URL || "http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook";
 const ACTION_SERVER_URL = process.env.ACTION_SERVER_URL || "http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook";
 
+// Route to handle messages from frontend
 app.post('/api/chat', async (req, res) => {
     try {
         const { message, sender } = req.body;
@@ -38,15 +38,16 @@ app.post('/api/chat', async (req, res) => {
             return res.status(400).json({ error: 'Message and sender are required' });
         }
 
-        console.log("🔍 Request Body:", req.body);
+        console.log("Request Body:", req.body);
         const response = await axios.post(RASA_SERVER_URL, { message, sender });
 
-        console.log("🔍 RASA Response:", response.status, response.data);
+        console.log(" RASA Response:", response.status, response.data);
 
         // Check if response from RASA contains the expected data
         if (response.data && response.data.responses) {
             return res.status(200).json(response.data);  // Send 200 if RASA returns valid data
         } else {
+            console.error("RASA Response Missing Expected Data");
             return res.status(500).json({ error: 'Invalid response from RASA' });
         }
     } catch (error) {
@@ -65,14 +66,14 @@ app.post('/api/action', async (req, res) => {
         }
 
         const response = await axios.post(ACTION_SERVER_URL, { sender, tracker, domain });
-        return res.status(200).json(response.data); 
+        return res.status(200).json(response.data);
     } catch (error) {
-        if (!isTestEnv) console.error('Error connecting to Action Server:', error);
+        console.error('Error connecting to Action Server:', error);
         return res.status(500).json({ error: 'Failed to get response from RASA Action Server' });
     }
 });
 
-
+// Health check route
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'Node.js API is running' });  
 });
