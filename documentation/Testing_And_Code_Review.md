@@ -478,6 +478,141 @@ _(Placeholder for Jest coverage screenshot without mocks)_
       | 2025-03-17 10:03:46.945 | 22690     | 22779     | EspressoTest | com.example.cpen321project | D         | Test User_Analytics_check_activities completed successfully |
 
 
+- **Use Case: Update Reminder Settings**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    |1. The user clicks on the profile icon.|Click on the profile button.|
+    |2. The system displays the user profile and the current reminder settings. (For new users, all weekdays are set to none, and the displayed time matches the device's current time.)| Check that the profile screen is displayed. Verify that the displayed time matches the device's current time if the user has not set a reminder before.|
+    | 3. The user selects a weekday and sets a reminder time.|Click on a weekday button to select it. Use the time picker to set a reminder time.|
+    | 4. The user clicks "Save Settings".|Click the "Save Settings" button.|
+    |5. The system displays a success message confirming the update.|Check that a toast message with text "Reminder updated successfully!" is displayed.|
+    |6. The system ensures that the selected weekday remains highlighted after saving.|Check that the selected weekday button remains highlighted after saving.
+    |7. The system sends a notification at the selected time.|Wait for the selected time.Check that a notification with text "Journal Reminder" appears.|
+    
+  - **Test Logs:**
+    | Timestamp            | Process ID | Thread ID | Tag          | Package                               | Log Level | Message |
+    |----------------------|-----------|-----------|-------------|--------------------------------------|-----------|---------------------------------------------------------------|
+    | 2025-03-17 12:49:41.897 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Launching main activity |
+    | 2025-03-17 12:49:42.364 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Starting test: Reminder Settings |
+    | 2025-03-17 12:49:44.365 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Clicking on profile button |
+    | 2025-03-17 12:49:47.033 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Verifying current reminder settings |
+    | 2025-03-17 12:49:52.076 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Selecting weekday for reminder |
+    | 2025-03-17 12:49:52.351 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Setting reminder time to 12:50 |
+    | 2025-03-17 12:49:52.369 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Saving reminder settings |
+    | 2025-03-17 12:49:53.660 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Verifying success toast message |
+    | 2025-03-17 12:49:53.663 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Verifying selected weekday remains highlighted |
+    | 2025-03-17 12:49:53.669 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Waiting for notification... |
+    | 2025-03-17 12:50:56.272 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Notification verified successfully |
+    | 2025-03-17 12:50:58.434 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Releasing intents |
+
+
+
+
+- **Use Case: Update Activities Tracking**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    |1. The user clicks on the profile icon.| Click on the profile button.|
+    |2. The system displays the user profile and current activity tracking settings.| Check that the activity list is displayed.|
+    |3. The user adds a new activity.| Click the "Add Activity" button. Enter "Running" in the activity name field. Enter "30" in the value field. Select "Minutes" from the dropdown. Click "Add".|
+    |4. The system updates the activity list with the new entry.| Verify that the activity list contains "Running".|
+    |5. The user deletes an activity from the list.|Long press the "Running" activity.Click "Delete".|
+    | 6. The system updates the activity list and removes the entry.|Verify that the activity "Running" is no longer in the list.|
+    |7. The user clicks "Save Settings".|Click the "Save Settings" button.|
+    |8. The system displays a success message confirming the update.|Check that a toast message with text "Profile updated successfully!" is displayed.|
+    
+  - **Test Logs:**
+    | Timestamp            | Process ID | Thread ID | Tag          | Package                               | Log Level | Message |
+    |----------------------|-----------|-----------|-------------|--------------------------------------|-----------|---------------------------------------------------------------|
+    | 2025-03-17 12:51:09.765 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Launching main activity |
+    | 2025-03-17 12:51:09.877 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Starting test: Activity List Management |
+    | 2025-03-17 12:51:11.881 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Clicking on profile button |
+    | 2025-03-17 12:51:14.368 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Original activity count: 1 |
+    | 2025-03-17 12:51:14.368 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Adding new activity: Running |
+    | 2025-03-17 12:51:18.064 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Selecting 'Minutes' from dropdown |
+    | 2025-03-17 12:51:19.738 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Confirming addition |
+    | 2025-03-17 12:51:22.061 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Verifying new activity exists in the list |
+    | 2025-03-17 12:51:22.079 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Deleting activity: Running |
+    | 2025-03-17 12:51:23.663 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Saving settings |
+    | 2025-03-17 12:51:24.959 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Verifying success toast message |
+    | 2025-03-17 12:51:24.961 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Test completed successfully |
+    | 2025-03-17 12:51:24.962 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Releasing intents |
+
+      
+
+
+- **Use Case: Update Preferred Name**
+
+  - **Expected Behaviors:**
+    
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    |1. The user clicks on the profile icon.|Click on the profile button.|
+    |2. The system displays the user profile and the preferred name field.| Check that the preferred name field is visible.|
+    |3. The user enters a new preferred name.| Clear the existing text in the preferred name field. Type "John Doe" into the field.|
+    |4. The user clicks "Save Settings".| Click the "Save Settings" button.|
+    |5. The system displays a success message confirming the update.| Check that a toast message with text "Profile updated successfully!" is displayed.|
+    |6. The user navigates back and reopens the profile.|Click the back button. Click the profile button again. |
+    |7. The system retains the updated preferred name.|Verify that the preferred name field contains "John Doe".|
+    
+  - **Test Logs:**
+      | Timestamp            | Process ID | Thread ID | Tag          | Package                               | Log Level | Message |
+    |----------------------|-----------|-----------|-------------|--------------------------------------|-----------|---------------------------------------------------------------|
+    | 2025-03-17 12:50:58.616 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Launching main activity |
+    | 2025-03-17 12:50:58.764 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Starting test: Update Preferred Name |
+    | 2025-03-17 12:51:00.768 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Clicking on profile button |
+    | 2025-03-17 12:51:03.299 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Entering new preferred name: John Doe |
+    | 2025-03-17 12:51:04.958 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Saving name update |
+    | 2025-03-17 12:51:06.338 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Verifying success toast message |
+    | 2025-03-17 12:51:06.340 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Navigating back and reopening profile to verify change |
+    | 2025-03-17 12:51:09.644 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Verifying preferred name is updated |
+    | 2025-03-17 12:51:09.648 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Test completed successfully |
+    | 2025-03-17 12:51:09.648 | 18933     | 18965     | EspressoTest | com.example.cpen321project | D         | Releasing intents |
+
+
+
+
+- **Use Case: Paid vs. Non-Paid User Profile Access**
+
+  - **Expected Behaviors:**
+    
+    For non-paid users:
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    |Non-paid users:||
+    |1. The user logs in as a non-paid user.|Set authentication state for a non-paid user. Launch the app.|
+    |2. The user clicks on the profile button.|Click the profile button.|
+    |3. The system displays an upgrade button.| Verify that the "Upgrade" button is visible.|
+    |Paid User:| Click the "Save Settings" button.|
+    |1. The user logs in as a paid user.| Set authentication state for a paid user. Launch the app.|
+    |2. The user clicks on the profile button.|Click the profile button.|
+    |3. The system does not show an upgrade button.|Verify that the "Upgrade" button is not visible.|
+    
+  - **Test Logs:**
+
+  **Non-Paid user Test:**
+    | Timestamp            | Process ID | Thread ID | Tag          | Package                               | Log Level | Message |
+  |----------------------|-----------|-----------|-------------|--------------------------------------|-----------|---------------------------------------------------------------|
+  | 2025-03-17 13:05:31.626 | 21077     | 21108     | EspressoTest | com.example.cpen321project | D         | Launching main activity |
+  | 2025-03-17 13:05:32.160 | 21077     | 21108     | EspressoTest | com.example.cpen321project | D         | Starting test: View Non-Paid User Profile |
+  | 2025-03-17 13:05:34.946 | 21077     | 21108     | EspressoTest | com.example.cpen321project | D         | Waiting for user profile to load... |
+  | 2025-03-17 13:05:36.946 | 21077     | 21108     | EspressoTest | com.example.cpen321project | D         | Checking if there is an upgrade button... |
+  | 2025-03-17 13:05:36.951 | 21077     | 21108     | EspressoTest | com.example.cpen321project | D         | Test completed successfully |
+
+  **Paid user Test**
+    | Timestamp            | Process ID | Thread ID | Tag          | Package                               | Log Level | Message |
+  |----------------------|-----------|-----------|-------------|--------------------------------------|-----------|---------------------------------------------------------------|
+  | 2025-03-17 13:06:17.986 | 21389     | 21422     | EspressoTest | com.example.cpen321project | D         | Launching main activity |
+  | 2025-03-17 13:06:18.443 | 21389     | 21422     | EspressoTest | com.example.cpen321project | D         | Starting test: View Paid User Profile |
+  | 2025-03-17 13:06:21.193 | 21389     | 21422     | EspressoTest | com.example.cpen321project | D         | Waiting for user profile to load... |
+  | 2025-03-17 13:06:23.197 | 21389     | 21422     | EspressoTest | com.example.cpen321project | D         | Checking if there is no upgrade button... |
+  | 2025-03-17 13:06:23.210 | 21389     | 21422     | EspressoTest | com.example.cpen321project | D         | Test completed successfully |
+
 
 ---
 

@@ -15,6 +15,8 @@ android {
     val properties = Properties()
     properties.load(propertiesFile.inputStream())
     val webClientid = properties.getProperty("WEB_CLIENT_ID")
+    val googleRealToken = properties.getProperty("GOOGLE_REAL_TOKEN")
+    val googleUserID = properties.getProperty("GOOGLE_USER_ID")
 
     defaultConfig {
         applicationId = "com.example.cpen321project"
@@ -25,6 +27,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientid\"")
+        buildConfigField("String", "GOOGLE_REAL_TOKEN", "\"$googleRealToken\"")
+        buildConfigField("String", "GOOGLE_USER_ID", "\"$googleUserID\"")
     }
 
     buildTypes {

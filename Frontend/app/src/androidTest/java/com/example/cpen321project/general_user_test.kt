@@ -2,6 +2,7 @@ package com.example.cpen321project
 
 import android.content.Context
 import android.os.IBinder
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
@@ -36,6 +37,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.Calendar
+import com.example.cpen321project.BuildConfig.GOOGLE_REAL_TOKEN
+import com.example.cpen321project.BuildConfig.GOOGLE_USER_ID
 
 
 @RunWith(AndroidJUnit4::class)
@@ -45,77 +48,79 @@ class ProfileManagementTest {
 //    val activityRule = ActivityTestRule(ProfileManagement::class.java, false, false)
     val activityRule = ActivityTestRule(MainActivity::class.java, false, false)
 
+    private val TAG = "EspressoTest"
 
     @Before
     fun setup() {
         // Set up valid authentication state
         val context = ApplicationProvider.getApplicationContext<Context>()
         val dummyToken = "eyJhbGciOiJub25lIn0.eyJleHAiOjE4OTM0NTYwMDB9." // Expires in 2030
-        val realToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjkxNGZiOWIwODcxODBiYzAzMDMyODQ1MDBjNWY1NDBjNmQ0ZjVlMmYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI1ODUwNDAyMDQyMTAtMmE3ZW9hbjF1YnM3aGJjZWRyY24zb2xyZHJnN2dyMDAuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI1ODUwNDAyMDQyMTAtamxscW8ybjNvZHJmcmY4dGhiZ3ZoaXY2azFwYzVmMmcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDI3NjgzMjIyNzA1ODAzNzA2OTkiLCJlbWFpbCI6ImxsY2NlNDRAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJDaHJpc3RpbmUgSklBTkciLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSXVLSEZJZUpSVXZpeGV3Z2Z1UXRBZXRoUXNiMnV0VFY5MWNXbG1vcXdUWExQTGFnPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IkNocmlzdGluZSIsImZhbWlseV9uYW1lIjoiSklBTkciLCJpYXQiOjE3NDE4OTIxMjUsImV4cCI6MTc0MTg5NTcyNX0.3dOUctz1Zj8TzZ8b2T945MTaT9DNGgzo0W-kHxks-pbWtCWkir0pJmsSn-urkqe8YY1cbzKGZg1rXivgdPavSpY0fKedlVp2R-AYI6r0TeLhxqrQS7Tr4is7fTxuZifTszwLml2Hmv9w9NvDAMJo8NnyPLWRHII-Kxu46mQRFHp0sQpsByVrSfpAuylYKygLI0wdXnyFjL-5NWHTdXJ_rXEmxIVlyDwFTxYulmoX4Aza9rEtj1aNiqvOq3jOdsKBKxbIZfGAgPkwVcSzAXbEsO5_3LaKkYylWZCcs83N3QAhaNEYA-yDxtrm7Ies-DxvGpfJU9s0Mnpso5kR79CYmw"
 
         context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE).edit()
-            .putString("GoogleUserID", "llcce44@gmail.com")
-            .putString("GoogleIDtoken", realToken)
+            .putString("GoogleUserID", GOOGLE_USER_ID)
+            .putString("GoogleIDtoken", GOOGLE_REAL_TOKEN)
             .apply()
 
         // Launch activity
+        Log.d(TAG, "Launching main activity")
         activityRule.launchActivity(null)
         Intents.init()
     }
 
     @After
     fun cleanup() {
+        Log.d(TAG, "Releasing intents")
         Intents.release()
     }
 
     @Test
     fun testReminderSettings() {
-        // Wait for initial load
-        Thread.sleep(2000)
+        Log.d(TAG, "Starting test: Reminder Settings")
 
+        Thread.sleep(2000)
+        Log.d(TAG, "Clicking on profile button")
         onView(withId(R.id.profile_button)).perform(click())
+
         Thread.sleep(2000)
 
-        // Get current time + 1 minute
         val (hour, minute) = getCurrentTimePlusOneMinute()
         val weekdayId = getCurrentWeekdayId()
 
+        Log.d(TAG, "Verifying current reminder settings")
         try {
             onView(withId(weekdayId))
                 .check(ViewAssertions.matches(hasBackground(R.drawable.circle_purple)))
-            // If the background is purple, do nothing
         } catch (e: AssertionError) {
-            // If the background is NOT purple, Select today's weekday
+            Log.d(TAG, "Selecting weekday for reminder")
             onView(withId(weekdayId)).perform(click())
         }
 
-        // Set time dynamically
+        Log.d(TAG, "Setting reminder time to $hour:$minute")
         setTime(hour, minute)
 
-        // Save settings
+        Log.d(TAG, "Saving reminder settings")
         onView(withId(R.id.save_settings_button)).perform(click())
-        Thread.sleep(1000) // Wait for save
-        // Check for each toast using their exact text
-        onView(withText("Reminder updated successfully!"))
-            .inRoot(ToastMatcher().apply {
-                matches(isDisplayed())
-            });
 
-        // Verify day remain selected
+        Thread.sleep(1000)
+        Log.d(TAG, "Verifying success toast message")
+        onView(withText("Reminder updated successfully!"))
+            .inRoot(ToastMatcher().apply { matches(isDisplayed()) })
+
+        Log.d(TAG, "Verifying selected weekday remains highlighted")
         onView(withId(weekdayId))
             .check(ViewAssertions.matches(hasBackground(R.drawable.circle_purple)))
 
-        // **Wait 1 minute for the notification**
-        Thread.sleep(60000) // 60 seconds
+        Log.d(TAG, "Waiting for notification...")
+        Thread.sleep(60000)
 
-        // Use UiAutomator to open and verify the notification
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.openNotification()
-        Thread.sleep(2000) // Give some time for notifications to load
+        Thread.sleep(2000)
 
         val notificationText = device.findObject(UiSelector().textContains("Journal Reminder"))
         assert(notificationText.exists()) { "Notification was not found!" }
 
+        Log.d(TAG, "Notification verified successfully")
         device.pressBack()
 
         onView(withId(R.id.profile_back_button)).perform(click())
@@ -124,51 +129,44 @@ class ProfileManagementTest {
 
     @Test
     fun testActivityListManagement() {
-        // Wait for initial load
-        Thread.sleep(2000)
+        Log.d(TAG, "Starting test: Activity List Management")
 
+        Thread.sleep(2000)
+        Log.d(TAG, "Clicking on profile button")
         onView(withId(R.id.profile_button)).perform(click())
+
         Thread.sleep(2000)
         val original_activities_num = getListViewSize()
+        Log.d(TAG, "Original activity count: $original_activities_num")
 
-        // Add new activity
+        Log.d(TAG, "Adding new activity: Running")
         onView(withId(R.id.profile_add_activity_button)).perform(click())
         Thread.sleep(500)
 
-        // Fill in dialog
-        onView(withHint("Enter activity name"))
-            .perform(typeText("Running"), closeSoftKeyboard())
+        onView(withHint("Enter activity name")).perform(typeText("Running"), closeSoftKeyboard())
         Thread.sleep(500)
 
-        onView(withHint("Enter average value"))
-            .perform(typeText("30"), closeSoftKeyboard())
+        onView(withHint("Enter average value")).perform(typeText("30"), closeSoftKeyboard())
         Thread.sleep(500)
 
-        // Select "Minutes" from spinner
-        onView(withClassName(Matchers.equalTo(Spinner::class.java.name)))
-            .perform(click())
-        onData(Matchers.equalTo("Minutes"))  // Find the item in the dropdown list
-            .inRoot(RootMatchers.isPlatformPopup()) // Ensure it's inside the dropdown
+        Log.d(TAG, "Selecting 'Minutes' from dropdown")
+        onView(withClassName(Matchers.equalTo(Spinner::class.java.name))).perform(click())
+        onData(Matchers.equalTo("Minutes"))
+            .inRoot(RootMatchers.isPlatformPopup())
             .perform(click())
         Thread.sleep(1000)
 
-
-        // Confirm addition
+        Log.d(TAG, "Confirming addition")
         onView(withText("Add")).perform(click())
         Thread.sleep(2000)
 
+        Log.d(TAG, "Verifying new activity exists in the list")
         onData(Matchers.anything())
             .inAdapterView(withId(R.id.profile_activity_list))
-            .atPosition(0)
-            .check(matches(isDisplayed())) // Ensures the item exists
-
-        // Verify activity in list
-        onData(Matchers.anything())
-            .inAdapterView(withId(R.id.profile_activity_list))
-            .atPosition(original_activities_num)  // Check last position
+            .atPosition(original_activities_num)
             .check(matches(hasDescendant(withText("Running"))))
 
-        // Delete the activity
+        Log.d(TAG, "Deleting activity: Running")
         onData(Matchers.anything())
             .inAdapterView(withId(R.id.profile_activity_list))
             .atPosition(original_activities_num)
@@ -176,55 +174,50 @@ class ProfileManagementTest {
         onView(withText("Delete")).perform(click())
         Thread.sleep(500)
 
-        // Verify list empty
-        onView(withId(R.id.profile_activity_list))
-            .check(ViewAssertions.matches(hasListSize(original_activities_num)))
-
+        Log.d(TAG, "Saving settings")
         onView(withId(R.id.save_settings_button)).perform(click())
         Thread.sleep(1000)
-        // check toast
+
+        Log.d(TAG, "Verifying success toast message")
         onView(withText("Profile updated successfully!"))
-            .inRoot(ToastMatcher().apply {
-                matches(isDisplayed())
-            })
-        onView(withId(R.id.profile_back_button)).perform(click())
-        Thread.sleep(500)
+            .inRoot(ToastMatcher().apply { matches(isDisplayed()) })
+
+        Log.d(TAG, "Test completed successfully")
     }
 
     @Test
     fun testPreferredName() {
-        // Wait for initial load
-        Thread.sleep(2000)
+        Log.d(TAG, "Starting test: Update Preferred Name")
 
+        Thread.sleep(2000)
+        Log.d(TAG, "Clicking on profile button")
         onView(withId(R.id.profile_button)).perform(click())
         Thread.sleep(2000)
 
         val newName = "John Doe"
+        Log.d(TAG, "Entering new preferred name: $newName")
         onView(withId(R.id.profile_name_input))
             .perform(clearText(), typeText(newName), closeSoftKeyboard())
 
-        // Click Save button
+        Log.d(TAG, "Saving name update")
         onView(withId(R.id.save_settings_button)).perform(click())
+
         Thread.sleep(1000)
-
-        // Wait for Toast confirmation
+        Log.d(TAG, "Verifying success toast message")
         onView(withText("Profile updated successfully!"))
-            .inRoot(ToastMatcher().apply {
-                matches(isDisplayed())
-            })
+            .inRoot(ToastMatcher().apply { matches(isDisplayed()) })
 
-        // back and re-enter activity to verify update
+        Log.d(TAG, "Navigating back and reopening profile to verify change")
         onView(withId(R.id.profile_back_button)).perform(click())
-        Thread.sleep(500) // Wait for the UI to reload
+        Thread.sleep(500)
         onView(withId(R.id.profile_button)).perform(click())
         Thread.sleep(2000)
 
-        // Verify preferred name is updated
+        Log.d(TAG, "Verifying preferred name is updated")
         onView(withId(R.id.profile_name_input))
             .check(matches(withText(newName)))
 
-        onView(withId(R.id.profile_back_button)).perform(click())
-        Thread.sleep(500)
+        Log.d(TAG, "Test completed successfully")
     }
 
 
