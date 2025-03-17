@@ -269,7 +269,11 @@ export class JournalController {
     
 
     async putJournal(req: Request, res: Response, next: NextFunction) {
-        const { date, userID, text_changed, text, media, activities } = req.body;
+        const { date, userID, text, media, activities } = req.body;
+        
+        // TODO: Change after frontend passes this flag 
+        const text_changed = true;
+        //
 
         const googleNumID = await getGoogleNumID(userID);
         if (!googleNumID) { return res.status(404); }

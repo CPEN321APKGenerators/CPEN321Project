@@ -5,11 +5,9 @@ import { JournalController } from "../../src/controllers/JournalController";
 import { MongoClient, Db, Collection, Document, BulkWriteResult } from "mongodb";
 import { client } from "../../services";
 import fs from "fs";    
-    
-    
-    
-    
-    
+
+let mockOverallScore = 110; // Default invalid score
+
 jest.mock("axios", () => {
     const actualAxios = jest.requireActual("axios");
 
@@ -23,7 +21,7 @@ jest.mock("axios", () => {
                             {
                                 message: {
                                     content: JSON.stringify({
-                                        overallScore: 110, // Invalid score (should be between 0-100)
+                                        overallScore: mockOverallScore, // Use dynamic score
                                         emotion: {
                                             Joy: 0.5,
                                             Sadness: 0.5,
@@ -37,7 +35,7 @@ jest.mock("axios", () => {
                                             SenseOfPurpose: 0.5,
                                         },
                                         activity: {
-                                            Running: { amount: 30 },
+                                            Running: { amount: 2 },
                                         },
                                     }),
                                 },
@@ -52,8 +50,9 @@ jest.mock("axios", () => {
         }),
     };
 });
-    
-    
+
+jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne")
+    .mockImplementation(() => Promise.resolve(null) as never);
     
 describe("Journal API - Mocked LLM", () => {
 
@@ -79,14 +78,9 @@ describe("Journal API - Mocked LLM", () => {
         googleNumID: google_num_id
     };
 
-    beforeAll(() => {
-    
-        jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne")
-            .mockImplementation(() => Promise.resolve(undefined) as never);
-    });
-    
     beforeEach(() => {
         jest.clearAllMocks();
+        mockOverallScore = 110; // Reset to default invalid score before each test
     });    
 
     it("should return an error after retrying three times due to invalid OpenAPI response structure", async () => {
@@ -97,5 +91,17 @@ describe("Journal API - Mocked LLM", () => {
 
         expect(response.status).toBe(500);
         expect(response.body.error).toBe("Failed to parse response from API");
+    });
+
+    it("should handle valid OpenAPI response structure", async () => {
+
+        mockOverallScore = 90; // Set a valid score for this test
+
+        const response = await request(app)
+            .post("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .send(mockJournal);
+
+        expect(response.status).toBe(200);
     });
 });

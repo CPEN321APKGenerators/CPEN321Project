@@ -16,13 +16,13 @@
 
 | **Interface**                 | **Describe Group Location, No Mocks**          | **Describe Group Location, With Mocks**      | **Mocked Components**                          |
 |-------------------------------|-----------------------------------------------|-----------------------------------------------|-----------------------------------------------|
-| **POST /api/journal**         |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L243`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L88`](#)| MongoDB, Google Auth Token Validation         |
-| **GET /api/journal**          |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L148`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L137`](#)| MongoDB Query Operations                      |
-| **PUT /api/journal**          |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L324`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L167`](#)| Database Update Operations                    |
-| **DELETE /api/journal**       |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L367`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L198`](#)| MongoDB Query Operations                                       |
-| **GET /api/journal/file**          |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L395`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L228`](#)| MongoDB Query Operations                   |
+| **POST /api/journal**         |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L266`](#) |[`/Backend/tests/mocked/journal.mocked.test.ts#L90`](#)<br>[`/Backend/tests/mocked/journal.llm.mocked.test.ts#L92`](#)| MongoDB, Google Auth Token Validation, OpenAPI Response  |
+| **GET /api/journal**          |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L171`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L147`](#)| MongoDB Query Operations                      |
+| **PUT /api/journal**          |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L362`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L177`](#)| Database Update Operations                    |
+| **DELETE /api/journal**       |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L405`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L198`](#)| MongoDB Query Operations                                       |
+| **GET /api/journal/file**          |[`/Backend/tests/unmocked/journal.unmocked.test.ts#L452`](#)|[`/Backend/tests/mocked/journal.mocked.test.ts#L238`](#)| MongoDB Query Operations                   |
 | **POST /api/payment-sheet**   |[`/Backend/tests/unmocked/payment.unmocked.test.ts#L57`](#)|[`/Backend/tests/mocked/payment.mocked.test.ts#L68`](#)| Stripe Customers, EphemeralKeys, PaymentIntents|
-| **GET /api/analytics**        | -                                              | `analytics.mocked.test.ts`                    | MongoDB Analytics Queries                     |
+| **GET /api/analytics**        | [`/Backend/tests/unmocked/analytics.unmocked.test.ts#L258`](#)|[`/Backend/tests/mocked/analytics.mocked.test.ts#L25`](#)| MongoDB Analytics Queries                     |   |
 | **POST /webhook**             |[`/Backend/tests/unmocked/webhook.unmocked.test.ts#L56`](#)|[`/Backend/tests/mocked/webhook.mocked.test.ts#L56`](#)| -                                             |
 | **GET /api/profile**          |[`/Backend/tests/unmocked/user.unmocked.test.ts#L63`](#)|[`/Backend/tests/mocked/user.mocked.test.ts#L67`](#)| Firebase Admin, MongoDB User Collection       |
 | **POST /api/profile**         |[`/Backend/tests/unmocked/user.unmocked.test.ts#L97`](#)|[`/Backend/tests/mocked/user.mocked.test.ts#L98`](#)| Google Auth API, MongoDB Insertions           |
@@ -81,13 +81,13 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-_(Placeholder for Jest coverage screenshot with mocks enabled)_
+![alt text](images/MockedAndUnmocked.png)
 
 
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-_(Placeholder for Jest coverage screenshot without mocks)_
+![alt text](images/Unmocked.png)
 
 ---
 
