@@ -176,9 +176,19 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     | 5. The entry is saved, and the calendar refreshes. | Click `Backbuttonentries`, check that `calenderrecycleView` is displayed with the date highlighted. |
 
   - **Test Logs:**
-    ```
-    [Placeholder for Espresso test execution logs]
-    ```
+
+      | Timestamp                | Process ID | Test Suite | Package Name              | Log Level | Description                                     |
+      |--------------------------|------------|------------|---------------------------|-----------|-------------------------------------------------|
+      | 2025-03-17 11:24:30.240  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Clicking on an unhighlighted date              |
+      | 2025-03-17 11:24:32.784  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Checking if chat input is displayed            |
+      | 2025-03-17 11:24:32.818  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Typing start message: Start                    |
+      | 2025-03-17 11:24:36.887  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Clicking send chat button                      |
+      | 2025-03-17 11:24:38.679  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Typing journal entry: I had a good balance between work and fun today. Days like this remind me why balance is so important. |
+      | 2025-03-17 11:24:47.059  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Clicking send chat button again                |
+      | 2025-03-17 11:24:52.746  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Clicking back button to entries                |
+      | 2025-03-17 11:24:54.152  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Checking if calendar view is displayed         |
+      | 2025-03-17 11:24:54.937  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Checking if the selected date is highlighted   |
+      | 2025-03-17 11:24:55.037  | 2767-2864  | EspressoTest | com.example.cpen321project  | D         | Test A_User_click_on_unhiglighted_create_entry completed successfully   |
 
 - **Use Case: User Click on Highlighted Edit Entry**
 

@@ -1,16 +1,13 @@
 package com.example.cpen321project
 
-import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.DrawableRes
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.BoundedMatcher
@@ -24,7 +21,6 @@ import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
-import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
@@ -115,7 +111,7 @@ class UnpaidUserJournalTest {
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
-                    hasDescendant(withText("12")), click()
+                    hasDescendant(withText("1")), click()
                 )
             )
 
@@ -149,7 +145,7 @@ class UnpaidUserJournalTest {
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("12"),
+                            withText("1"),
                             withBackground(R.drawable.circle_background)
                         )
                     )
