@@ -8,6 +8,7 @@ const https = require("https");
 const app = express();
 app.use(express.json());
 app.use(cors());
+process.env.NODE_ENV = 'test';
 const isTestEnv = process.env.NODE_ENV === "test";
 
 let options = {};
