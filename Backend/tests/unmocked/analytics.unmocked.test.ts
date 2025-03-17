@@ -1,9 +1,9 @@
 import request from "supertest";
-import app from "../index"; // Adjust based on your app entry point
+import app from "../../index"; // Adjust based on your app entry point
 import { jest } from "@jest/globals";
-import { JournalController } from "../src/controllers/JournalController";
+import { JournalController } from "../../src/controllers/JournalController";
 import { MongoClient, Db, Collection, Document, BulkWriteResult } from "mongodb";
-import { client } from "../services";
+import { client } from "../../services";
 import fs from "fs"
 
 describe("Analytics API - Unmocked", () => {
@@ -330,16 +330,7 @@ describe("Analytics API - Unmocked", () => {
 
         expect(emptyPostResponse.status).toBe(200);
         expect(emptyPostResponse.body).toEqual(emptyExpectedResponse);
-    });        /**
-     * Clean up after tests:
-     * - Removes test user data from the database.
-     */
-        afterAll(async () => {
-            await client.db("cpen321journal").collection("journals").deleteMany({
-                userID: googleUserID,
-                date: { $in: ["2025-01-01", "2025-01-02", "2025-01-03", "2025-01-04", "2025-01-05"] }
-            });
-        });
+    });        
     
     /**
      * Clean up after tests:
