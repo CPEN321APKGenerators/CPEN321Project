@@ -45,7 +45,7 @@ export class AnalyticsController {
             return res.status(200).json({emotionStats, activityStats, overallScore, summary});
         } catch (error) {
             console.error("Database error:", error); 
-            return res.status(500).json({ error: "Internal Server Error" }); 
+            return res.status(500).json({ error: "Internal server error" }); 
         }
     }
     // async createOrUpddateAnalytics(req: Request, res: Response, next: NextFunction) {

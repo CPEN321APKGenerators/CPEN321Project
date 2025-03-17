@@ -19,10 +19,11 @@ describe("Analytics API - Unmocked", () => {
     }
     const testGoogleToken = process.env.TEST_GOOGLE_TOKEN || unmocked_data_json.testGoogleToken;
     const google_num_id = process.env.GOOGLE_NUM_ID || unmocked_data_json.googleNumID;
+    const googleUserID =  process.env.GOOGLE_USER_ID || unmocked_data_json.userID;
 
     const mockJournal_1 = {
         date: "2025-01-01",
-        userID: "lkevin2003@gmail.com",
+        userID: googleUserID,
         text : "This is filler for encrypted text.",
         media: [],
         stats: {
@@ -48,7 +49,7 @@ describe("Analytics API - Unmocked", () => {
 
     const mockJournal_2 = {
         date: "2025-01-02",
-        userID: "lkevin2003@gmail.com",
+        userID: googleUserID,
         text : "This is filler for encrypted text.",
         media: [],
         stats: {
@@ -73,7 +74,7 @@ describe("Analytics API - Unmocked", () => {
     };
     const mockJournal_3 = {
         date: "2025-01-03",
-        userID: "lkevin2003@gmail.com",
+        userID: googleUserID,
         text : "This is filler for encrypted text.",
         media: [],
         stats: {
@@ -98,7 +99,7 @@ describe("Analytics API - Unmocked", () => {
     };
     const mockJournal_4 = {
         date: "2025-01-04",
-        userID: "lkevin2003@gmail.com",
+        userID: googleUserID,
         text : "This is filler for encrypted text.",
         media: [],
         stats: {
@@ -123,7 +124,7 @@ describe("Analytics API - Unmocked", () => {
     };
     const mockJournal_5 = {
         date: "2025-01-05",
-        userID: "lkevin2003@gmail.com",
+        userID: googleUserID,
         text : "This is filler for encrypted text.",
         media: [],
         stats: {
@@ -156,7 +157,7 @@ describe("Analytics API - Unmocked", () => {
     beforeAll(async () => {
     
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "lkevin2003@gmail.com" }, // Find existing user
+            { userID: googleUserID }, // Find existing user
             {
                 $set: {
                     activities_tracking: [
@@ -171,7 +172,7 @@ describe("Analytics API - Unmocked", () => {
             { upsert: true } // Insert if not found
         );
         await client.db("cpen321journal").collection("journals").updateOne(
-            { userID: "lkevin2003@gmail.com", date: "2025-01-01" }, 
+            { userID: googleUserID, date: "2025-01-01" }, 
             {
                 $set: {
                     media: mockJournal_1.media,
@@ -184,7 +185,7 @@ describe("Analytics API - Unmocked", () => {
             { upsert: true } // Insert if not found
         );
         await client.db("cpen321journal").collection("journals").updateOne(
-            { userID: "lkevin2003@gmail.com", date: "2025-01-02" }, 
+            { userID: googleUserID, date: "2025-01-02" }, 
             {
                 $set: {
                     media: mockJournal_2.media,
@@ -197,7 +198,7 @@ describe("Analytics API - Unmocked", () => {
             { upsert: true } // Insert if not found
         );
         await client.db("cpen321journal").collection("journals").updateOne(
-            { userID: "lkevin2003@gmail.com", date: "2025-01-03" }, 
+            { userID: googleUserID, date: "2025-01-03" }, 
             {
                 $set: {
                     media: mockJournal_3.media,
@@ -210,7 +211,7 @@ describe("Analytics API - Unmocked", () => {
             { upsert: true } // Insert if not found
         );
         await client.db("cpen321journal").collection("journals").updateOne(
-            { userID: "lkevin2003@gmail.com", date: "2025-01-04" }, 
+            { userID: googleUserID, date: "2025-01-04" }, 
             {
                 $set: {
                     media: mockJournal_4.media,
@@ -223,7 +224,7 @@ describe("Analytics API - Unmocked", () => {
             { upsert: true } // Insert if not found
         );
         await client.db("cpen321journal").collection("journals").updateOne(
-            { userID: "lkevin2003@gmail.com", date: "2025-01-05" }, 
+            { userID: googleUserID, date: "2025-01-05" }, 
             {
                 $set: {
                     media: mockJournal_5.media,
@@ -239,8 +240,7 @@ describe("Analytics API - Unmocked", () => {
         // Wait a bit to make sure MongoDB processes the insert
         await new Promise(resolve => setTimeout(resolve, 500));
     });
-    
-
+ 
     /**
      * Test Case: Retrieve analytics for a week
      * 
@@ -293,7 +293,7 @@ describe("Analytics API - Unmocked", () => {
 
         const postResponse = await request(app)
             .get("/api/analytics")
-            .query({ userID: "lkevin2003@gmail.com", date: "2025-01-07" });
+            .query({ userID: googleUserID, date: "2025-01-07" });
 
         expect(postResponse.status).toBe(200);
         expect(postResponse.body).toEqual(expectedResponse);
@@ -302,7 +302,7 @@ describe("Analytics API - Unmocked", () => {
     it("should retrieve empty stats and summary when activities are empty", async () => {
         // Replace activities with an empty array and run the same test
         await client.db("cpen321journal").collection("users").updateOne(
-            { userID: "lkevin2003@gmail.com" },
+            { userID: googleUserID },
             { $set: { activities_tracking: [] } }
         );
 
@@ -326,11 +326,32 @@ describe("Analytics API - Unmocked", () => {
 
         const emptyPostResponse = await request(app)
             .get("/api/analytics")
-            .query({ userID: "lkevin2003@gmail.com", date: "2025-01-07" });
+            .query({ userID: googleUserID, date: "2025-01-07" });
 
         expect(emptyPostResponse.status).toBe(200);
         expect(emptyPostResponse.body).toEqual(emptyExpectedResponse);
-    });
+    });        /**
+     * Clean up after tests:
+     * - Removes test user data from the database.
+     */
+        afterAll(async () => {
+            await client.db("cpen321journal").collection("journals").deleteMany({
+                userID: googleUserID,
+                date: { $in: ["2025-01-01", "2025-01-02", "2025-01-03", "2025-01-04", "2025-01-05"] }
+            });
+        });
+    
+    /**
+     * Clean up after tests:
+     * - Removes test user data from the database.
+     */
+        afterAll(async () => {
+            await client.db("cpen321journal").collection("journals").deleteMany({
+                userID: googleUserID,
+                date: { $in: ["2025-01-01", "2025-01-02", "2025-01-03", "2025-01-04", "2025-01-05"] }
+            });
+        });
+    
 
 });
 
