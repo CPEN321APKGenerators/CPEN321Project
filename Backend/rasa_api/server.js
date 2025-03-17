@@ -9,9 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Set the server options, skipping the check for test environment
+
 let options = {};
-let useHTTPS = true;
+let useHTTPS = false;
 
 try {
     options = {
