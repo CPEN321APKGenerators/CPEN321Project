@@ -20,10 +20,6 @@ export class AnalyticsController {
             return res.status(400).json({ error: "Invalid date format" });
         }
 
-        if (typeof userID !== 'string') {
-            return res.status(400).json({ error: "Invalid userID" });
-        }
-
         try {
             const user = await client.db("cpen321journal").collection("users").findOne({ userID });
             if (!user) {
@@ -36,7 +32,7 @@ export class AnalyticsController {
             let summary :{activity: string, emotion: string, display: string}[];
             const emotionStatsCopy = JSON.parse(JSON.stringify(emotionStats));
             const activityStatsCopy = JSON.parse(JSON.stringify(activityStats));
-            if(activities){
+            if(activities.length !== 0){
                 summary = getWeekSummary(dates, activities, emotionStatsCopy, activityStatsCopy);
             }
             else{
@@ -44,7 +40,6 @@ export class AnalyticsController {
             }
             return res.status(200).json({emotionStats, activityStats, overallScore, summary});
         } catch (error) {
-            console.error("Database error:", error); 
             return res.status(500).json({ error: "Internal server error" }); 
         }
     }

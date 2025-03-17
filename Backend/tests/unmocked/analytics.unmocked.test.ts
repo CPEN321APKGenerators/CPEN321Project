@@ -29,10 +29,10 @@ describe("Analytics API - Unmocked", () => {
         media: [],
         stats: {
             activities: {
-                Running: 0.5
+                Running: 2.1
             },
             emotions:{
-                Joy: 0.5,
+                Joy: 0.8,
                 Sadness: 0.5,
                 Anger: 0.5,
                 Fear: 0.5,
@@ -55,10 +55,10 @@ describe("Analytics API - Unmocked", () => {
         media: [],
         stats: {
             activities: {
-                Running: 1
+                Running: 0
             },
             emotions:{
-                Joy: 0.8,
+                Joy: 0.4,
                 Sadness: 0.4,
                 Anger: 0.5,
                 Fear: 0.5,
@@ -80,10 +80,10 @@ describe("Analytics API - Unmocked", () => {
         media: [],
         stats: {
             activities: {
-                Running: 0.0
+                Running: 2.1
             },
             emotions:{
-                Joy: 0.4,
+                Joy: 0.7,
                 Sadness: 0.6,
                 Anger: 0.6,
                 Fear: 0.5,
@@ -92,7 +92,7 @@ describe("Analytics API - Unmocked", () => {
                 Resilience: 0.5,
                 SelfAcceptance: 0.5,
                 Stress: 0.3,
-                SenseOfPurpose: 0.7
+                SenseOfPurpose: 0.9
             },
             overallScore: 65
         },
@@ -105,10 +105,10 @@ describe("Analytics API - Unmocked", () => {
         media: [],
         stats: {
             activities: {
-                Running: 2
+                Running: 4.2
             },
             emotions:{
-                Joy: 0.75,
+                Joy: 0.9,
                 Sadness: 0.4,
                 Anger: 0.3,
                 Fear: 0.5,
@@ -116,7 +116,7 @@ describe("Analytics API - Unmocked", () => {
                 Neutral: 0.5,
                 Resilience: 0.5,
                 SelfAcceptance: 0.5,
-                Stress: 0.3,
+                Stress: 0.1,
                 SenseOfPurpose: 0.7
             },
             overallScore: 80
@@ -130,7 +130,7 @@ describe("Analytics API - Unmocked", () => {
         media: [],
         stats: {
             activities: {
-                Running: 2.5
+                Running: 0
             },
             emotions:{
                 Joy: 0.8,
@@ -139,7 +139,7 @@ describe("Analytics API - Unmocked", () => {
                 Fear: 0.5,
                 Gratitude: 0.5,
                 Neutral: 0.5,
-                Resilience: 0.5,
+                Resilience: 0.1,
                 SelfAcceptance: 0.5,
                 Stress: 0.3,
                 SenseOfPurpose: 0.7
@@ -256,41 +256,170 @@ describe("Analytics API - Unmocked", () => {
      *   - Response status codes: **200** for `GET`.
      */
     it("should retrieve stats for past week of date and also trends", async () => {
-        const expectedResponse = {
+        const expectedResponse =             {
             emotionStats: {
-                Joy: [0.5, 0.8, 0.4, 0.75, 0.8, 0.8, 0.8],
-                Sadness: [0.5, 0.4, 0.6, 0.4, 0.3, 0.3, 0.3],
-                Anger: [0.5, 0.5, 0.6, 0.3, 0.2, 0.2, 0.2],
-                Fear: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Gratitude: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Neutral: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Resilience: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                SelfAcceptance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Stress: [0.5, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3],
-                SenseOfPurpose: [0.5, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
+              Joy: [
+                0.8, 0.4, 0.7,
+                0.9, 0.8, 0.8,
+                0.8
+              ],
+              Sadness: [
+                0.5, 0.4, 0.6,
+                0.4, 0.3, 0.3,
+                0.3
+              ],
+              Anger: [
+                0.5, 0.5, 0.6,
+                0.3, 0.2, 0.2,
+                0.2
+              ],
+              Fear: [
+                0.5, 0.5, 0.5,
+                0.5, 0.5, 0.5,
+                0.5
+              ],
+              Gratitude: [
+                0.5, 0.5, 0.5,
+                0.5, 0.5, 0.5,
+                0.5
+              ],
+              Neutral: [
+                0.5, 0.5, 0.5,
+                0.5, 0.5, 0.5,
+                0.5
+              ],
+              Resilience: [
+                0.5, 0.5, 0.5,
+                0.5, 0.1, 0.1,
+                0.1
+              ],
+              SelfAcceptance: [
+                0.5, 0.5, 0.5,
+                0.5, 0.5, 0.5,
+                0.5
+              ],
+              Stress: [
+                0.5, 0.3, 0.3,
+                0.1, 0.3, 0.3,
+                0.3
+              ],
+              SenseOfPurpose: [
+                0.5, 0.7, 0.9,
+                0.7, 0.7, 0.7,
+                0.7
+              ]
             },
             activityStats: {
-                Running: [0.5, 1, 0, 2, 2.5, null, null]
+              Running: [
+                2.1,  0, 2.1,
+                4.2,  0, null,
+                null
+              ]
             },
             overallScore: 75,
             summary: [
-                {
-                    activity: 'Running',
-                    emotion: 'Joy',
-                    display: 'Joy tends to rise while Running falls after with an average delay of 2 day(s) with 1 notable occurence(s).'
-                },
-                {
-                    activity: 'Running',
-                    emotion: 'Sadness',
-                    display: 'Sadness tends to fall while Running falls after with an average delay of 2 day(s) with 1 notable occurence(s).'
-                },
-                {
-                    activity: 'Running',
-                    emotion: 'Anger',
-                    display: 'Anger tends to fall while Running falls after with an average delay of 2 day(s) with 1 notable occurence(s).'
-                }
+              {
+                activity: 'Running',
+                emotion: 'Joy',
+                display: 'Running rises while Joy rises at around the same time with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Joy',
+                display: 'Running falls while Joy falls at around the same time with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Joy',
+                display: 'Joy tends to fall while Running rises after with an average delay of 1 day(s) with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Joy',
+                display: 'Running falls while Joy rises at around the same time with 2 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Sadness',
+                display: 'Running rises while Sadness rises at around the same time with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Sadness',
+                display: 'Running falls while Sadness falls at around the same time with 2 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Sadness',
+                display: 'Running tends to rise while Sadness falls after with an average delay of 1 day(s) with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Sadness',
+                display: 'Running falls while Sadness rises at around the same time with 2 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Anger',
+                display: 'Running falls while Anger falls at around the same time with 2 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Anger',
+                display: 'Running tends to rise while Anger falls after with an average delay of 1 day(s) with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Resilience',
+                display: 'Running falls while Resilience falls at around the same time with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Resilience',
+                display: 'Running tends to rise while Resilience falls after with an average delay of 2 day(s) with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Stress',
+                display: 'Running tends to rise while Stress rises after with an average delay of 2 day(s) with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Stress',
+                display: 'Running falls while Stress falls at around the same time with 3 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Stress',
+                display: 'Running rises while Stress falls at around the same time with 2 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'Stress',
+                display: 'Running falls while Stress rises at around the same time with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'SenseOfPurpose',
+                display: 'SenseOfPurpose tends to rise while Running rises after with an average delay of 1 day(s) with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'SenseOfPurpose',
+                display: 'Running falls while SenseOfPurpose falls at around the same time with 2 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'SenseOfPurpose',
+                display: 'Running tends to rise while SenseOfPurpose falls after with an average delay of 1 day(s) with 1 notable occurence(s).'
+              },
+              {
+                activity: 'Running',
+                emotion: 'SenseOfPurpose',
+                display: 'SenseOfPurpose tends to rise while Running falls after with an average delay of 1 day(s) with 2 notable occurence(s).'
+              }
             ]
-        };
+          };
 
         const postResponse = await request(app)
             .get("/api/analytics")
@@ -303,24 +432,54 @@ describe("Analytics API - Unmocked", () => {
 
     it("should retrieve empty stats and summary when activities are empty", async () => {
         // Replace activities with an empty array and run the same test
+
+
+        const emptyExpectedResponse = {
+            emotionStats: {
+                Joy: [null, null, null, null, null, null, null],
+                Sadness: [null, null, null, null, null, null, null],
+                Anger: [null, null, null, null, null, null, null],
+                Fear: [null, null, null, null, null, null, null],
+                Gratitude: [null, null, null, null, null, null, null],
+                Neutral: [null, null, null, null, null, null, null],
+                Resilience: [null, null, null, null, null, null, null],
+                SelfAcceptance: [null, null, null, null, null, null, null],
+                Stress: [null, null, null, null, null, null, null],
+                SenseOfPurpose: [null, null, null, null, null, null, null]
+            },
+            activityStats: {Running: [null, null, null, null, null, null, null]},
+            overallScore: null,
+            summary: []
+        };
+
+        const emptyPostResponse = await request(app)
+            .get("/api/analytics")
+            .query({ userID: googleUserID, date: "2024-12-31" });
+
+        expect(emptyPostResponse.status).toBe(200);
+        expect(emptyPostResponse.body).toEqual(emptyExpectedResponse);
+    });      
+
+    it("should retrieve empty stats and summary when activities are empty", async () => {
+        // Replace activities with an empty array and run the same test
         await client.db("cpen321journal").collection("users").updateOne(
             { userID: googleUserID },
-            { $set: { activities_tracking: [] } }
+            { $set: { activities_tracking: null } }
         );
 
         const emptyExpectedResponse = {
             emotionStats: {
-                Joy: [0.5, 0.8, 0.4, 0.75, 0.8, 0.8, 0.8],
-                Sadness: [0.5, 0.4, 0.6, 0.4, 0.3, 0.3, 0.3],
-                Anger: [0.5, 0.5, 0.6, 0.3, 0.2, 0.2, 0.2],
-                Fear: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Gratitude: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Neutral: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Resilience: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                SelfAcceptance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-                Stress: [0.5, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3],
-                SenseOfPurpose: [0.5, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
-            },
+                Joy: [ 0.8, 0.4, 0.7, 0.9, 0.8, 0.8, 0.8],
+                Sadness: [ 0.5, 0.4, 0.6, 0.4, 0.3, 0.3, 0.3],
+                Anger: [ 0.5, 0.5, 0.6, 0.3, 0.2, 0.2, 0.2],
+                Fear: [ 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+                Gratitude: [ 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+                Neutral: [ 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+                Resilience: [ 0.5, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1],
+                SelfAcceptance: [ 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+                Stress: [ 0.5, 0.3, 0.3, 0.1, 0.3, 0.3, 0.3],
+                SenseOfPurpose: [ 0.5, 0.7, 0.9, 0.7, 0.7, 0.7, 0.7]
+              },
             activityStats: {},
             overallScore: 75,
             summary: []
@@ -333,6 +492,7 @@ describe("Analytics API - Unmocked", () => {
         expect(emptyPostResponse.status).toBe(200);
         expect(emptyPostResponse.body).toEqual(emptyExpectedResponse);
     });        
+ 
     
     /**
      * Clean up after tests:
