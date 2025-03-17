@@ -3,8 +3,9 @@ const { app, server } = require("../server");
 const request = require("supertest");
 
 jest.mock("axios", () => ({
-    post: jest.fn()
-  }));
+    post: jest.fn(),
+    get: jest.fn()  
+}));
 
 beforeAll(() => {
     jest.spyOn(console, "error").mockImplementation(() => {});  
