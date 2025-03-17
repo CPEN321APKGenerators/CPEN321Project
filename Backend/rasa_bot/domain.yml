@@ -5,11 +5,17 @@ intents:
   - goodbye
   - affirm
   - deny
-  - inform
-  - thankyou
-  - out_of_scope
-  - start
   - journal_provided
+  - start
+
+entities: []
+
+slots:
+
+  message:
+    type: text
+    mappings:
+      - type: from_text  
 
 entities:
   - date
@@ -35,6 +41,7 @@ responses:
   utter_out_of_scope:
     - text: "This feature isn't available as of now, thank you."
 
+<<<<<<< HEAD
 slots:
   date:
     type: text
@@ -60,10 +67,11 @@ slots:
       - type: from_entity
         entity: message
       - type: from_text
+=======
+actions:
+  - action_save_message
+>>>>>>> nyi-rasa
 
 session_config:
   session_expiration_time: 60
-  carry_over_slots_to_new_session: false
-
-actions:
-  - action_save_message
+  carry_over_slots_to_new_session: true

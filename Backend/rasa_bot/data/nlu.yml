@@ -40,11 +40,19 @@ nlu:
     
 - intent: journal_provided
   examples: |
+<<<<<<< HEAD
     - My journal entry is [Today was great](message)
     - I want to write [Today Was Good](message)
     - Log journal for [2025-03-04](date)
     - My ID is [amodghimera2345@gmail.com](userID)
     - Here is my token: [eyJhbGciOiJSUzI1Ni...](google_token)
+=======
+    - [Today was great](message)
+    - [Had a rough day, but I managed](message)
+    - [Feeling happy and motivated](message)
+    - [It was a long but productive day](message)
+    - [I am not doing good](message)
+>>>>>>> nyi-rasa
 
 - intent: inform
   examples: |
@@ -67,3 +75,15 @@ nlu:
     - start 
     - journal
   
+
+- regex: date
+  examples: |
+    - \d{4}-\d{2}-\d{2}
+
+- regex: userID
+  examples: |
+    - [a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+
+
+- regex: google_token
+  examples: |
+    - [a-zA-Z0-9-_]+\.([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9-_]+

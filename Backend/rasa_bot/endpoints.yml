@@ -1,2 +1,4 @@
 action_endpoint:
-  url: "http://ec2-54-234-28-190.compute-1.amazonaws.com:505/webhook"
+  url: "http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook"
+
+

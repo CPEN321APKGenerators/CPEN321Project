@@ -16,6 +16,7 @@ rules:
 - rule: Process journal entry
   steps:
   - intent: journal_provided
+<<<<<<< HEAD
   - slot_was_set:
       - date
       - userID
@@ -23,6 +24,10 @@ rules:
       - message
   - action: action_save_message 
   - action: utter_journal_confirmation 
+=======
+  - action: action_save_message
+  - action: utter_journal_confirmation
+>>>>>>> nyi-rasa
   - action: utter_journal_follow_up
   
 - rule: Say goodbye

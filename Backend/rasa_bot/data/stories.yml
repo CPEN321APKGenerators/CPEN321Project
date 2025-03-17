@@ -10,11 +10,14 @@ stories:
   - intent: start
   - action: utter_journaling_prompt
   - intent: journal_provided
+<<<<<<< HEAD
   - slot_was_set:
       - date
       - userID
       - google_token
       - message
+=======
+>>>>>>> nyi-rasa
   - action: action_save_message
   - action: utter_journal_confirmation
   - action: utter_journal_follow_up

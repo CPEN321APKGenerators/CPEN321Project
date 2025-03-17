@@ -1,7 +1,5 @@
 version: "3.1"
-
 recipe: default.v1
-
 language: en
 
 pipeline:
@@ -10,15 +8,26 @@ pipeline:
 - name: CountVectorsFeaturizer
 - name: LexicalSyntacticFeaturizer
 - name: RegexEntityExtractor
+<<<<<<< HEAD
   use_lookup_tables: True
   use_regexes: True
 
+=======
+  use_lookup_tables: true
+  use_regexes: true
+  use_word_boundaries: false
+  case_sensitive: false
+  match_word_boundaries: false
+>>>>>>> nyi-rasa
 - name: DIETClassifier
   epochs: 100
+  entity_recognition: true
+  constrain_similarities: true
 - name: EntitySynonymMapper
 - name: ResponseSelector
   epochs: 100
 - name: FallbackClassifier
+<<<<<<< HEAD
   threshold: 0.6  
   ambiguity_threshold: 0.2  
 policies:
@@ -29,3 +38,8 @@ policies:
   epochs: 100
 
 assistant_id: 20250221-133337-careful-swing
+=======
+  threshold: 0.6
+  ambiguity_threshold: 0.2
+assistant_id: 20250310-154626-absolute-chow
+>>>>>>> nyi-rasa
