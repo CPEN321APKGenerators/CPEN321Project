@@ -1,28 +1,26 @@
-const axios = require("axios");
-const { app, server } = require("../server");
 const request = require("supertest");
+const { app, server } = require("../server");
+const axios = require("axios");
+
 jest.mock("axios");
-jest.mock('cors', () => jest.fn());
 
 // Suppress logs in tests
 beforeAll(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
-    jest.spyOn(console, "warn").mockImplementation(() => {});
-
-    axios.post.mockResolvedValueOnce = jest.fn();
+    jest.spyOn(console, "error").mockImplementation(() => {}); 
+    jest.spyOn(console, "warn").mockImplementation(() => {});  
 });
 
 afterAll((done) => {
     server.close(done); 
 });
 
-// Mocked Tests
+//Mocked Tests
 describe("API Tests for RASA Bot", () => {
     test("POST /api/chat - Valid request", async () => {
         const mockResponse = { responses: [{ text: "Please type start to begin journaling." }] };
         axios.post.mockResolvedValueOnce({ data: mockResponse });
 
-        const res = await request(server)
+        const res = await request(server) 
             .post("/api/chat")
             .send({ message: "Hi", sender: "testUser" });
 
@@ -83,3 +81,28 @@ describe("API Tests for RASA Bot", () => {
         expect(res.body).toEqual({ status: "Node.js API is running" });
     });
 });
+
+/* // **Unmocked Tests
+describe("Unmocked API Tests for RASA Bot", () => {
+    test("POST /api/chat - Real request to RASA", async () => {
+        await new Promise((resolve) => setTimeout(resolve, 3000)); 
+    
+        const res = await request(server)
+            .post("/api/chat")
+            .set("Content-Type", "application/json")
+            .send({ message: "Hello", sender: "user123" });
+    
+        console.log("🔍 Debug Jest API Response:", res.status, JSON.stringify(res.body, null, 2));
+    
+        expect(res.status).toBe(200);  
+        expect(res.body.responses).toBeDefined();
+    });
+
+    test("POST /api/action - Real request to RASA Action Server", async () => {
+        const res = await request(server)
+            .post("/api/action")
+            .send({ sender: "realUser", tracker: {}, domain: {} });
+
+        expect(res.status).toBe(200);
+    });
+}); */
