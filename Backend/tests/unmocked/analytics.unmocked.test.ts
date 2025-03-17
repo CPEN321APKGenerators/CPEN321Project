@@ -8,9 +8,10 @@ import fs from "fs"
 
 describe("Analytics API - Unmocked", () => {
     let unmocked_data_json: any = {}; // Default empty object
+    const dataFilePath = `${__dirname}/../unmocked_data.json`;
     try {
-        if (fs.existsSync("./tests/unmocked_data.json")) {
-            unmocked_data_json = require("./unmocked_data.json");
+        if (fs.existsSync(dataFilePath)) {
+            unmocked_data_json = require(dataFilePath);
         } else {
             console.log("Warning: unmocked_data.json not found. Using only environment variables.");
         }
@@ -295,8 +296,9 @@ describe("Analytics API - Unmocked", () => {
             .get("/api/analytics")
             .query({ userID: googleUserID, date: "2025-01-07" });
 
-        expect(postResponse.status).toBe(200);
         expect(postResponse.body).toEqual(expectedResponse);
+        expect(postResponse.status).toBe(200);
+        
     });
 
     it("should retrieve empty stats and summary when activities are empty", async () => {
@@ -341,6 +343,7 @@ describe("Analytics API - Unmocked", () => {
                 userID: googleUserID,
                 date: { $in: ["2025-01-01", "2025-01-02", "2025-01-03", "2025-01-04", "2025-01-05"] }
             });
+            await client.close();
         });
     
 
