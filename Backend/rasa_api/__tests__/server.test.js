@@ -2,7 +2,11 @@ const axios = require("axios");
 const { app, server } = require("../server"); 
 const request = require("supertest");
 jest.mock("axios");
+jest.mock('cors', () => jest.fn());
 
+beforeAll(() => {
+    axios.post.mockResolvedValueOnce = jest.fn(); 
+});
 
 // Suppress logs in tests
 beforeAll(() => {
