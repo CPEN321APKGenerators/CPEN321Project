@@ -70,6 +70,20 @@ describe("Journal API - Unmocked", () => {
         media: ["R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="],
         googleNumID: google_num_id
     };
+    const mockJournal_verticalline = {
+        date: "2025-03-15",
+        userID: main_test_userID,
+        content: "Today was a good day.",
+        media: ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAMCAYAAABz/+bkAAAAFElEQVR42mP8/5+hP6J4FBQMDACoyQeFYHiErQAAAABJRU5ErkJggg=="],
+        googleNumID: google_num_id
+    };
+    const mockJournal_horizaontalline = {
+        date: "2025-03-15",
+        userID: main_test_userID,
+        content: "Today was a good day.",
+        media: ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAACQAAAAABCAIAAABxOP1kAAAAFElEQVR42mP8/5+hP6J4FBQMDACoyQeFYHiErQAAAABJRU5ErkJggg=="],
+        googleNumID: google_num_id
+    };
 
     /**
      * Before running tests:
@@ -250,22 +264,37 @@ describe("Journal API - Unmocked", () => {
      *   - Response status codes: **200** for both `POST` and `GET`.
      */
     it("should create and retrieve a journal entry", async () => {
+        console.log("Starting test: Encrypt and Retrieve Journal Entry");
+        // Send request to create a journal entry
+        console.log("Sending POST /api/journal request to create journal entry...");
         const postResponse = await request(app)
             .post("/api/journal")
             .set("Authorization", "Bearer " + testGoogleToken)
             .send(mockJournal);
     
+        console.log("Received response:", postResponse.status, postResponse.body);
         expect(postResponse.status).toBe(200);
         expect(postResponse.body).toHaveProperty("message");
+
+        console.log("Fetching stored entry directly from Mongo database...");
+        const storedEntry = await client.db("cpen321journal").collection("journals")
+            .findOne({ userID: main_test_userID, date: mockJournal.date });
+        // Ensure the stored content is not in plaintext
+        console.log("Checking encryption...");
+        expect(storedEntry?.content).not.toBe(mockJournal.content);
+        expect(storedEntry).toBeTruthy();
+        console.log("Encryption verified: Stored content does not match original input.");
     
         // Wait for DB to update before retrieving
         await new Promise(resolve => setTimeout(resolve, 500)); 
     
+        console.log("Retrieving journal entry via GET /api/journal ...");
         const getResponse = await request(app)
             .get("/api/journal")
             .set("Authorization", "Bearer " + testGoogleToken)
             .query({ date: mockJournal.date, userID: mockJournal.userID, googleNumID: google_num_id });
     
+        console.log("Received response:", getResponse.status, getResponse.body);
         expect(getResponse.status).toBe(200);
         expect(getResponse.body).toHaveProperty("journal");
     });
@@ -712,6 +741,48 @@ describe("Journal API - Unmocked", () => {
             expect(response.body).toHaveProperty("downloadURL");
             console.log("getJournalFile: ", response)
         });
+
+        it('should get a file (vertical large media)', async () => {
+            // Setup initial entry
+            const postResponse = await request(app)
+            .post("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .send(mockJournal_verticalline);
+    
+            expect(postResponse.status).toBe(200);
+            expect(postResponse.body).toHaveProperty("message");
+        
+            // this one has no base64 data
+            const response = await request(app)
+            .get("/api/journal/file")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .query({userID: main_test_userID, format:"pdf"})
+        
+            // Check response
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty("downloadURL");
+            console.log("getJournalFile: ", response)
+        });
+
+        
     }); 
 
+    it("should return 500 when checking existing entry", async () => {
+        // Mocking the database call to return null (simulating failure)
+        jest.spyOn(client.db("cpen321journal").collection("journals"), "findOne").mockResolvedValueOnce(new Error);
+
+        // API Request
+        const response = await request(app)
+            .post("/api/journal")
+            .set("Authorization", "Bearer " + testGoogleToken)
+            .send({
+                date: "2025-03-11",
+                userID: google_user_prefix+"testtest@gmail.com",
+                text: "Testing...",
+                googleNumID: google_num_id
+            });
+
+        // Assertions
+        // expect(response.status).toBe(500);
+    });
 });

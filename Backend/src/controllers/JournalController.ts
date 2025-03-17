@@ -58,6 +58,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
     averageValue: number, 
     unit: string}[] 
 ) : Promise<{ overallScore: number, emotions: { [key: string]: number }, activities: { [key: string]: number } }> {
+
     if(activitiesTracking){
         activitiesTracking.forEach((activity) => activitySet.add(activity.name));
         var activityStrings = activitiesTracking;
@@ -65,11 +66,10 @@ async function getEmbeddings(entry: string, activitiesTracking: {
     else{
         var activityStrings: { name: string; averageValue: number; unit: string; }[] = [];
     }
-
     var responseFormatCorrect = false;
     var retries = 0;
     var parsedResponse: z.infer<typeof emotionAndActivitySchema> | null = null;
-    
+
     while(!responseFormatCorrect && retries < 3) {
         try {
             const response = await axios.post(
@@ -141,8 +141,13 @@ const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecre
 
 async function getGoogleNumID(userID: string): Promise<string | null> {
     console.log("\n Checking MongoDB for userID:", `"${userID}"`, "Type:", typeof userID);
-
-    const user = await client.db("cpen321journal").collection("users").findOne({});
+    let user;
+    try{
+        user = await client.db("cpen321journal").collection("users").findOne({});
+    }
+    catch(error){
+        throw new Error(error instanceof Error ? error.message : String(error));
+    }
     console.log(" MongoDB user data:", user, "Type of stored userID:", typeof user?.userID);
 
     const query = { userID: String(userID).trim() }; // 🔹 Ensure it’s always a string
@@ -169,7 +174,6 @@ export class JournalController {
         } catch (error) {
             return res.status(500).json({ error: "Database error while retrieving user" });
         }
-        console.log("user here")
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
@@ -185,8 +189,7 @@ export class JournalController {
             console.error("Database error fetching journal entry:", error);
             return res.status(500).json({ error: "Database error while retrieving journal entry" });
         }
-        console.log("entry here")
-    
+        
         // Encrypt Text
         let encryptedText;
         if (text) {
@@ -195,8 +198,7 @@ export class JournalController {
             // Keep Existing Text if not provided
             encryptedText = existingEntry ? existingEntry.text : "";
         }
-        console.log("encrypt here")
-    
+
         // Encrypt Media
         let encryptedMedia;
         if (media) {
@@ -206,10 +208,13 @@ export class JournalController {
             encryptedMedia = existingEntry ? existingEntry.media : [];
         }
         var entryStats: { overallScore: number ; emotions: {[key: string]: number}; activities: { [key: string]: number }; } = { overallScore: 0, emotions: {}, activities: {} };
-        if(text){
-            entryStats = await getEmbeddings(text, user.activities_tracking);
+        try {
+            if (text) {
+                entryStats = await getEmbeddings(text, user.activities_tracking);
+            }
+        } catch (error) {
+            return res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
         }
-        console.log("here")
         // Update or Insert Journal Entry
         try {
             const result = await client.db("cpen321journal").collection("journals")
@@ -293,7 +298,12 @@ export class JournalController {
         }
         // New entry, send to LLM api
         else if(text && text_changed){
-            entryStats = await getEmbeddings(text, user.activities_tracking);
+            try{
+                entryStats = await getEmbeddings(text, user.activities_tracking);
+            }
+            catch(error){
+                res.status(500).json({error: error});
+            }
             const encryptedText = text ? await encryptData(text, key) : "";
             
             var result = await client.db("cpen321journal").collection("journals")
@@ -366,12 +376,15 @@ export class JournalController {
         // Generate File Based on Format
         const filename = `${uuidv4()}.${format}`;
         const filePath = path.join(__dirname, `../../public/${filename}`);
+        console.log("filename: ", filename)
+        console.log("filepath: ", filePath)
     
         if (format === 'csv') {
             // Generate CSV
             const json2csvParser = new Parser({ fields: ['date', 'text', 'media'] });
             const csv = json2csvParser.parse(journals);
             fs.writeFileSync(filePath, csv);
+            console.log("csv generated successful")
     
         } else if (format === 'pdf') {
             const pdfDoc = await PDFDocument.create();
@@ -412,10 +425,7 @@ export class JournalController {
 
                     // Embed each image
                     for (const [index, mediaItem] of entry.media.entries()) {
-                        if (!mediaItem || typeof mediaItem !== 'string') {
-                            console.error(`Invalid mediaItem: ${mediaItem}`);
-                            continue; // Skip this media item
-                        }
+                        if (!mediaItem || typeof mediaItem !== 'string') { continue; }
 
                         try {
                             let imageBuffer;
@@ -428,10 +438,7 @@ export class JournalController {
                             } else {
                                 // Extract MIME type and Base64 data
                                 const [meta, base64Data] = mediaItem.split(",");
-                                if (!base64Data) {
-                                    console.error(`Base64 data missing in mediaItem: ${mediaItem}`);
-                                    continue;
-                                }
+                                if (!base64Data) { continue; }
 
                                 imageBuffer = Buffer.from(base64Data, "base64");
 
@@ -458,14 +465,12 @@ export class JournalController {
 
                                 if (newWidth > maxWidth) {
                                     const scaleFactor = maxWidth / newWidth;
-                                    newWidth *= scaleFactor;
-                                    newHeight *= scaleFactor;
+                                    newWidth *= scaleFactor; newHeight *= scaleFactor;
                                 }
 
                                 if (newHeight > maxHeight) {
                                     const scaleFactor = maxHeight / newHeight;
-                                    newWidth *= scaleFactor;
-                                    newHeight *= scaleFactor;
+                                    newWidth *= scaleFactor; newHeight *= scaleFactor;
                                 }
 
                                 // Check if we need a new page
@@ -493,11 +498,11 @@ export class JournalController {
                     }
                 }
             } catch (error) {
-                console.error("PDF Generation Error:", error);
                 return res.status(500).json({ error: "Failed to generate PDF" });
             }
             const pdfBytes = await pdfDoc.save();
             fs.writeFileSync(filePath, pdfBytes);
+            console.log("pdf generated")
         }
         // Return Download URL
         const downloadURL = `${req.protocol}://${req.get('host')}/public/${filename}`;
