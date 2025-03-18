@@ -709,22 +709,22 @@ _(Placeholder for screenshots of Codacyâ€™s Issues page)_
 - **Code Pattern: [Insecure dependencies detection (medium severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L91`](#)
-     - **Justification:** 
+     - **Justification:** The pydantic version 1.10.9 is flagged for a regular expression denial of service vulnerability. This issue can be mitigated by upgrading to a more recent, stable version once it is available and tested for compatibility with RASA's required functionality.
   2. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L59`](#)
-     - **Justification:** 
+     - **Justification:** The dnspython version 2.3.0 has a denial of service vulnerability, upgrading to version 2.6.1 will be considered during the next dependency for a more stable and secure version.
   3. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L87`](#)
-     - **Justification:**
+     - **Justification:** The pymongo version 4.3.3 has an out-of-bounds read in the BSON module. Updating to 4.6.3 will be performed during the next dependency once it has been tested for backward compatibility with RASA's database handling functions.
   4. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L31`](#)
-     - **Justification:** 
+     - **Justification:** The keras dependency at version 2.12.0 has an arbitrary file write vulnerability via its get_file function. Unfortunately, no fix is currently available, and a fix will be implemented as soon as it is feasible.
   5. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L119`](#)
-     - **Justification:** 
+     - **Justification:** The aiohttp version 3.9.5 contains a vulnerability in handling compressed files as symlinks, updating to a more stable version will be considered during the next developnment cycle.
   6. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L5`](#)
-     - **Justification:** 
+     - **Justification:** The scikit-learn dependency at version 1.1.3 is flagged for a possible sensitive data leak. The dependency will be updated to version 1.5.0 once it has been tested for compatibility with RASA's ML operations during the next developnment cycle.
 - **Code Pattern: [Too many functions inside a class (medium severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/AnalyticsActivity.kt#L30`](#)
@@ -751,14 +751,14 @@ _(Placeholder for screenshots of Codacyâ€™s Issues page)_
 - **Code Pattern: [Insecure Dependencies Detection (high severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L59`](#)
-     - **Justification:** 
+     - **Justification:** The keras version 2.12.0 is flagged for a code injection vulnerability. This is a critical issue that needs to be addressed by updating to 2.13.1rc0. We plan to prioritize this update as part of the next major dependency update, after verifying compatibility with other parts of the application.
   2. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L134`](#)
-     - **Justification:**  
+     - **Justification:**  The tensorflow version 2.12.0 is affected by a known security vulnerability (CVE-2023-33976), upgrading to 2.13.0 will be carried out once the new version is tested for compatibility.
   3. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L125`](#)
-     - **Justification:** 
+     - **Justification:** The skops version 0.9.0 has a vulnerability due to unsafe deserialization, which could lead to remote code execution. Unfortunately, no fix is available at the moment. And a fix will be implemented as soon as it is feasible.
 - **Code Pattern: [Insecure dependencies detection (minor severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L121`](#)
-     - **Justification:** 
+     - **Justification:** The sentry-sdk version 1.14.0 is flagged for a known vulnerability (CVE-2024-40647). We plan to upgrade to version 2.8.0, which addresses this vulnerability, after verifying compatibility with other parts of the application.
