@@ -81,7 +81,14 @@ PUBLISHABLE_STRIPE_KEY=`your_stripe_account's_publishable_key
 ```
   npm test
 ```
-2. **...**
+ **Running Frontend tests**
+ 1. Set up the local.properties file to have:
+ sdk.dir='your_path_to_android_sdk'
+WEB_CLIENT_ID='google_web_client_id_for_this_project'
+OPEN_API_KEY='a_valid_open_api_key'
+GOOGLE_REAL_TOKEN='google_token_corresponds_to_your_google_email_this_needs_to_be_updated_1or2hours'
+GOOGLE_USER_ID='your_google_email_address'
+  2. Please note that for GOOGLE_REAL_TOKEN, it needs to be updated every 1 or 2 hours to ensure the tests pass.
 
 ### 2.2. GitHub Actions Configuration Location
 
@@ -178,24 +185,24 @@ For coverage of user controller, some lines (e.g. lines 15-16) it is checking Fi
 
   - **Log Output**
     | API Endpoint                                      | Time to Complete |
-|--------------------------------------------------|-----------------|
-| GET /api/profile?userID=***123%40gmail.com       | 6.887 ms        |
-| POST /api/profile                                | 85.247 ms       |
-| POST /api/profile                                | 43.847 ms       |
-| GET /api/profile/isPaid?userID=***test%40gmail.com | 2.523 ms        |
-| POST /api/profile/reminder                       | 16.441 ms       |
-| POST /api/profile/fcmtoken                       | 1.100 ms        |
-| GET /api/analytics?userID=***&date=2025-01-07    | 20.473 ms       |
-| GET /api/analytics?userID=***&date=2024-12-31    | 7.368 ms        |
-| GET /api/analytics?userID=***&date=2025-01-07    | 6.948 ms        |
-| POST /api/journal                                | 108.077 ms      |
-| GET /api/journal?date=2025-03-11&userID=undefined%40gmail.com&googleNumID=*** | 90.280 ms |
-| POST /api/payment-sheet                          | 1.075 ms        |
-| POST /api/journal                                | 73.551 ms       |
-| GET /name                                        | 0.393 ms        |
-| GET /                                            | 0.227 ms        |
-| POST /webhook                                    | 0.910 ms        |
-| POST /webhook                                    | 0.220 ms        |
+    |--------------------------------------------------|-----------------|
+    | GET /api/profile?userID=***123%40gmail.com       | 6.887 ms        |
+    | POST /api/profile                                | 85.247 ms       |
+    | POST /api/profile                                | 43.847 ms       |
+    | GET /api/profile/isPaid?userID=***test%40gmail.com | 2.523 ms        |
+    | POST /api/profile/reminder                       | 16.441 ms       |
+    | POST /api/profile/fcmtoken                       | 1.100 ms        |
+    | GET /api/analytics?userID=***&date=2025-01-07    | 20.473 ms       |
+    | GET /api/analytics?userID=***&date=2024-12-31    | 7.368 ms        |
+    | GET /api/analytics?userID=***&date=2025-01-07    | 6.948 ms        |
+    | POST /api/journal                                | 108.077 ms      |
+    | GET /api/journal?date=2025-03-11&userID=undefined%40gmail.com&googleNumID=*** | 90.280 ms |
+    | POST /api/payment-sheet                          | 1.075 ms        |
+    | POST /api/journal                                | 73.551 ms       |
+    | GET /name                                        | 0.393 ms        |
+    | GET /                                            | 0.227 ms        |
+    | POST /webhook                                    | 0.910 ms        |
+    | POST /webhook                                    | 0.220 ms        |
 
 - **Usability (Frontend)**
 
