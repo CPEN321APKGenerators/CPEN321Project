@@ -102,34 +102,9 @@ class AnalyticsActivity : AppCompatActivity() {
                 summaryList.add("$activity - $emotion: $displayText")
             }
 
-            // Convert emotionStats JSON into a usable format
-            val newEmotionsData = mutableMapOf<String, List<Float>>()
-            val keys = emotionStats.keys()
-            while (keys.hasNext()) {
-                val key = keys.next()
-                val valuesArray = emotionStats.getJSONArray(key)
-                val valuesList = mutableListOf<Float>()
-                for (i in 0 until valuesArray.length()) {
-                    val value = valuesArray.optDouble(i, 0.0)
-                    valuesList.add(value.toFloat())
-                }
-                newEmotionsData[key] = valuesList
-            }
-            emotionsData = newEmotionsData
+            emotionsData = savedatatokey(emotionStats)
 
-            val newActivityData = mutableMapOf<String, List<Float>>()
-            val activityKeys = activityStats.keys()
-            while (activityKeys.hasNext()) {
-                val key = activityKeys.next()
-                val valuesArray = activityStats.getJSONArray(key)
-                val valuesList = mutableListOf<Float>()
-                for (i in 0 until valuesArray.length()) {
-                    val value = valuesArray.optDouble(i, 0.0)
-                    valuesList.add(value.toFloat())
-                }
-                newActivityData[key] = valuesList
-            }
-            activitiesData = newActivityData
+            activitiesData = savedatatokey(activityStats)
 
             runOnUiThread {
                 updateOverallScore(overallScore)
@@ -150,6 +125,22 @@ class AnalyticsActivity : AppCompatActivity() {
         } catch (e: JSONException) {
             Log.e("Analytics Fetch", "Error parsing JSON response", e)
         }
+    }
+
+    private fun savedatatokey(stats: JSONObject): MutableMap<String, List<Float>> {
+        val data = mutableMapOf<String, List<Float>>()
+        val keys = stats.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            val valuesArray = stats.getJSONArray(key)
+            val valuesList = mutableListOf<Float>()
+            for (i in 0 until valuesArray.length()) {
+                val value = valuesArray.optDouble(i, 0.0)
+                valuesList.add(value.toFloat())
+            }
+            data[key] = valuesList
+        }
+        return data
     }
 
     private fun setupChart(activitiesChart: LineChart) {

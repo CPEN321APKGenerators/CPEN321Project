@@ -18,8 +18,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -40,9 +38,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var monthYearText: TextView
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
-    private lateinit var analytics_button: Button
-    private lateinit var export_button: Button
-    private val activityScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
         private const val TAG = "MainActivity"
@@ -85,10 +80,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             }
         }
 
-        var googleUserIdd = intent.getStringExtra("GoogleUserID") ?: getSharedPreferences(
-            "AppPreferences",
-            MODE_PRIVATE
-        ).getString("GoogleUserID", null)
         Log.d("MainActivity", "Google User ID: $googleUserId")
 
         loadJournalEntries()
@@ -127,18 +118,15 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             logOut()
         }
 
-        analytics_button = findViewById(R.id.analytics_button)
-
-        analytics_button.setOnClickListener() {
+        findViewById<Button>(R.id.analytics_button).setOnClickListener() {
             val intent = Intent(this, AnalyticsActivity::class.java)
             intent.putExtra("THE_DATE", selectedDate.toString())
-            intent.putExtra("USER_ID", googleUserIdd)
+            intent.putExtra("USER_ID", googleUserId)
             startActivity(intent)
         }
 
-        export_button = findViewById(R.id.export_button)
-        export_button.setOnClickListener() {
-            showFormatSelectionDialog(googleUserIdd, googleidToken)
+        findViewById<Button>(R.id.export_button).setOnClickListener() {
+            showFormatSelectionDialog(googleUserId, googleidToken)
         }
     }
 
