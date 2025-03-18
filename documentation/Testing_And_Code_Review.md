@@ -36,7 +36,7 @@
 
 #### 2.1.2. Commit Hash Where Tests Run
 
-`[Insert Commit SHA here]`
+`817c3b065c370b7653fa77277b72d14bb666e6c8`
 
 #### 2.1.3. Explanation on How to Run the Tests
 
@@ -47,6 +47,7 @@
    git clone https://github.com/example/your-project.git
    ```
 3. Set up environment variables by
+
 ```
    export MONGODB_URI=`mongodb://mongo:27017`
    export STRIPE_SECRET=`your_stripe_accuont's_secret_key`
@@ -57,6 +58,7 @@
 ```
 
 or create a new file called `.env` inside `/Backend` folder, put these variables in .env like this:
+
 ```
 DB_URI=mongodb://localhost:27017
 PORT=3001
@@ -66,6 +68,7 @@ GOOGLE_USER_PREFIX=XXX
 GOOGLE_USER_ID=XXX@gmail.com
 PUBLISHABLE_STRIPE_KEY=`your_stripe_account's_publishable_key
 ```
+
 3. Set up variables for testing by creating a file called `unmocked_data.json` inside `/Backend/tests` folder. Put these information in it like this:
 
 ```
@@ -76,31 +79,38 @@ PUBLISHABLE_STRIPE_KEY=`your_stripe_account's_publishable_key
   "googleUserPrefix": "XXX",
 }
 ```
+
 4. Change you working directory to `/Backend`. Run the command:
 
 ```
   npm test
 ```
- **Running Frontend tests**
- 1. Set up the local.properties file to have:
- sdk.dir='your_path_to_android_sdk'
+
+**Running Frontend tests**
+
+1. Set up the local.properties file to have:
+
+```
+sdk.dir='your_path_to_android_sdk'
 WEB_CLIENT_ID='google_web_client_id_for_this_project'
 OPEN_API_KEY='a_valid_open_api_key'
 GOOGLE_REAL_TOKEN='google_token_corresponds_to_your_google_email_this_needs_to_be_updated_1or2hours'
 GOOGLE_USER_ID='your_google_email_address'
-  2. Please note that for GOOGLE_REAL_TOKEN, it needs to be updated every 1 or 2 hours to ensure the tests pass.
+```
 
+2. Please note that for GOOGLE_REAL_TOKEN, it needs to be updated every 1 or 2 hours to ensure the tests pass.
 
- **Running Rasa tests**
- 1. Set ensure your .env file has the following variables set:
-RASA_SERVER_URL=http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook
-ACTION_SERVER_URL=http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook
-PORT=3001
-RASA_SERVER_URL: URL to your RASA server’s webhook endpoint.
-ACTION_SERVER_URL: URL to your RASA action server’s webhook endpoint.
-PORT: The port on which your server will run locally for testing.
-Run the tests by executing the following command:
-npm test
+**Running Rasa tests**
+
+1. Set ensure your .env file has the following variables set:
+   RASA_SERVER_URL=http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook
+   ACTION_SERVER_URL=http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook
+   PORT=3001
+   RASA_SERVER_URL: URL to your RASA server’s webhook endpoint.
+   ACTION_SERVER_URL: URL to your RASA action server’s webhook endpoint.
+   PORT: The port on which your server will run locally for testing.
+   Run the tests by executing the following command:
+   npm test
 
 ### 2.2. GitHub Actions Configuration Location
 
@@ -118,6 +128,7 @@ For analysisFunctions, the two uncovered lines are checks within the data struct
 For coverage of user controller, some lines (e.g. lines 15-16) it is checking Firebase initialization file. They depend on environment variables and file-based configurations. Testing this would require modifying environment variables dynamically, which is not standard for unit tests. Some lines accounts for specific time zone conversions that only acts as a safeguard against unexpected user inputs. Some lines like User not found error or checking input type are already checked by express-validator and middleware before the controller logic runs. Since the middleware handles these errors, they do not need to be tested within the controller functions. And the rest are checks for db to see if the db got values.
 
 The mocked test cases for the RASA portion focus on validating API behavior by simulating interactions with the RASA server and action server. These tests cover scenarios such as valid requests to the /api/chat endpoint, handling missing parameters (e.g., missing message or sender), and simulating server errors (e.g., when the RASA API or action server is down). Additionally, the tests check the /api/action endpoint for missing parameters or errors and validate the /api/health endpoint for server status. However, some uncovered lines arise from conditions that can't be fully tested in a mocked environment, such as actual server requests and certain error scenarios like expect(res.status).toBe(500) for server failures, which would require real interactions with the RASA server to trigger these errors and fully cover those lines.
+
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
 ![alt text](images/Unmocked.png)
@@ -131,8 +142,8 @@ The mocked test cases for the RASA portion focus on validating API behavior by s
 
 | **Non-Functional Requirement**  | **Location in Git**                                                                              |
 | --------------------------------- | -------------------------------------------------------------------------------------------------- |
-| **Performance (Response Time)** | [`/Backend/tests/*`](#) (All tests for api endpoints)                                                 |
-| **Encryption of Entries**       | [`/Backend/tests/unmocked/journal.unmocked.test.ts#L266`](#)                                                 |
+| **Performance (Response Time)** | [`/Backend/tests/*`](#) (All tests for api endpoints)                                            |
+| **Encryption of Entries**       | [`/Backend/tests/unmocked/journal.unmocked.test.ts#L266`](#)                                     |
 | **Usability (Frontend)**        | ['Frontend/app/src/androidTest/java/com/example/cpen321project/Nonfunctional_clicks_test.kt'](#) |
 
 ### 3.2. Test Verification and Logs
@@ -195,28 +206,28 @@ The mocked test cases for the RASA portion focus on validating API behavior by s
 - **Performance (Response Time)**
 
   - **Verification:** The response time for our project is evaluated using automated test logs from all written test cases that validate API endpoints. Each test suite is executed five times, and the response time for each endpoint is averaged to obtain a reliable measurement. These tests ensure that our system meets the expected performance criteria under typical usage scenarios. The logs provide insight into the execution time of key endpoints, including journal entry management, sentiment analysis, and chatbot interactions. By leveraging real-world usage patterns captured through our test automation, we can proactively identify and address performance bottlenecks, ensuring a seamless user experience. The comprehensive logs from multiple test runs help verify that response times remain within acceptable limits, preventing delays that could impact usability.
-
   - **Log Output**
-    | API Endpoint                                      | Time to Complete |
-    |--------------------------------------------------|-----------------|
-    | GET /api/profile?userID=***123%40gmail.com       | 6.887 ms        |
-    | POST /api/profile                                | 85.247 ms       |
-    | POST /api/profile                                | 43.847 ms       |
-    | GET /api/profile/isPaid?userID=***test%40gmail.com | 2.523 ms        |
-    | POST /api/profile/reminder                       | 16.441 ms       |
-    | POST /api/profile/fcmtoken                       | 1.100 ms        |
-    | GET /api/analytics?userID=***&date=2025-01-07    | 20.473 ms       |
-    | GET /api/analytics?userID=***&date=2024-12-31    | 7.368 ms        |
-    | GET /api/analytics?userID=***&date=2025-01-07    | 6.948 ms        |
-    | POST /api/journal                                | 108.077 ms      |
-    | GET /api/journal?date=2025-03-11&userID=undefined%40gmail.com&googleNumID=*** | 90.280 ms |
-    | POST /api/payment-sheet                          | 1.075 ms        |
-    | POST /api/journal                                | 73.551 ms       |
-    | GET /name                                        | 0.393 ms        |
-    | GET /                                            | 0.227 ms        |
-    | POST /webhook                                    | 0.910 ms        |
-    | POST /webhook                                    | 0.220 ms        |
 
+
+    | API Endpoint                                                                  | Time to Complete |
+    | ------------------------------------------------------------------------------- | ------------------ |
+    | GET /api/profile?userID=***123%40gmail.com                                    | 6.887 ms         |
+    | POST /api/profile                                                             | 85.247 ms        |
+    | POST /api/profile                                                             | 43.847 ms        |
+    | GET /api/profile/isPaid?userID=***test%40gmail.com                            | 2.523 ms         |
+    | POST /api/profile/reminder                                                    | 16.441 ms        |
+    | POST /api/profile/fcmtoken                                                    | 1.100 ms         |
+    | GET /api/analytics?userID=***&date=2025-01-07                                 | 20.473 ms        |
+    | GET /api/analytics?userID=***&date=2024-12-31                                 | 7.368 ms         |
+    | GET /api/analytics?userID=***&date=2025-01-07                                 | 6.948 ms         |
+    | POST /api/journal                                                             | 108.077 ms       |
+    | GET /api/journal?date=2025-03-11&userID=undefined%40gmail.com&googleNumID=*** | 90.280 ms        |
+    | POST /api/payment-sheet                                                       | 1.075 ms         |
+    | POST /api/journal                                                             | 73.551 ms        |
+    | GET /name                                                                     | 0.393 ms         |
+    | GET /                                                                         | 0.227 ms         |
+    | POST /webhook                                                                 | 0.910 ms         |
+    | POST /webhook                                                                 | 0.220 ms         |
 - **Usability (Frontend)**
 
   - **Verification:** This test simulates user interaction with the journal feature by performing multiple clicks (less than the threshold), including selecting dates, typing journal entries, sending messages, and confirming deletions. The test verifies that each step, from creating, editing and deleting journal entries, functions correctly in the app within 3 clicks as discussed din the requirements. The test also ensures that UI elements such as the chat input field, send button, delete button, and confirmation dialogs are displayed and intractable.
@@ -247,49 +258,6 @@ The mocked test cases for the RASA portion focus on validating API behavior by s
     | 2025-03-17 12:11:47.414 | 7938-7967      | EspressoTest   | com.example.cpen321project | D             | Typing additional text: . I also played soccer to make my day feel even better                                               |
     | 2025-03-17 12:11:54.350 | 7938-7967      | EspressoTest   | com.example.cpen321project | D             | Clicking Save Entry button, click 3                                                                                          |
     | 2025-03-17 12:11:58.373 | 7938-7967      | EspressoTest   | com.example.cpen321project | D             | Checking if calendar view is displayed                                                                                       |
-
-## 4. Front-end Test Specification (For REFERENCE DELETE AFTER)
-
-### 4.1. Location in Git of Front-end Test Suite:
-
-`Frontend/app/src/androidTest/java/com/example/cpen321project`
-
-### 4.2. Tests
-
-- **Use Case: Login**
-
-  - **Expected Behaviors:**
-
-
-    | **Scenario Steps**                                                                              | **Test Case Steps**                                                                                                                                                                                                                                                                                                     |
-    | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | 1. The user opens â€œAdd Todo Itemsâ€ screen.                                            | Open â€œAdd Todo Itemsâ€ screen.                                                                                                                                                                                                                                                                                 |
-    | 2. The app shows an input text field and an â€œAddâ€ button. The add button is disabled. | Check that the text field is present on screen.<br>Check that the button labelled â€œAddâ€ is present on screen.<br>Check that the â€œAddâ€ button is disabled.                                                                                                                                           |
-    | 3a. The user inputs an ill-formatted string.                                                    | Input â€œ_^_^^OQ#$â€ in the text field.                                                                                                                                                                                                                                                                          |
-    | 3a1. The app displays an error message prompting the user for the expected format.              | Check that a dialog is opened with the text: â€œPlease use only alphanumeric charactersâ€.                                                                                                                                                                                                                       |
-    | 3. The user inputs a new item for the list and the add button becomes enabled.                  | Input â€œbuy milkâ€ in the text field.<br>Check that the button labelled â€œaddâ€ is enabled.                                                                                                                                                                                                             |
-    | 4. The user presses the â€œAddâ€ button.                                                 | Click the button labelled â€œaddâ€.                                                                                                                                                                                                                                                                              |
-    | 5. The screen refreshes and the new item is at the bottom of the todo list.                     | Check that a text box with the text â€œbuy milkâ€ is present on screen.<br>Input â€œbuy chocolateâ€ in the text field.<br>Click the button labelled â€œaddâ€.<br>Check that two text boxes are present on the screen with â€œbuy milkâ€ on top and â€œbuy chocolateâ€ at the bottom. |
-    | 5a. The list exceeds the maximum todo-list size.                                                | Repeat steps 3 to 5 ten times.<br>Check that a dialog is opened with the text: â€œYou have too many items, try completing one firstâ€.                                                                                                                                                                           |
-  - **Test Logs:**
-
-    ```
-    [Placeholder for Espresso test execution logs]
-    ```
-- **Use Case: ...**
-
-  - **Expected Behaviors:**
-
-
-    | **Scenario Steps** | **Test Case Steps** |
-    | -------------------- | --------------------- |
-    | ...                | ...                 |
-  - **Test Logs:**
-
-    ```
-    [Placeholder for Espresso test execution logs]
-    ```
-- **...**
 
 ## 4. Front-end Test Specification
 
@@ -694,15 +662,27 @@ The mocked test cases for the RASA portion focus on validating API behavior by s
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`[Insert Commit SHA here]`
+`f579e43beef4743617ee236638461d7b239306e0`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-_(Placeholder for screenshots of Codacyâ€™s Category Breakdown table in Overview)_
+##### Issue category: Errorprone
+![alt text](images/errorprone_issues.png)
+##### Issue category: Security
+![alt text](images/errorprone_issues.png)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-_(Placeholder for screenshots of Codacyâ€™s Issues page)_
+##### Code Pattern: Insecure dependencies detection (medium severity)
+![alt text](images/sec-medium.png)
+##### Code Pattern: Too many functions inside a class (medium severity)
+![alt text](images/too_many_fns.png)
+##### Code Pattern: One method should have one responsibility (medium severity)
+![alt text](images/too_many_lines.png)
+##### Code Pattern: Insecure Dependencies Detection (high severity)
+![alt text](images/high_sec.png)
+##### Code Pattern: Insecure dependencies detection (minor severity)
+![alt text](images/low_severity.png)
 
 ### 5.4. Justifications for Unfixed Issues
 
