@@ -87,17 +87,15 @@ class Journal_entries : AppCompatActivity() {
         val entrytext = intent.getStringExtra("Journal_Entry_fetched") ?: ""
         loadscreenifexists(entrytext)
 
-//        val journalexisted = intent.getBooleanExtra("Pre_existing journal", false)
-
         journalentrytext.isEnabled = false
 
-        findViewById<Button>(R.id.Backbuttonentries).setOnClickListener() {
+        findViewById<Button>(R.id.Backbuttonentries).setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             fetchJournalEntry(intent)
         }
 
-        findViewById<ImageButton>(R.id.editbutton).setOnClickListener() {
+        findViewById<ImageButton>(R.id.editbutton).setOnClickListener {
             if (journalentrytext.visibility == View.VISIBLE) {
                 journalentrytext.isEnabled = true
                 journalentrytext.requestFocus()
@@ -106,11 +104,11 @@ class Journal_entries : AppCompatActivity() {
             }
         }
 
-        findViewById<ImageButton>(R.id.deletebutton).setOnClickListener() {
+        findViewById<ImageButton>(R.id.deletebutton).setOnClickListener {
             showdeleteconformationpopup()
         }
 
-        save_entry.setOnClickListener() {
+        save_entry.setOnClickListener {
             if (entrytext.isEmpty()) {
                 saveentry()
             } else {
@@ -144,7 +142,7 @@ class Journal_entries : AppCompatActivity() {
             }
         }
 
-        journalImageview.setOnClickListener() {
+        journalImageview.setOnClickListener {
             showdeletiondialog()
         }
     }
