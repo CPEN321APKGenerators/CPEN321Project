@@ -370,7 +370,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                     val responseBody = response.body?.string() ?: ""
                     if (responseBody.isNotEmpty()) {
                         intent.putExtra("Journal_Entry_fetched", responseBody)
-                        intent.putExtra("Pre_existing journal", true)
                     } else {
                         Log.d("Journal Fetch", "No entry found for this date")
                     }
