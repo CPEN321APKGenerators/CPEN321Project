@@ -46,19 +46,13 @@ import java.io.IOException
 
 class Journal_entries : AppCompatActivity() {
 
-    private lateinit var journaldatetext: TextView
     private lateinit var journalentrytext: EditText
-    private lateinit var backtocalendar: Button
-    private lateinit var editentry: ImageButton
-    private lateinit var deleteentry: ImageButton
-    private lateinit var add_image: ImageButton
     private lateinit var save_entry: Button
     private lateinit var journalImageview: ImageView
     private var selectedDate: String? = null
     private val REQUEST_CODE_STORAGE_PERMISSION = 101
     private val REQUEST_CODE_CAMERA_PERMISSION = 102
     private var isPaidUser = false
-    private lateinit var chatContainer: LinearLayout
     private lateinit var chatScrollView: ScrollView
     private lateinit var chatInput: EditText
     private lateinit var sendChatButton: Button
@@ -78,27 +72,86 @@ class Journal_entries : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        journaldatetext = findViewById(R.id.journalDateText)
         journalentrytext = findViewById(R.id.journalEntryInput)
-        backtocalendar = findViewById(R.id.Backbuttonentries)
-        editentry = findViewById(R.id.editbutton)
-        deleteentry = findViewById(R.id.deletebutton)
-        add_image = findViewById(R.id.addimageButton)
-        save_entry = findViewById(R.id.Saveentrybutton)
         journalImageview = findViewById(R.id.journalImageView)
-        chatContainer = findViewById(R.id.chatContainer)
         chatScrollView = findViewById(R.id.chatScrollView)
         chatInput = findViewById(R.id.chatInput)
         sendChatButton = findViewById(R.id.sendChatButton)
+        save_entry = findViewById(R.id.Saveentrybutton)
 
         selectedDate = intent.getStringExtra("SELECTED_DATE") ?: ""
-        journaldatetext.text = "Journal Entry for $selectedDate"
+        findViewById<TextView>(R.id.journalDateText).text = "Journal Entry for $selectedDate"
         userID = intent.getStringExtra("GOOGLE_ID")
         user_google_token = intent.getStringExtra("GOOGLE_TOKEN")
 
         val entrytext = intent.getStringExtra("Journal_Entry_fetched") ?: ""
-        if (entrytext.isNotEmpty()) {
-            val json = JSONObject(entrytext)
+        loadscreenifexists(entrytext)
+
+//        val journalexisted = intent.getBooleanExtra("Pre_existing journal", false)
+
+        journalentrytext.isEnabled = false
+
+        findViewById<Button>(R.id.Backbuttonentries).setOnClickListener() {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            fetchJournalEntry(intent)
+        }
+
+        findViewById<ImageButton>(R.id.editbutton).setOnClickListener() {
+            if (journalentrytext.visibility == View.VISIBLE) {
+                journalentrytext.isEnabled = true
+                journalentrytext.requestFocus()
+            } else {
+                Toast.makeText(this, "Write a Journal to begin editing", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        findViewById<ImageButton>(R.id.deletebutton).setOnClickListener() {
+            showdeleteconformationpopup()
+        }
+
+        save_entry.setOnClickListener() {
+            if (entrytext.isEmpty()) {
+                saveentry()
+            } else {
+                updateJournalEntry()
+            }
+        }
+
+        Userpaid { isPaid ->
+            isPaidUser = isPaid
+            if (isPaidUser) {
+                Log.d("User Status", "User is a paid user")
+            } else {
+                Log.d("User Status", "User is NOT a paid user")
+            }
+        }
+
+        findViewById<ImageButton>(R.id.addimageButton).setOnClickListener() {
+            if (isPaidUser) {
+                showUploadOptions()
+            } else {
+                Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        sendChatButton.setOnClickListener {
+            val message = chatInput.text.toString().trim()
+            if (message.isNotEmpty()) {
+                addChatMessage("You: $message", true)
+                sendMessageToChatbot(message)
+                chatInput.text.clear()
+            }
+        }
+
+        journalImageview.setOnClickListener() {
+            showdeletiondialog()
+        }
+    }
+
+    private fun loadscreenifexists(Savedentry: String) {
+        if (Savedentry.isNotEmpty()) {
+            val json = JSONObject(Savedentry)
             val journalObject = json.getJSONObject("journal")
             val text = journalObject.getString("text")
             journalentrytext.setText(text)
@@ -129,67 +182,6 @@ class Journal_entries : AppCompatActivity() {
             chatInput.visibility = View.VISIBLE
             sendChatButton.visibility = View.VISIBLE
             save_entry.visibility = View.VISIBLE
-        }
-
-        val journalexisted = intent.getBooleanExtra("Pre_existing journal", false)
-
-        journalentrytext.isEnabled = false
-
-        backtocalendar.setOnClickListener() {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            fetchJournalEntry(intent)
-        }
-
-        editentry.setOnClickListener() {
-            if (journalentrytext.visibility == View.VISIBLE) {
-                journalentrytext.isEnabled = true
-                journalentrytext.requestFocus()
-            } else {
-                Toast.makeText(this, "Write a Journal to begin editing", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        deleteentry.setOnClickListener() {
-            showdeleteconformationpopup()
-        }
-
-        save_entry.setOnClickListener() {
-            if (!journalexisted) {
-                saveentry()
-            } else {
-                updateJournalEntry()
-            }
-        }
-
-        Userpaid { isPaid ->
-            isPaidUser = isPaid
-            if (isPaidUser) {
-                Log.d("User Status", "User is a paid user")
-            } else {
-                Log.d("User Status", "User is NOT a paid user")
-            }
-        }
-
-        add_image.setOnClickListener() {
-            if (isPaidUser) {
-                showUploadOptions()
-            } else {
-                Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        sendChatButton.setOnClickListener {
-            val message = chatInput.text.toString().trim()
-            if (message.isNotEmpty()) {
-                addChatMessage("You: $message", true)
-                sendMessageToChatbot(message)
-                chatInput.text.clear()
-            }
-        }
-
-        journalImageview.setOnClickListener() {
-            showdeletiondialog()
         }
     }
 
@@ -308,7 +300,7 @@ class Journal_entries : AppCompatActivity() {
             messageView.background = ContextCompat.getDrawable(this, R.drawable.chat_bubble_bot)
         }
 
-        chatContainer.addView(messageView)
+        findViewById<LinearLayout>(R.id.chatContainer).addView(messageView)
 
         // Scroll to the latest message
         chatScrollView.post {
