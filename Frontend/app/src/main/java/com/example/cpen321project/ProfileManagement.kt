@@ -106,11 +106,6 @@ class ProfileManagement : AppCompatActivity() {
         activityListView = findViewById(R.id.profile_activity_list)
         addActivityButton = findViewById(R.id.profile_add_activity_button)
 
-
-        // Set up the ListView adapter
-//        activitiesAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, activitiesList)
-//        activityListView.adapter = activitiesAdapter
-
         // Set up the custom ListView adapter
         activitiesAdapter = ActivitiesAdapter(this, activitiesList)
         activityListView.adapter = activitiesAdapter
@@ -136,7 +131,6 @@ class ProfileManagement : AppCompatActivity() {
 
         paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
 
-//        "http://10.0.2.2:3001/api/payment-sheet".httpPost()
         PostPaymentSheet(jsonBody)
 
         // Ensure ListView expands correctly inside ScrollView
@@ -484,56 +478,13 @@ class ProfileManagement : AppCompatActivity() {
 
                         // Update UI on the main thread
                         runOnUiThread {
-                            // Update preferred name
-                            findViewById<EditText>(R.id.profile_name_input).setText(preferredName)
-
-                            // Update account status
-                            if (accountStatus) {
-                                findViewById<TextView>(R.id.profile_account_status).text =
-                                    "Account Status: Premium"
-                                findViewById<Button>(R.id.profile_upgrade_button).visibility =
-                                    View.GONE
-                            } else {
-                                findViewById<TextView>(R.id.profile_account_status).text =
-                                    "Account Status: Free"
-                            }
-
-                            // Update activities tracking list
-                            activitiesList.clear()
-                            for (i in 0 until activitiesTracking.length()) {
-                                val activityJson = activitiesTracking.getJSONObject(i)
-                                val activityName = activityJson.optString("name", "")
-                                val averageValue =
-                                    activityJson.optDouble("averageValue", 0.0).toFloat()
-                                val unit = activityJson.optString("unit", "")
-
-                                // Create a new Activity object and add it to the list
-                                val activity = Activity(activityName, averageValue, unit)
-                                activitiesList.add(activity)
-                            }
-                            activitiesAdapter.notifyDataSetChanged()
-                            updateListViewHeight()
-
-                            // Update reminder days selection
-                            selectedDays.clear()
-                            for (i in 0 until weekdays.length()) {
-                                selectedDays.add(weekdays.getInt(i))
-                            }
-                            highlightSelectedDays()
-
-                            // Update TimePicker with the saved time
-                            if (reminderTime.isNotEmpty()) {
-                                val (hour, minute) = reminderTime.split(":").map { it.toInt() }
-                                val timePicker: TimePicker =
-                                    findViewById(R.id.profile_reminder_timepicker)
-                                if (Build.VERSION.SDK_INT >= 23) {
-                                    timePicker.hour = hour
-                                    timePicker.minute = minute
-                                } else {
-                                    timePicker.currentHour = hour
-                                    timePicker.currentMinute = minute
-                                }
-                            }
+                            updateProfileUIFromGetUser(
+                                preferredName,
+                                accountStatus,
+                                activitiesTracking,
+                                weekdays,
+                                reminderTime
+                            )
                         }
                     }
                 } else {
@@ -559,6 +510,65 @@ class ProfileManagement : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun updateProfileUIFromGetUser(
+        preferredName: String?,
+        accountStatus: Boolean,
+        activitiesTracking: JSONArray,
+        weekdays: JSONArray,
+        reminderTime: String
+    ) {
+        // Update preferred name
+        findViewById<EditText>(R.id.profile_name_input).setText(preferredName)
+
+        // Update account status
+        if (accountStatus) {
+            findViewById<TextView>(R.id.profile_account_status).text =
+                "Account Status: Premium"
+            findViewById<Button>(R.id.profile_upgrade_button).visibility =
+                View.GONE
+        } else {
+            findViewById<TextView>(R.id.profile_account_status).text =
+                "Account Status: Free"
+        }
+
+        // Update activities tracking list
+        activitiesList.clear()
+        for (i in 0 until activitiesTracking.length()) {
+            val activityJson = activitiesTracking.getJSONObject(i)
+            val activityName = activityJson.optString("name", "")
+            val averageValue =
+                activityJson.optDouble("averageValue", 0.0).toFloat()
+            val unit = activityJson.optString("unit", "")
+
+            // Create a new Activity object and add it to the list
+            val activity = Activity(activityName, averageValue, unit)
+            activitiesList.add(activity)
+        }
+        activitiesAdapter.notifyDataSetChanged()
+        updateListViewHeight()
+
+        // Update reminder days selection
+        selectedDays.clear()
+        for (i in 0 until weekdays.length()) {
+            selectedDays.add(weekdays.getInt(i))
+        }
+        highlightSelectedDays()
+
+        // Update TimePicker with the saved time
+        if (reminderTime.isNotEmpty()) {
+            val (hour, minute) = reminderTime.split(":").map { it.toInt() }
+            val timePicker: TimePicker =
+                findViewById(R.id.profile_reminder_timepicker)
+            if (Build.VERSION.SDK_INT >= 23) {
+                timePicker.hour = hour
+                timePicker.minute = minute
+            } else {
+                timePicker.currentHour = hour
+                timePicker.currentMinute = minute
+            }
+        }
     }
 
 
@@ -707,4 +717,6 @@ class ActivitiesAdapter(context: Context, private val activities: List<Activity>
         return view
     }
 }
+
+
 
