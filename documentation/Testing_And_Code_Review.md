@@ -96,6 +96,8 @@ For coverage of journal controller, there are some lines that are implemented to
 
 For analysisFunctions, the two uncovered lines are checks within the data structure functions made that are never supposed to be triggered by it's use, but are useful to checking for valid inputs to the functions.
 
+For coverage of user controller, some lines (e.g. lines 15-16) it is checking Firebase initialization file. They depend on environment variables and file-based configurations. Testing this would require modifying environment variables dynamically, which is not standard for unit tests. Some lines accounts for specific time zone conversions that only acts as a safeguard against unexpected user inputs. Some lines like User not found error or checking input type are already checked by express-validator and middleware before the controller logic runs. Since the middleware handles these errors, they do not need to be tested within the controller functions. And the rest are checks for db to see if the db got values.
+
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
 ![alt text](images/Unmocked.png)
