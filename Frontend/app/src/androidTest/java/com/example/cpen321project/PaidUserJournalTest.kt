@@ -1,16 +1,22 @@
 package com.example.cpen321project
 
+import android.content.Context
 import android.util.Log
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.ActivityTestRule
+import com.example.cpen321project.BuildConfig.GOOGLE_REAL_TOKEN
+import com.example.cpen321project.BuildConfig.GOOGLE_USER_ID
+import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
@@ -22,10 +28,26 @@ import java.lang.Thread.sleep
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class PaidUserJournalTest {
 
+    @get:Rule
+    val activityRule = ActivityTestRule(MainActivity::class.java, false, false)
+
     private val TAG = "EspressoTest"
 
-    @get:Rule
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    @Before
+    fun setup() {
+        // Set up valid authentication state
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE).edit()
+            .putString("GoogleUserID", GOOGLE_USER_ID)
+            .putString("GoogleIDtoken", GOOGLE_REAL_TOKEN)
+            .apply()
+
+        // Launch activity
+        Log.d(TAG, "Launching main activity")
+        activityRule.launchActivity(null)
+        Intents.init()
+    }
 
     @Test
     fun A_User_Upload_Image_popup_check_camera() {
