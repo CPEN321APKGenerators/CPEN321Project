@@ -119,6 +119,7 @@ jobs:
           OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
           GOOGLE_USER_ID: ${{secrets.GOOGLE_USER_ID}}
           GOOGLE_USER_PREFIX: ${{ secrets.GOOGLE_USER_PREFIX }}
+          PUBLISHABLE_STRIPE_KEY: ${{ secrets.PUBLISHABLE_STRIPE_KEY }}
         run: |
           cd Backend
           NODE_ENV=test npm test
