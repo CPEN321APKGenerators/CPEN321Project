@@ -90,6 +90,18 @@ GOOGLE_REAL_TOKEN='google_token_corresponds_to_your_google_email_this_needs_to_b
 GOOGLE_USER_ID='your_google_email_address'
   2. Please note that for GOOGLE_REAL_TOKEN, it needs to be updated every 1 or 2 hours to ensure the tests pass.
 
+
+ **Running Rasa tests**
+ 1. Set ensure your .env file has the following variables set:
+RASA_SERVER_URL=http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook
+ACTION_SERVER_URL=http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook
+PORT=3001
+RASA_SERVER_URL: URL to your RASA server’s webhook endpoint.
+ACTION_SERVER_URL: URL to your RASA action server’s webhook endpoint.
+PORT: The port on which your server will run locally for testing.
+Run the tests by executing the following command:
+npm test
+
 ### 2.2. GitHub Actions Configuration Location
 
 `/.github/workflows/deploy.yml`
@@ -105,6 +117,7 @@ For analysisFunctions, the two uncovered lines are checks within the data struct
 
 For coverage of user controller, some lines (e.g. lines 15-16) it is checking Firebase initialization file. They depend on environment variables and file-based configurations. Testing this would require modifying environment variables dynamically, which is not standard for unit tests. Some lines accounts for specific time zone conversions that only acts as a safeguard against unexpected user inputs. Some lines like User not found error or checking input type are already checked by express-validator and middleware before the controller logic runs. Since the middleware handles these errors, they do not need to be tested within the controller functions. And the rest are checks for db to see if the db got values.
 
+The mocked test cases for the RASA portion focus on validating API behavior by simulating interactions with the RASA server and action server. These tests cover scenarios such as valid requests to the /api/chat endpoint, handling missing parameters (e.g., missing message or sender), and simulating server errors (e.g., when the RASA API or action server is down). Additionally, the tests check the /api/action endpoint for missing parameters or errors and validate the /api/health endpoint for server status. However, some uncovered lines arise from conditions that can't be fully tested in a mocked environment, such as actual server requests and certain error scenarios like expect(res.status).toBe(500) for server failures, which would require real interactions with the RASA server to trigger these errors and fully cover those lines.
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
 ![alt text](images/Unmocked.png)
