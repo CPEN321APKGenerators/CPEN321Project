@@ -157,7 +157,7 @@ app.post('/api/payment-sheet', async (req, res) => {
         paymentIntent: paymentIntent.client_secret,
         ephemeralKey: ephemeralKey.secret,
         customer: customer.id,
-        publishableKey: process.env.PUBLISHABLE_STRIPE_KEY,
+        publishableKey: 'pk_test_51QwDbGG6TJZ7pu2RAQVhbPsY2hJ7YGawx4M14Ld89ijypNVLWlne8aEivnlObsBwTqq1IfZT7NyVkQU3Ftzj08qF00KP7rf6ZM',
         userID
       });
       
