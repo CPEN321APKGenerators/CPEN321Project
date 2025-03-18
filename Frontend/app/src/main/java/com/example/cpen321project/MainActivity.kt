@@ -424,7 +424,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
             // Convert to milliseconds and compare with current time
             return exp * 1000 < System.currentTimeMillis()
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             Log.e(TAG, "Failed to parse ID token", e)
             return true
         }
