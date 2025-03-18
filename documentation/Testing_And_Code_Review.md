@@ -40,13 +40,17 @@
 
 #### 2.1.3. Explanation on How to Run the Tests
 
-1. **Clone the Repository**:
-2. Open your terminal and run to clone:
+0. To prevent some unexpected dependency issues preventing our peer group to evaluate our tests, We have recorded some videos of running the tests on our local machine.
+[Click me to see recodings of running some tests](https://drive.google.com/drive/folders/1WzEkeR2aDnn9rlQX-dLO9DsFJDA8YIZk?usp=sharing)
+
+##### Backend Tests:
+1. Clone the Repository:
+ Open your terminal and run to clone:
 
    ```
    git clone https://github.com/example/your-project.git
    ```
-3. Set up environment variables by
+2. Set up environment variables by
 
 ```
    export MONGODB_URI=`mongodb://mongo:27017`
@@ -80,7 +84,9 @@ PUBLISHABLE_STRIPE_KEY=`your_stripe_account's_publishable_key
 }
 ```
 
-4. Change you working directory to `/Backend`. Run the command:
+4. In `/Backend/src/config`, put in the firebase admin json file, your stripe secret, and our server secret with names: `cpen321project-c324e-firebase-adminsdk.json`, `cpen321project-stripe-secret.txt`, and `severSecret.txt`. Contact our group to obtain the server secret.
+
+5. Change you working directory to `/Backend`. Run the command:
 
 ```
   npm test
