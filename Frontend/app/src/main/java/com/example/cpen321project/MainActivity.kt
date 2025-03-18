@@ -68,18 +68,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        // Get FCM Token
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val fcmToken = task.result
-                Log.d("FCM Token", fcmToken ?: "No Token")
-
-                // Store Token in Backend
-                storeFcmTokenInBackend(fcmToken ?: "", userID = googleUserId)
-            }
-        }
-
+        getFCMToken(googleUserId)
         Log.d("MainActivity", "Google User ID: $googleUserId")
 
         loadJournalEntries()
@@ -127,6 +116,20 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
 
         findViewById<Button>(R.id.export_button).setOnClickListener() {
             showFormatSelectionDialog(googleUserId, googleidToken)
+        }
+    }
+
+    private fun getFCMToken(googleUserId: String?) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val fcmToken = task.result
+                Log.d("FCM Token", fcmToken ?: "No Token")
+
+                // Store Token in Backend
+                if (googleUserId != null) {
+                    storeFcmTokenInBackend(fcmToken ?: "", userID = googleUserId)
+                }
+            }
         }
     }
 

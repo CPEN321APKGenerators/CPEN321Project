@@ -198,9 +198,6 @@ class LoginActivity : AppCompatActivity() {
             return google_num_id
         } catch (e: IOException) {
             Log.e(TAG, "Network error", e)
-            return null
-        } catch (e: Exception) { // Catch any unexpected exceptions as a last resort
-            Log.e(TAG, "Unexpected error", e)
             e.printStackTrace()
             return null
         }
