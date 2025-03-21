@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1742589092287" clover="3.2.0">
-  <project timestamp="1742589092287" name="All files">
-    <metrics statements="52" coveredstatements="44" conditionals="27" coveredconditionals="18" methods="6" coveredmethods="5" elements="85" coveredelements="67" complexity="0" loc="52" ncloc="52" packages="1" files="1" classes="1"/>
+<coverage generated="1742589288691" clover="3.2.0">
+  <project timestamp="1742589288691" name="All files">
+    <metrics statements="52" coveredstatements="44" conditionals="31" coveredconditionals="22" methods="6" coveredmethods="5" elements="89" coveredelements="71" complexity="0" loc="52" ncloc="52" packages="1" files="1" classes="1"/>
     <file name="server.js" path="/home/nyi/CPEN321Project/Backend/rasa_api/server.js">
-      <metrics statements="52" coveredstatements="44" conditionals="27" coveredconditionals="18" methods="6" coveredmethods="5"/>
+      <metrics statements="52" coveredstatements="44" conditionals="31" coveredconditionals="22" methods="6" coveredmethods="5"/>
       <line num="1" count="1" type="stmt"/>
       <line num="2" count="1" type="stmt"/>
       <line num="3" count="1" type="stmt"/>
@@ -38,24 +38,24 @@
       <line num="62" count="0" type="stmt"/>
       <line num="66" count="2" type="cond" truecount="2" falsecount="0"/>
       <line num="67" count="2" type="stmt"/>
-      <line num="72" count="1" type="stmt"/>
-      <line num="73" count="4" type="stmt"/>
-      <line num="74" count="4" type="stmt"/>
-      <line num="76" count="4" type="cond" truecount="2" falsecount="0"/>
-      <line num="77" count="1" type="stmt"/>
-      <line num="80" count="3" type="stmt"/>
-      <line num="81" count="2" type="stmt"/>
-      <line num="83" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="75" count="1" type="stmt"/>
+      <line num="76" count="4" type="stmt"/>
+      <line num="77" count="4" type="stmt"/>
+      <line num="79" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="80" count="1" type="stmt"/>
+      <line num="83" count="3" type="stmt"/>
       <line num="84" count="2" type="stmt"/>
-      <line num="89" count="1" type="stmt"/>
-      <line num="90" count="1" type="stmt"/>
-      <line num="94" count="1" type="cond" truecount="1" falsecount="1"/>
-      <line num="96" count="1" type="cond" truecount="2" falsecount="2"/>
-      <line num="97" count="1" type="stmt"/>
-      <line num="98" count="1" type="cond" truecount="1" falsecount="1"/>
-      <line num="101" count="0" type="stmt"/>
-      <line num="102" count="0" type="stmt"/>
-      <line num="106" count="1" type="stmt"/>
+      <line num="86" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="87" count="2" type="stmt"/>
+      <line num="95" count="1" type="stmt"/>
+      <line num="96" count="1" type="stmt"/>
+      <line num="100" count="1" type="cond" truecount="1" falsecount="1"/>
+      <line num="102" count="1" type="cond" truecount="2" falsecount="2"/>
+      <line num="103" count="1" type="stmt"/>
+      <line num="104" count="1" type="cond" truecount="1" falsecount="1"/>
+      <line num="107" count="0" type="stmt"/>
+      <line num="108" count="0" type="stmt"/>
+      <line num="112" count="1" type="stmt"/>
     </file>
   </project>
 </coverage>

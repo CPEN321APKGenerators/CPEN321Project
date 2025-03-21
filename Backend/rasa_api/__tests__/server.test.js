@@ -48,7 +48,10 @@ describe("API Tests for RASA Bot", () => {
             .send({ message: "Hi", sender: "testUser" });
 
         expect(res.status).toBe(500);
-        expect(res.body).toEqual({ error: "Failed to get response from RASA" });
+        expect(res.body).toMatchObject({
+            error: "Failed to get response from RASA",
+            details: expect.any(String)
+        });
     });
 
     test("POST /api/action - Valid request", async () => {
@@ -80,7 +83,10 @@ describe("API Tests for RASA Bot", () => {
             .send({ sender: "testUser", tracker: {}, domain: {} });
 
         expect(res.status).toBe(500);
-        expect(res.body).toEqual({ error: "Failed to get response from RASA Action Server" });
+        expect(res.body).toMatchObject({
+            error: "Failed to get response from RASA Action Server",
+            details: expect.any(String)
+        });
     });
 
     test("GET /api/health - Check server status", async () => {
@@ -91,8 +97,7 @@ describe("API Tests for RASA Bot", () => {
     });
 });
 
-// ✅ Unmocked Tests
-// ✅ Unmocked Tests
+// Unmocked Tests
 describe("Unmocked API Tests for RASA Bot", () => {
     test("POST /api/chat - Real request to RASA", async () => {
         await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -110,7 +115,7 @@ describe("Unmocked API Tests for RASA Bot", () => {
                 }
             });
 
-        console.log("🔍 /api/chat response:", res.status, JSON.stringify(res.body, null, 2));
+        console.log("/api/chat response:", res.status, JSON.stringify(res.body, null, 2));
 
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body.responses)).toBe(true);
@@ -136,10 +141,8 @@ describe("Unmocked API Tests for RASA Bot", () => {
                 domain: {}
             });
 
-        console.log("🔍 /api/action response:", res.status, JSON.stringify(res.body, null, 2));
+        console.log("/api/action response:", res.status, JSON.stringify(res.body, null, 2));
 
         expect(res.status).toBe(200);
     });
 });
-
-
