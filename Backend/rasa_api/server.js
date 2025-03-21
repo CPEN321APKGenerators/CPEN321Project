@@ -8,6 +8,7 @@ const https = require("https");
 const app = express();
 app.use(express.json());
 app.use(cors());
+
 const isTestEnv = process.env.NODE_ENV === "test";
 
 let options = {};
@@ -32,26 +33,31 @@ const ACTION_SERVER_URL = process.env.ACTION_SERVER_URL || "http://ec2-54-234-28
 // Route to handle messages from frontend
 app.post('/api/chat', async (req, res) => {
     try {
-        const { message, sender } = req.body;
+        const { message, sender, metadata } = req.body;
 
         if (!message || !sender) {
             return res.status(400).json({ error: 'Message and sender are required' });
         }
 
-        console.log("Request Body:", req.body);
-        const response = await axios.post(RASA_SERVER_URL, { message, sender });
+        console.log("Forwarding to Rasa:", JSON.stringify({ message, sender, metadata }, null, 2));
 
-        console.log(" RASA Response:", response.status, response.data);
+        const response = await axios.post(RASA_SERVER_URL, {
+            message,
+            sender,
+            metadata
+        });
 
-        // Check if response from RASA contains the expected data
-        if (response.data && response.data.responses) {
-            return res.status(200).json(response.data);  // Send 200 if RASA returns valid data
+        console.log("Rasa Response:", response.status, JSON.stringify(response.data, null, 2));
+
+        if (response.data && Array.isArray(response.data.messages)) {
+            return res.status(200).json(response.data);
         } else {
-            console.error("RASA Response Missing Expected Data");
+            console.error("RASA Response Missing 'messages':", response.data);
             return res.status(500).json({ error: 'Invalid response from RASA' });
         }
+
     } catch (error) {
-        console.error('Error forwarding to RASA:', error);
+        console.error('Error forwarding to RASA:', error.response?.data || error.message);
         return res.status(500).json({ error: 'Failed to get response from RASA' });
     }
 });
@@ -68,7 +74,7 @@ app.post('/api/action', async (req, res) => {
         const response = await axios.post(ACTION_SERVER_URL, { sender, tracker, domain });
         return res.status(200).json(response.data);
     } catch (error) {
-        console.error('Error connecting to Action Server:', error);
+        console.error('Error connecting to Action Server:', error.response?.data || error.message);
         return res.status(500).json({ error: 'Failed to get response from RASA Action Server' });
     }
 });
