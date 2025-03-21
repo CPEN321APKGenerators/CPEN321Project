@@ -3,33 +3,32 @@ from rasa_sdk.executor import CollectingDispatcher
 import requests
 import logging
 
-
 class ActionSaveMessage(Action):
     def name(self):
         return "action_save_message"
 
-    def run(self, dispatcher, tracker: Tracker, domain):
-        # Retrieve metadata from tracker
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
         metadata = tracker.latest_message.get("metadata", {})
         date = metadata.get("date")
         userID = metadata.get("userID")
         google_token = metadata.get("google_token")
         message = tracker.latest_message.get("text")
 
-        # Log retrieved values
         logging.info(f"Retrieved -> date: {date}, userID: {userID}, google_token: {google_token}, message: {message}")
 
-        # Validate required fields
         if not all([date, userID, google_token, message]):
             logging.error("Missing required journal entry fields.")
-            dispatcher.utter_message(text="Failed to save journal entry. Missing information.")
-            return []
+            response_text = "Failed to save journal entry. Missing information."
+            dispatcher.utter_message(text=response_text)
+            return {
+                "events": [],
+                "responses": [{"text": response_text}]
+            }
 
-        # Construct request payload
         payload = {
             "date": date,
             "userID": userID,
-            "google_token": google_token,  
+            "google_token": google_token,
             "text": message
         }
 
@@ -38,14 +37,27 @@ class ActionSaveMessage(Action):
             "Authorization": f"Bearer {google_token}"
         }
 
-        # Send request to journal API
-        response = requests.post("https://cpen321project-journal.duckdns.org/api/journal", json=payload, headers=headers)
+        try:
+            response = requests.post(
+                "https://cpen321project-journal.duckdns.org/api/journal",
+                json=payload,
+                headers=headers
+            )
 
-        if response.status_code == 200:
-            logging.info("Journal entry saved successfully.")
-            dispatcher.utter_message(text="Your journal entry has been saved successfully.")
-        else:
-            logging.error(f"Failed to save journal entry. Status: {response.status_code}, Response: {response.text}")
-            dispatcher.utter_message(text="Failed to save journal entry. Please try again later.")
+            if response.status_code == 200:
+                logging.info("Journal entry saved successfully.")
+                response_text = "Your journal entry has been saved successfully."
+            else:
+                logging.error(f"Failed to save journal entry. Status: {response.status_code}, Response: {response.text}")
+                response_text = "Failed to save journal entry. Please try again later."
 
-        return []
+        except Exception as e:
+            logging.error(f"Error saving journal entry: {e}")
+            response_text = "An error occurred while saving your journal entry."
+
+        dispatcher.utter_message(text=response_text)
+
+        return {
+            "events": [],
+            "responses": [{"text": response_text}]
+        }
