@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.59% </span>
+                <span class="strong">85.18% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>50/54</span>
+                <span class='fraction'>46/54</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">74.19% </span>
+                <span class="strong">70.96% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>23/31</span>
+                <span class='fraction'>22/31</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.45% </span>
+                <span class="strong">84.9% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>49/53</span>
+                <span class='fraction'>45/53</span>
             </div>
         
             
@@ -192,16 +192,16 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -221,7 +221,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -236,8 +236,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -255,10 +255,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -302,17 +302,17 @@ const isTestEnv = process.env.NODE_ENV === "test";
 let options = {};
 let useHTTPS = true;
 &nbsp;
-<span class="missing-if-branch" title="else path not taken" >E</span>if (!isTestEnv) {
-    try {
-        options = {
+<span class="missing-if-branch" title="if path not taken" >I</span>if (!isTestEnv) {
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >        options = {</span>
             key: fs.readFileSync("./ssl/key.pem"),
             cert: fs.readFileSync("./ssl/cert.pem"),
             secureOptions: crypto.constants.SSL_OP_NO_TLSv1 | crypto.constants.SSL_OP_NO_TLSv1_1,
             minVersion: "TLSv1.2"
         };
     } catch (error) {
-        console.warn("SSL files not found. Falling back to HTTP.");
-        useHTTPS = false;
+<span class="cstat-no" title="statement not covered" >        console.warn("SSL files not found. Falling back to HTTP.");</span>
+<span class="cstat-no" title="statement not covered" >        useHTTPS = false;</span>
     }
 }
 &nbsp;
@@ -385,9 +385,9 @@ app.get('/api/health', (req, res) =&gt; {
 const PORT = process.env.PORT || <span class="branch-1 cbranch-no" title="branch not covered" >3001;</span>
 &nbsp;
 let server;
-if (isTestEnv || !useHTTPS) {
+if (isTestEnv || <span class="branch-1 cbranch-no" title="branch not covered" >!useHTTPS)</span> {
     server = app.listen(PORT, () =&gt; {
-        console.log(`Node.js API running in ${isTestEnv ? <span class="branch-0 cbranch-no" title="branch not covered" >"test" </span>: "HTTP"} mode on port ${PORT}`);
+        console.log(`Node.js API running in ${isTestEnv ? "test" : <span class="branch-1 cbranch-no" title="branch not covered" >"HTTP"}</span> mode on port ${PORT}`);
     });
 } else <span class="missing-if-branch" title="else path not taken" >E</span>{
 <span class="cstat-no" title="statement not covered" >    server = https.createServer(options, app).listen(PORT, <span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
@@ -403,7 +403,7 @@ module.exports = { app, server };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-21T21:01:17.175Z
+                at 2025-03-21T21:34:40.642Z
             </div>
         <script src="prettify.js"></script>
         <script>
