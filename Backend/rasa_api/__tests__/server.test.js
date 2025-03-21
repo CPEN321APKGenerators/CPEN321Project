@@ -20,9 +20,7 @@ afterAll((done) => {
     server.close(done);
 });
 
-//
-// ✅ MOCKED TESTS
-//
+//Mocked
 describe("Mocked API Tests for RASA Bot", () => {
     test("POST /api/chat - Valid request", async () => {
         axios.post.mockResolvedValueOnce({
@@ -104,19 +102,46 @@ describe("Mocked API Tests for RASA Bot", () => {
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ status: "Node.js API is running" });
     });
+    test("POST /api/chat - Invalid JSON payload", async () => {
+        const res = await request(server)
+            .post("/api/chat")
+            .set("Content-Type", "text/plain")
+            .send("invalid-json");
+    
+        expect(res.status).toBe(400); 
+    });
+    
+    test("POST /api/chat - Empty body", async () => {
+        const res = await request(server).post("/api/chat").send({});
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: "Message and sender are required" });
+    });
+    
+    test("POST /api/action - Invalid tracker object", async () => {
+        axios.post.mockRejectedValueOnce(new Error("Invalid tracker format"));
+    
+        const res = await request(server)
+            .post("/api/action")
+            .send({
+                sender: "testUser",
+                tracker: "not-an-object",
+                domain: {}
+            });
+    
+        expect(res.status).toBe(500);
+        expect(res.body.error).toBe("Failed to get response from RASA Action Server");
+    });
 });
 
-//
-// ✅ UNMOCKED TESTS (REAL RASA SERVER)
-//
+
+//UNMOCKED TESTS (REAL RASA SERVER)
 describe("Unmocked API Tests for RASA Bot", () => {
     beforeAll(() => {
-        // Unmock only for this describe block
         axios.post.mockImplementation(realAxios.post);
     });
 
     test("POST /api/chat - Real request to RASA", async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // optional delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const res = await request(server)
             .post("/api/chat")
@@ -161,5 +186,27 @@ describe("Unmocked API Tests for RASA Bot", () => {
 
         expect(res.status).toBe(200);
     });
+    test("POST /api/chat - Real request with missing sender", async () => {
+        const res = await request(server)
+            .post("/api/chat")
+            .send({
+                message: "Hi"
+            });
+    
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: "Message and sender are required" });
+    });
+    
+    test("POST /api/action - Real request with incomplete tracker", async () => {
+        const res = await request(server)
+            .post("/api/action")
+            .send({
+                sender: "realUser"
+                // tracker and domain missing
+            });
+    
+        expect(res.status).toBe(200); 
+    });
+    
 });
 
