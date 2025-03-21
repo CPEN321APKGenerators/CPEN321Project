@@ -47,10 +47,16 @@ app.post('/api/chat', async (req, res) => {
             metadata
         });
 
-        console.log("Rasa Response:", response.status, JSON.stringify(response.data, null, 2));
+        const { messages = [], ...rest } = response.data;
 
-        if (response.data && Array.isArray(response.data.messages)) {
-            return res.status(200).json(response.data);
+        if (Array.isArray(messages)) {
+            const responses = messages.map((msg) => msg.text).filter(Boolean);
+
+            return res.status(200).json({
+                messages,
+                responses,
+                ...rest
+            });
         } else {
             console.error("RASA Response Missing 'messages':", response.data);
             return res.status(500).json({ error: 'Invalid response from RASA' });

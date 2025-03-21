@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">84.31% </span>
+                <span class="strong">86.27% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>43/51</span>
+                <span class='fraction'>44/51</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">65.38% </span>
+                <span class="strong">71.42% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>17/26</span>
+                <span class='fraction'>20/28</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86% </span>
+                <span class="strong">86.27% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>43/50</span>
+                <span class='fraction'>44/51</span>
             </div>
         
             
@@ -156,7 +156,14 @@
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
 <a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -166,6 +173,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -184,9 +192,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -197,15 +205,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -259,6 +273,7 @@ const https = require("https");
 const app = express();
 app.use(express.json());
 app.use(cors());
+&nbsp;
 const isTestEnv = process.env.NODE_ENV === "test";
 &nbsp;
 let options = {};
@@ -277,31 +292,37 @@ let useHTTPS = true;
     }
 }
 &nbsp;
-&nbsp;
 const RASA_SERVER_URL = process.env.RASA_SERVER_URL || <span class="branch-1 cbranch-no" title="branch not covered" >"http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook";</span>
 const ACTION_SERVER_URL = process.env.ACTION_SERVER_URL || <span class="branch-1 cbranch-no" title="branch not covered" >"http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook";</span>
 &nbsp;
+// Route to handle messages from frontend
 app.post('/api/chat', async (req, res) =&gt; {
     try {
-        const { message, sender } = req.body;
+        const { message, sender, metadata } = req.body;
 &nbsp;
         if (!message || !sender) {
             return res.status(400).json({ error: 'Message and sender are required' });
         }
 &nbsp;
-        console.log("🔍 Request Body:", req.body);
-        const response = await axios.post(RASA_SERVER_URL, { message, sender });
+        console.log("Forwarding to Rasa:", JSON.stringify({ message, sender, metadata }, null, 2));
 &nbsp;
-        console.log("🔍 RASA Response:", response.status, response.data);
+        const response = await axios.post(RASA_SERVER_URL, {
+            message,
+            sender,
+            metadata
+        });
 &nbsp;
-        // Check if response from RASA contains the expected data
-        if (response.data &amp;&amp; response.data.responses) {
-            return res.status(200).json(response.data);  // Send 200 if RASA returns valid data
-        } else <span class="missing-if-branch" title="else path not taken" >E</span>{
-<span class="cstat-no" title="statement not covered" >            return res.status(500).json({ error: 'Invalid response from RASA' });</span>
+        console.log("Rasa Response:", response.status, JSON.stringify(response.data, null, 2));
+&nbsp;
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (response.data &amp;&amp; Array.isArray(response.data.messages)) {
+<span class="cstat-no" title="statement not covered" >            return res.status(200).json(response.data);</span>
+        } else {
+            console.error("RASA Response Missing 'messages':", response.data);
+            return res.status(500).json({ error: 'Invalid response from RASA' });
         }
+&nbsp;
     } catch (error) {
-        console.error('Error forwarding to RASA:', error);
+        console.error('Error forwarding to RASA:', error.response?.data || error.message);
         return res.status(500).json({ error: 'Failed to get response from RASA' });
     }
 });
@@ -316,14 +337,14 @@ app.post('/api/action', async (req, res) =&gt; {
         }
 &nbsp;
         const response = await axios.post(ACTION_SERVER_URL, { sender, tracker, domain });
-        return res.status(200).json(response.data); 
+        return res.status(200).json(response.data);
     } catch (error) {
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (!isTestEnv) <span class="cstat-no" title="statement not covered" >console.error('Error connecting to Action Server:', error);</span>
+        console.error('Error connecting to Action Server:', error.response?.data || error.message);
         return res.status(500).json({ error: 'Failed to get response from RASA Action Server' });
     }
 });
 &nbsp;
-&nbsp;
+// Health check route
 app.get('/api/health', (req, res) =&gt; {
     res.status(200).json({ status: 'Node.js API is running' });  
 });
@@ -349,7 +370,7 @@ module.exports = { app, server };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-17T17:14:31.951Z
+                at 2025-03-21T20:18:54.643Z
             </div>
         <script src="prettify.js"></script>
         <script>

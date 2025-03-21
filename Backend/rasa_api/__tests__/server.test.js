@@ -6,26 +6,32 @@ jest.mock("axios");
 
 // Suppress logs in tests
 beforeAll(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {}); 
-    jest.spyOn(console, "warn").mockImplementation(() => {});  
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => {});
 });
 
 afterAll((done) => {
-    server.close(done); 
+    server.close(done);
 });
 
-//Mocked Tests
+// Mocked Tests
 describe("API Tests for RASA Bot", () => {
     test("POST /api/chat - Valid request", async () => {
-        const mockResponse = { responses: [{ text: "Please type start to begin journaling." }] };
+        const mockResponse = {
+            messages: [{ text: "Hi!" }, { text: "Please type start to begin journaling." }],
+            responses: ["Hi!", "Please type start to begin journaling."],
+            metadata: {},
+            conversation_id: "testUser"
+        };
         axios.post.mockResolvedValueOnce({ data: mockResponse });
 
-        const res = await request(server) 
+        const res = await request(server)
             .post("/api/chat")
             .send({ message: "Hi", sender: "testUser" });
 
         expect(res.status).toBe(200);
-        expect(res.body.responses[0].text).toBe("Please type start to begin journaling.");
+        expect(Array.isArray(res.body.responses)).toBe(true);
+        expect(res.body.responses).toContain("Please type start to begin journaling.");
     });
 
     test("POST /api/chat - Missing message", async () => {
@@ -46,7 +52,10 @@ describe("API Tests for RASA Bot", () => {
     });
 
     test("POST /api/action - Valid request", async () => {
-        const mockResponse = { responses: [{ text: "Action executed" }] };
+        const mockResponse = {
+            messages: [{ text: "Action executed" }],
+            responses: ["Action executed"]
+        };
         axios.post.mockResolvedValueOnce({ data: mockResponse });
 
         const res = await request(server)
@@ -54,7 +63,7 @@ describe("API Tests for RASA Bot", () => {
             .send({ sender: "testUser", tracker: {}, domain: {} });
 
         expect(res.status).toBe(200);
-        expect(res.body.responses[0].text).toBe("Action executed");
+        expect(res.body.responses).toContain("Action executed");
     });
 
     test("POST /api/action - Missing sender", async () => {
@@ -82,20 +91,21 @@ describe("API Tests for RASA Bot", () => {
     });
 });
 
-// **Unmocked Tests
+// Unmocked Tests
 describe("Unmocked API Tests for RASA Bot", () => {
     test("POST /api/chat - Real request to RASA", async () => {
-        await new Promise((resolve) => setTimeout(resolve, 3000)); 
-    
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
         const res = await request(server)
             .post("/api/chat")
             .set("Content-Type", "application/json")
             .send({ message: "Hello", sender: "user123" });
-    
+
         console.log("🔍 Debug Jest API Response:", res.status, JSON.stringify(res.body, null, 2));
-    
-        expect(res.status).toBe(200);  
-        expect(res.body.responses).toBeDefined();
+
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.responses)).toBe(true);
+        expect(res.body.responses.length).toBeGreaterThan(0);
     });
 
     test("POST /api/action - Real request to RASA Action Server", async () => {
