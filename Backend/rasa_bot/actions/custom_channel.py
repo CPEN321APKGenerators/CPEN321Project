@@ -11,7 +11,6 @@ from rasa.core.channels.channel import (
     UserMessage,
 )
 
-
 class MyIO(InputChannel):
     def name(self) -> Text:
         """Name of the custom channel."""
@@ -33,26 +32,39 @@ class MyIO(InputChannel):
 
         @custom_webhook.route("/webhook", methods=["POST"])
         async def receive(request: Request) -> HTTPResponse:
-            sender_id = request.json.get("sender")  
-            text = request.json.get("message")  # Extract message, coming from user
-            metadata = request.json.get("metadata", {})  # Extract metadata, sent with message
+            try:
+                sender_id = request.json.get("sender")
+                text = request.json.get("message")
+                metadata = request.json.get("metadata", {})
 
-            collector = CollectingOutputChannel()
+                if not sender_id or not text:
+                    return response.json(
+                        {"error": "Missing 'sender' or 'message'"}, status=400
+                    )
 
-            # Send message to Rasa with metadata
-            await on_new_message(
-                UserMessage(
-                    text=text,
-                    output_channel=collector,
-                    sender_id=sender_id,
-                    metadata=metadata,
+                collector = CollectingOutputChannel()
+
+                # Send the message to Rasa with metadata
+                await on_new_message(
+                    UserMessage(
+                        text=text,
+                        output_channel=collector,
+                        sender_id=sender_id,
+                        metadata=metadata,
+                    )
                 )
-            )
 
-            return response.json({
-                "messages": collector.messages,
-                "metadata": metadata,
-                "conversation_id": sender_id
-            })
+                return response.json({
+                    "messages": collector.messages,
+                    "responses": [msg.get("text") for msg in collector.messages if "text" in msg],
+                    "metadata": metadata,
+                    "conversation_id": sender_id
+                }, status=200)
+
+            except Exception as e:
+                return response.json({
+                    "error": "Internal Server Error",
+                    "details": str(e)
+                }, status=500)
 
         return custom_webhook
