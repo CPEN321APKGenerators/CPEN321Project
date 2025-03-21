@@ -1,10 +1,23 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const request = require("supertest");
 const { app, server } = require("../server");
-const axios = require("axios");
 
-jest.mock("axios");
+// Get original axios
+const actualAxios = jest.requireActual("axios");
 
-// Suppress logs in tests
+// Create a manual mock for axios
+jest.mock("axios", () => {
+    const originalAxios = jest.requireActual("axios");
+    return {
+        __esModule: true,
+        ...originalAxios,
+        post: jest.fn()
+    };
+});
+
+const mockedAxios = require("axios");
+
+// Suppress console output during tests
 beforeAll(() => {
     jest.spyOn(console, "error").mockImplementation(() => {});
     jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -14,7 +27,9 @@ afterAll((done) => {
     server.close(done);
 });
 
-// Mocked Tests
+//
+// ✅ Mocked Tests
+//
 describe("API Tests for RASA Bot", () => {
     test("POST /api/chat - Valid request", async () => {
         const mockResponse = {
@@ -23,7 +38,7 @@ describe("API Tests for RASA Bot", () => {
             metadata: {},
             conversation_id: "testUser"
         };
-        axios.post.mockResolvedValueOnce({ data: mockResponse });
+        mockedAxios.post.mockResolvedValueOnce({ data: mockResponse });
 
         const res = await request(server)
             .post("/api/chat")
@@ -41,7 +56,7 @@ describe("API Tests for RASA Bot", () => {
     });
 
     test("POST /api/chat - RASA server error", async () => {
-        axios.post.mockRejectedValueOnce(new Error("RASA API Down"));
+        mockedAxios.post.mockRejectedValueOnce(new Error("RASA API Down"));
 
         const res = await request(server)
             .post("/api/chat")
@@ -59,7 +74,7 @@ describe("API Tests for RASA Bot", () => {
             messages: [{ text: "Action executed" }],
             responses: ["Action executed"]
         };
-        axios.post.mockResolvedValueOnce({ data: mockResponse });
+        mockedAxios.post.mockResolvedValueOnce({ data: mockResponse });
 
         const res = await request(server)
             .post("/api/action")
@@ -76,7 +91,7 @@ describe("API Tests for RASA Bot", () => {
     });
 
     test("POST /api/action - Action server error", async () => {
-        axios.post.mockRejectedValueOnce(new Error("Action server down"));
+        mockedAxios.post.mockRejectedValueOnce(new Error("Action server down"));
 
         const res = await request(server)
             .post("/api/action")
@@ -97,8 +112,15 @@ describe("API Tests for RASA Bot", () => {
     });
 });
 
-// Unmocked Tests
+//
+// ✅ Unmocked Tests (real RASA server calls)
+//
 describe("Unmocked API Tests for RASA Bot", () => {
+    beforeAll(() => {
+        // Restore real axios
+        mockedAxios.post.mockRestore();
+    });
+
     test("POST /api/chat - Real request to RASA", async () => {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 

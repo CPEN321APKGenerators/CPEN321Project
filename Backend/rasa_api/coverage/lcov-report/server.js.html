@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">84.9% </span>
+                <span class="strong">85.18% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>45/53</span>
+                <span class='fraction'>46/54</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">84.61% </span>
+                <span class="strong">84.9% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>44/52</span>
+                <span class='fraction'>45/53</span>
             </div>
         
             
@@ -174,22 +174,23 @@
 <a name='L109'></a><a href='#L109'>109</a>
 <a name='L110'></a><a href='#L110'>110</a>
 <a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L112'></a><a href='#L112'>112</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -220,10 +221,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -237,7 +234,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -258,6 +254,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -275,6 +272,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -293,6 +291,7 @@ const axios = require('axios');
 const cors = require('cors');
 const fs = require("fs");
 const https = require("https");
+const crypto = require("crypto");
 &nbsp;
 const app = express();
 app.use(express.json());
@@ -302,16 +301,17 @@ const isTestEnv = process.env.NODE_ENV === "test";
 &nbsp;
 let options = {};
 let useHTTPS = true;
+&nbsp;
 <span class="missing-if-branch" title="if path not taken" >I</span>if (!isTestEnv) {
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >        options = {</span>
             key: fs.readFileSync("./ssl/key.pem"),
             cert: fs.readFileSync("./ssl/cert.pem"),
-            secureOptions: require("crypto").constants.SSL_OP_NO_TLSv1 | require("crypto").constants.SSL_OP_NO_TLSv1_1,
+            secureOptions: crypto.constants.SSL_OP_NO_TLSv1 | crypto.constants.SSL_OP_NO_TLSv1_1,
             minVersion: "TLSv1.2"
         };
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >        console.warn("SSL files not found. USING HTTP.");</span>
+<span class="cstat-no" title="statement not covered" >        console.warn("SSL files not found. Falling back to HTTP.");</span>
 <span class="cstat-no" title="statement not covered" >        useHTTPS = false;</span>
     }
 }
@@ -319,7 +319,7 @@ let useHTTPS = true;
 const RASA_SERVER_URL = process.env.RASA_SERVER_URL || <span class="branch-1 cbranch-no" title="branch not covered" >"http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook";</span>
 const ACTION_SERVER_URL = process.env.ACTION_SERVER_URL || <span class="branch-1 cbranch-no" title="branch not covered" >"http://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook";</span>
 &nbsp;
-// Route to handle messages from frontend
+// Route to handle chat messages
 app.post('/api/chat', async (req, res) =&gt; {
     try {
         const { message, sender, metadata } = req.body;
@@ -330,11 +330,7 @@ app.post('/api/chat', async (req, res) =&gt; {
 &nbsp;
         console.log("Forwarding to Rasa:", JSON.stringify({ message, sender, metadata }, null, 2));
 &nbsp;
-        const response = await axios.post(RASA_SERVER_URL, {
-            message,
-            sender,
-            metadata
-        });
+        const response = await axios.post(RASA_SERVER_URL, { message, sender, metadata });
 &nbsp;
         const { messages = <span class="branch-0 cbranch-no" title="branch not covered" >[],</span> ...rest } = response.data;
 &nbsp;
@@ -347,12 +343,11 @@ app.post('/api/chat', async (req, res) =&gt; {
                 ...rest
             });
         } else <span class="missing-if-branch" title="else path not taken" >E</span>{
-<span class="cstat-no" title="statement not covered" >            console.error("RASA Response Missing 'messages':", response.data);</span>
+<span class="cstat-no" title="statement not covered" >            console.error("RASA response missing 'messages':", response.data);</span>
 <span class="cstat-no" title="statement not covered" >            return res.status(500).json({ error: 'Invalid response from RASA' });</span>
         }
-&nbsp;
     } catch (error) {
-        console.error('Error forwarding to RASA:', error.response?.data || error.message);
+        console.error("Error forwarding to RASA:", error.response?.data || error.message);
         return res.status(500).json({
             error: 'Failed to get response from RASA',
             details: error.response?.data || error.message
@@ -360,7 +355,7 @@ app.post('/api/chat', async (req, res) =&gt; {
     }
 });
 &nbsp;
-// Route to trigger RASA actions
+// Route to trigger custom RASA actions
 app.post('/api/action', async (req, res) =&gt; {
     try {
         const { sender, tracker, domain } = req.body;
@@ -370,11 +365,12 @@ app.post('/api/action', async (req, res) =&gt; {
         }
 &nbsp;
         const response = await axios.post(ACTION_SERVER_URL, { sender, tracker, domain });
+&nbsp;
         return res.status(200).json(response.data);
     } catch (error) {
-        console.error('Error connecting to Action Server:', error.response?.data || error.message);
+        console.error("Error connecting to Action Server:", error.response?.data || error.message);
         return res.status(500).json({
-            error: 'Failed to get response from RASA',
+            error: 'Failed to get response from RASA Action Server',
             details: error.response?.data || error.message
         });
     }
@@ -382,11 +378,12 @@ app.post('/api/action', async (req, res) =&gt; {
 &nbsp;
 // Health check route
 app.get('/api/health', (req, res) =&gt; {
-    res.status(200).json({ status: 'Node.js API is running' });  
+    res.status(200).json({ status: 'Node.js API is running' });
 });
 &nbsp;
 // Start server
 const PORT = process.env.PORT || <span class="branch-1 cbranch-no" title="branch not covered" >3001;</span>
+&nbsp;
 let server;
 if (isTestEnv || <span class="branch-1 cbranch-no" title="branch not covered" >!useHTTPS)</span> {
     server = app.listen(PORT, () =&gt; {
@@ -406,7 +403,7 @@ module.exports = { app, server };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-21T20:34:48.683Z
+                at 2025-03-21T20:49:47.632Z
             </div>
         <script src="prettify.js"></script>
         <script>
