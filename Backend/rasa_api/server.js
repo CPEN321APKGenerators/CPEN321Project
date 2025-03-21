@@ -64,7 +64,10 @@ app.post('/api/chat', async (req, res) => {
 
     } catch (error) {
         console.error('Error forwarding to RASA:', error.response?.data || error.message);
-        return res.status(500).json({ error: 'Failed to get response from RASA' });
+        return res.status(500).json({
+            error: 'Failed to get response from RASA',
+            details: error.response?.data || error.message
+        });
     }
 });
 
@@ -81,7 +84,10 @@ app.post('/api/action', async (req, res) => {
         return res.status(200).json(response.data);
     } catch (error) {
         console.error('Error connecting to Action Server:', error.response?.data || error.message);
-        return res.status(500).json({ error: 'Failed to get response from RASA Action Server' });
+        return res.status(500).json({
+            error: 'Failed to get response from RASA',
+            details: error.response?.data || error.message
+        });
     }
 });
 

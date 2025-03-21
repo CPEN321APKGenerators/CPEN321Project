@@ -91,7 +91,8 @@ describe("API Tests for RASA Bot", () => {
     });
 });
 
-// Unmocked Tests
+// ✅ Unmocked Tests
+// ✅ Unmocked Tests
 describe("Unmocked API Tests for RASA Bot", () => {
     test("POST /api/chat - Real request to RASA", async () => {
         await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -99,9 +100,17 @@ describe("Unmocked API Tests for RASA Bot", () => {
         const res = await request(server)
             .post("/api/chat")
             .set("Content-Type", "application/json")
-            .send({ message: "Hello", sender: "user123" });
+            .send({
+                message: "Hello",
+                sender: "user123",
+                metadata: {
+                    userID: "user123",
+                    date: "2025-03-21",
+                    google_token: "test-token"
+                }
+            });
 
-        console.log("🔍 Debug Jest API Response:", res.status, JSON.stringify(res.body, null, 2));
+        console.log("🔍 /api/chat response:", res.status, JSON.stringify(res.body, null, 2));
 
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body.responses)).toBe(true);
@@ -111,8 +120,26 @@ describe("Unmocked API Tests for RASA Bot", () => {
     test("POST /api/action - Real request to RASA Action Server", async () => {
         const res = await request(server)
             .post("/api/action")
-            .send({ sender: "realUser", tracker: {}, domain: {} });
+            .send({
+                sender: "realUser",
+                tracker: {
+                    latest_message: {
+                        text: "Today was a hard day.",
+                        intent: { name: "journal_provided" },
+                        metadata: {
+                            userID: "realUser",
+                            date: "2025-03-21",
+                            google_token: "test-token"
+                        }
+                    }
+                },
+                domain: {}
+            });
+
+        console.log("🔍 /api/action response:", res.status, JSON.stringify(res.body, null, 2));
 
         expect(res.status).toBe(200);
     });
 });
+
+
