@@ -18,6 +18,7 @@ import androidx.test.rule.ActivityTestRule
 import com.example.cpen321project.BuildConfig.GOOGLE_REAL_TOKEN
 import com.example.cpen321project.BuildConfig.GOOGLE_USER_ID
 import org.hamcrest.CoreMatchers.allOf
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,6 +44,11 @@ class Nonfunctional_clicks_test {
         Log.d(TAG, "Launching main activity")
         activityRule.launchActivity(null)
         Intents.init()
+    }
+
+    @After
+    fun tearDown() {
+        Intents.release()
     }
 
     @Test

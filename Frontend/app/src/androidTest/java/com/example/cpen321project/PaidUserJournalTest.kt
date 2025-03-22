@@ -16,6 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.example.cpen321project.BuildConfig.GOOGLE_REAL_TOKEN
 import com.example.cpen321project.BuildConfig.GOOGLE_USER_ID
+import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Rule
@@ -49,6 +50,11 @@ class PaidUserJournalTest {
         Intents.init()
     }
 
+    @After
+    fun tearDown() {
+        Intents.release()
+    }
+
     @Test
     fun A_User_Upload_Image_popup_check_camera() {
         Log.d(TAG, "Starting test: A_User_Upload_Image_popup_check_camera")
@@ -76,6 +82,7 @@ class PaidUserJournalTest {
         Log.d(TAG, "Clicking on Take a Photo option")
         onView(withText("Take a Photo")).perform(click())
 
+        sleep (5000)
         Log.d(TAG, "Test A_User_Upload_Image_popup_check_camera completed successfully")
     }
 
@@ -105,6 +112,8 @@ class PaidUserJournalTest {
 
         Log.d(TAG, "Clicking on Select from Gallery option")
         onView(withText("Select from Gallery")).perform(click())
+
+        sleep (5000)
 
         Log.d(TAG, "Test B_User_Upload_Image_popup_check_device completed successfully")
     }

@@ -26,6 +26,7 @@ import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Rule
@@ -57,6 +58,11 @@ class UnpaidUserJournalTest {
         Log.d(TAG, "Launching main activity")
         activityRule.launchActivity(null)
         Intents.init()
+    }
+
+    @After
+    fun tearDown() {
+        Intents.release()
     }
 
     @Test
@@ -132,7 +138,7 @@ class UnpaidUserJournalTest {
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
-                    hasDescendant(withText("1")), click()
+                    hasDescendant(withText("6")), click()
                 )
             )
 
@@ -166,7 +172,7 @@ class UnpaidUserJournalTest {
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("1"),
+                            withText("6"),
                             withBackground(R.drawable.circle_background)
                         )
                     )
@@ -186,7 +192,7 @@ class UnpaidUserJournalTest {
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
-                    hasDescendant(withText("1")), click()
+                    hasDescendant(withText("6")), click()
                 )
             )
 
@@ -216,7 +222,7 @@ class UnpaidUserJournalTest {
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("1"),
+                            withText("6"),
                             not(withBackground(R.drawable.circle_background))
                         )
                     )
