@@ -41,27 +41,32 @@ app.post('/api/chat', async (req, res) => {
             return res.status(400).json({ error: 'Message and sender are required' });
         }
 
-        const rasaRes = await axios.post(RASA_SERVER_URL, { message, sender, metadata });
-        const { messages = [] } = rasaRes.data;
+        console.log("Forwarding to Rasa:", JSON.stringify({ message, sender, metadata }, null, 2));
 
-        if (!Array.isArray(messages)) {
-            return res.status(500).json({ error: "'messages' not in valid format" });
+        const response = await axios.post(RASA_SERVER_URL, { message, sender, metadata });
+
+        const { messages = [], ...rest } = response.data;
+
+        if (Array.isArray(messages)) {
+            const responses = messages.map((msg) => msg.text).filter(Boolean);
+
+            return res.status(200).json({
+                messages,
+                responses,
+                ...rest
+            });
+        } else {
+            console.error("RASA response missing 'messages':", response.data);
+            return res.status(500).json({ error: 'Invalid response from RASA' });
         }
-
-        const validMessages = messages.filter(msg => typeof msg.text === 'string');
-
-        return res.status(200).json({
-            messages: validMessages
-        });
     } catch (error) {
-        console.error("Chatbot error:", error.response?.data || error.message);
+        console.error("Error forwarding to RASA:", error.response?.data || error.message);
         return res.status(500).json({
             error: 'Failed to get response from RASA',
             details: error.response?.data || error.message
         });
     }
 });
-
 
 // Route to trigger custom RASA actions
 app.post('/api/action', async (req, res) => {

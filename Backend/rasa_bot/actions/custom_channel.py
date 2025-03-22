@@ -1,4 +1,5 @@
 import inspect
+import json
 from sanic import Blueprint, response
 from sanic.request import Request
 from sanic.response import HTTPResponse
@@ -21,7 +22,7 @@ class MyIO(InputChannel):
         """Sanic blueprint for the custom webhook."""
 
         custom_webhook = Blueprint(
-            f"custom_webhook_{type(self).__name__}",
+            "custom_webhook_{}".format(type(self).__name__),
             inspect.getmodule(self).__name__,
         )
 
@@ -43,6 +44,7 @@ class MyIO(InputChannel):
 
                 collector = CollectingOutputChannel()
 
+                # Send the message to Rasa with metadata
                 await on_new_message(
                     UserMessage(
                         text=text,
@@ -54,6 +56,7 @@ class MyIO(InputChannel):
 
                 return response.json({
                     "messages": collector.messages,
+                    "responses": [msg.get("text") for msg in collector.messages if "text" in msg],
                     "metadata": metadata,
                     "conversation_id": sender_id
                 }, status=200)
