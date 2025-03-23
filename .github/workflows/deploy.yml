@@ -79,6 +79,12 @@ jobs:
             else
               echo "DB_URI=${{ secrets.PROD_DB_URI }}" >> .env
             fi
+
+            if grep -q "^PUBLISHABLE_STRIPE_KEY=" .env; then
+              sed -i "s/^PUBLISHABLE_STRIPE_KEY=.*/PUBLISHABLE_STRIPE_KEY=${{ secrets.PUBLISHABLE_STRIPE_KEY }}/" .env
+            else
+              echo "PUBLISHABLE_STRIPE_KEY=${{ secrets.PUBLISHABLE_STRIPE_KEY }}" >> .env
+            fi
             
             # # Give .env permissions
             # chmod 600 .env
