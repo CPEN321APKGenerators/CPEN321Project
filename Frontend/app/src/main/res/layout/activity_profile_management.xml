@@ -61,7 +61,22 @@
             app:layout_constraintStart_toEndOf="@id/profile_account_status"
             app:layout_constraintTop_toBottomOf="@id/profile_name_input" />
 
+        <!-- stars (visible only if paid) -->
+
         <!-- Separator Line -->
+
+        <ImageView
+            android:id="@+id/stars_icon"
+            android:layout_width="37dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="132dp"
+            android:src="@drawable/ic_stars"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.157"
+            app:layout_constraintStart_toEndOf="@+id/profile_account_status"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <View
             android:id="@+id/profile_separator_1"
             android:layout_width="0dp"

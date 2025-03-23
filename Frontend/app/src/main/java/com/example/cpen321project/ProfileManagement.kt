@@ -528,7 +528,9 @@ class ProfileManagement : AppCompatActivity() {
                 "Account Status: Premium"
             findViewById<Button>(R.id.profile_upgrade_button).visibility =
                 View.GONE
+            findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
         } else {
+            findViewById<ImageView>(R.id.stars_icon).visibility = View.GONE
             findViewById<TextView>(R.id.profile_account_status).text =
                 "Account Status: Free"
         }
@@ -623,6 +625,7 @@ class ProfileManagement : AppCompatActivity() {
                 Log.d(TAG, "Completed")
                 findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
                 findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
+                findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
                 //postrequest to make the user paid
                 //User_paid_to_premium()
             }
