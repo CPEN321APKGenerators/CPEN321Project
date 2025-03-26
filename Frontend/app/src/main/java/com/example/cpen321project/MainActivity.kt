@@ -47,10 +47,8 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         super.onCreate(savedInstanceState)
 
         // Check if user is authenticated
-        val googleUserId = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleIDtoken", null)
+        val googleUserId = getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("GoogleUserID", null)
+        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("GoogleIDtoken", null)
 
 
         if (googleUserId.isNullOrEmpty() || (googleidToken != null && isIdTokenExpired(googleidToken))) {
