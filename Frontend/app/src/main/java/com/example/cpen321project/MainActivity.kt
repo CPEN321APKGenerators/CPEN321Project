@@ -47,8 +47,10 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         super.onCreate(savedInstanceState)
 
         // Check if user is authenticated
-        val googleUserId = getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("GoogleUserID", null)
-        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("GoogleIDtoken", null)
+        val googleUserId = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
+        val googleidToken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleIDtoken", null)
 
 
         if (googleUserId.isNullOrEmpty() || (googleidToken != null && isIdTokenExpired(googleidToken))) {
@@ -67,8 +69,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             insets
         }
         getFCMToken(googleUserId)
-        Log.d("MainActivity", "Google User ID: $googleUserId")
-
         loadJournalEntries()
         val addDate = intent.getStringExtra("added_date") ?: ""
         if (addDate.isNotEmpty()) {
@@ -279,7 +279,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
                     )
                     startActivity(intent)
                 }
-//                startActivity(intent)
             } else {
                 Toast.makeText(this, "Cannot add a journal for future dates!", Toast.LENGTH_LONG)
                     .show()
