@@ -29,6 +29,14 @@ class JournalApiClient {
         fun onFailure(error: String)
     }
 
+    data class JournalEntryParams(
+        val date: String?,
+        val userID: String?,
+        val googleToken: String?,
+        val text: String,
+        val imageView: ImageView
+    )
+
     fun checkUserPaidStatus(userID: String?, callback: (Boolean) -> Unit) {
         val request = Request.Builder()
             .url("$BASE_URL/api/profile/isPaid/?userID=$userID")
@@ -61,24 +69,20 @@ class JournalApiClient {
     }
 
     fun saveJournalEntry(
-        date: String?,
-        userID: String?,
-        googleToken: String?,
-        text: String,
-        imageView: ImageView,
+        params: JournalEntryParams,
         callback: JournalCallback
     ) {
         val mediaArray = JSONArray()
-        val base64Image = convertImageViewToBase64(imageView)
+        val base64Image = convertImageViewToBase64(params.imageView)
         if (base64Image != null) {
             mediaArray.put(base64Image)
         }
 
         val json = try {
             JSONObject().apply {
-                put("date", date)
-                put("userID", userID)
-                put("text", text)
+                put("date", params.date)
+                put("userID", params.userID)
+                put("text", params.text)
                 put("media", mediaArray)
             }
         } catch (e: JSONException) {
@@ -92,45 +96,29 @@ class JournalApiClient {
             val request = Request.Builder()
                 .url("$BASE_URL/api/journal")
                 .post(requestBody)
-                .addHeader("Authorization", "Bearer $googleToken")
+                .addHeader("Authorization", "Bearer ${params.googleToken}")
                 .build()
 
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    callback.onFailure("Failed to save journal!")
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if (response.isSuccessful) {
-                        callback.onSuccess("Journal saved successfully!")
-                    } else {
-                        callback.onFailure("Error: ${response.body?.string()}")
-                    }
-                }
-            })
+            client.newCall(request).enqueue(createJournalCallback(callback, "save"))
         } else {
             callback.onFailure("Failed to create journal data")
         }
     }
 
     fun updateJournalEntry(
-        date: String?,
-        userID: String?,
-        googleToken: String?,
-        text: String,
-        imageView: ImageView,
+        params: JournalEntryParams,
         callback: JournalCallback
     ) {
         val mediaArray = JSONArray()
-        val base64Image = convertImageViewToBase64(imageView)
+        val base64Image = convertImageViewToBase64(params.imageView)
         if (base64Image != null) {
             mediaArray.put(base64Image)
         }
 
         val json = JSONObject().apply {
-            put("date", date)
-            put("userID", userID)
-            put("text", text)
+            put("date", params.date)
+            put("userID", params.userID)
+            put("text", params.text)
             put("media", mediaArray)
         }
 
@@ -139,22 +127,24 @@ class JournalApiClient {
         val request = Request.Builder()
             .url("$BASE_URL/api/journal")
             .put(requestBody)
-            .addHeader("Authorization", "Bearer $googleToken")
+            .addHeader("Authorization", "Bearer ${params.googleToken}")
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback.onFailure("Failed to update journal!")
-            }
+        client.newCall(request).enqueue(createJournalCallback(callback, "update"))
+    }
 
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    callback.onSuccess("Journal updated!")
-                } else {
-                    callback.onFailure("Error updating journal!")
-                }
+    private fun createJournalCallback(callback: JournalCallback, action: String) = object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            callback.onFailure("Failed to $action journal!")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            if (response.isSuccessful) {
+                callback.onSuccess("Journal ${action}d successfully!")
+            } else {
+                callback.onFailure("Error: ${response.body?.string()}")
             }
-        })
+        }
     }
 
     fun fetchJournalEntry(

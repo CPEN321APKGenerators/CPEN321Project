@@ -254,13 +254,10 @@ class Journal_entries : AppCompatActivity() {
             Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
             return
         }
+        val params = JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token, journalText, journalImageview)
 
         journalApiClient.saveJournalEntry(
-            selectedDate,
-            userID,
-            user_google_token,
-            journalText,
-            journalImageview,
+            params,
             object : JournalApiClient.JournalCallback {
                 override fun onSuccess(response: String) {
                     runOnUiThread {
@@ -291,13 +288,10 @@ class Journal_entries : AppCompatActivity() {
             Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
             return
         }
+        val params = JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token, updatedText, journalImageview)
 
         journalApiClient.updateJournalEntry(
-            selectedDate,
-            userID,
-            user_google_token,
-            updatedText,
-            journalImageview,
+            params,
             object : JournalApiClient.JournalCallback {
                 override fun onSuccess(response: String) {
                     runOnUiThread {
