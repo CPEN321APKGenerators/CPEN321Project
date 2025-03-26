@@ -5,14 +5,11 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -31,21 +28,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 class Journal_entries : AppCompatActivity() {
-
     private lateinit var journalentrytext: EditText
     private lateinit var save_entry: Button
     private lateinit var journalImageview: ImageView
@@ -56,12 +42,9 @@ class Journal_entries : AppCompatActivity() {
     private lateinit var chatScrollView: ScrollView
     private lateinit var chatInput: EditText
     private lateinit var sendChatButton: Button
-    private val client = OkHttpClient()
-    private val chatbotUrl = "https://54.234.28.190:3001/api/chat"
-    private val BASE_URL = "https://cpen321project-journal.duckdns.org"
     private var userID: String? = null
     private var user_google_token: String? = null
-
+    private lateinit var journalApiClient: JournalApiClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +55,14 @@ class Journal_entries : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        journalApiClient = JournalApiClient()
+        initializeViews()
+        setupListeners()
+        checkUserPaidStatus()
+    }
+
+    private fun initializeViews() {
         journalentrytext = findViewById(R.id.journalEntryInput)
         journalImageview = findViewById(R.id.journalImageView)
         chatScrollView = findViewById(R.id.chatScrollView)
@@ -86,9 +77,10 @@ class Journal_entries : AppCompatActivity() {
 
         val entrytext = intent.getStringExtra("Journal_Entry_fetched") ?: ""
         loadscreenifexists(entrytext)
-
         journalentrytext.isEnabled = false
+    }
 
+    private fun setupListeners() {
         findViewById<Button>(R.id.Backbuttonentries).setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -109,23 +101,14 @@ class Journal_entries : AppCompatActivity() {
         }
 
         save_entry.setOnClickListener {
-            if (entrytext.isEmpty()) {
+            if (journalentrytext.text.toString().trim().isEmpty()) {
                 saveentry()
             } else {
                 updateJournalEntry()
             }
         }
 
-        Userpaid { isPaid ->
-            isPaidUser = isPaid
-            if (isPaidUser) {
-                Log.d("User Status", "User is a paid user")
-            } else {
-                Log.d("User Status", "User is NOT a paid user")
-            }
-        }
-
-        findViewById<ImageButton>(R.id.addimageButton).setOnClickListener() {
+        findViewById<ImageButton>(R.id.addimageButton).setOnClickListener {
             if (isPaidUser) {
                 showUploadOptions()
             } else {
@@ -147,6 +130,17 @@ class Journal_entries : AppCompatActivity() {
         }
     }
 
+    private fun checkUserPaidStatus() {
+        journalApiClient.checkUserPaidStatus(userID) { isPaid ->
+            isPaidUser = isPaid
+            if (isPaidUser) {
+                Log.d("User Status", "User is a paid user")
+            } else {
+                Log.d("User Status", "User is NOT a paid user")
+            }
+        }
+    }
+
     private fun loadscreenifexists(Savedentry: String) {
         if (Savedentry.isNotEmpty()) {
             val json = JSONObject(Savedentry)
@@ -155,27 +149,21 @@ class Journal_entries : AppCompatActivity() {
             journalentrytext.setText(text)
             val mediaArray = journalObject.getJSONArray("media")
             if (mediaArray.length() > 0) {
-                val base64Image =
-                    mediaArray.getString(0)  // Get the first image (adjust if multiple)
-                val bitmap = decodeBase64ToBitmap(base64Image)
-                journalImageview.setImageBitmap(bitmap) // Set the image in ImageView
+                val base64Image = mediaArray.getString(0)
+                val bitmap = journalApiClient.decodeBase64ToBitmap(base64Image)
+                journalImageview.setImageBitmap(bitmap)
                 journalImageview.visibility = View.VISIBLE
             }
-            // Show journal UI
+
             journalentrytext.visibility = View.VISIBLE
             save_entry.visibility = View.VISIBLE
-
-            // Hide chatbot UI
             chatScrollView.visibility = View.GONE
             chatInput.visibility = View.GONE
             sendChatButton.visibility = View.GONE
         } else {
-            // Hide journal UI
             journalentrytext.visibility = View.GONE
             save_entry.visibility = View.GONE
             journalImageview.visibility = View.GONE
-
-            // Show chatbot UI
             chatScrollView.visibility = View.VISIBLE
             chatInput.visibility = View.VISIBLE
             sendChatButton.visibility = View.VISIBLE
@@ -198,90 +186,45 @@ class Journal_entries : AppCompatActivity() {
         journalImageview.setImageDrawable(null)
     }
 
-    private fun Userpaid(callback: (Boolean) -> Unit) {
-
-        val request = Request.Builder()
-            .url("$BASE_URL/api/profile/isPaid/?userID=$userID")
-            .get()
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string() ?: ""
-                    try {
-                        val jsonObject = JSONObject(responseBody) // Parse JSON
-                        val paidUser = jsonObject.optBoolean("isPaid", false) // Extract "isPaid"
-                        callback(paidUser) // Send result to callback
-                    } catch (e: JSONException) {
-                        Log.e("User Paid Fetch", "Failed to parse JSON response", e)
-                        callback(false) // Assume false if parsing fails
-                    }
-                } else {
-                    Log.e("User Paid Fetch", "Failed to fetch user status: ${response.code}")
-                    callback(false) // Assume false if request fails
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("User Paid Fetch", "Error fetching user status", e)
-                callback(false) // Assume false on failure
-            }
-        })
-    }
-
-
     private fun sendMessageToChatbot(message: String) {
-        val json =JSONObject()
-        json.apply {
-            put("sender", userID)  // Unique sender ID
-            put("message", message)
-            put("metadata", JSONObject().apply {
-                put("date", selectedDate)
-                put("userID", userID)
-                put("google_token", user_google_token)
-            })
-        }
-        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
+        journalApiClient.sendChatMessage(userID, user_google_token, selectedDate, message,
+            object : JournalApiClient.JournalCallback {
+                override fun onSuccess(response: String) {
+                    try {
+                        val responseObject = JSONObject(response)
+                        val responseArray = responseObject.getJSONArray("messages")
+                        val botMessages = StringBuilder()
 
-        val request = Request.Builder()
-            .url(chatbotUrl)
-            .post(requestBody)
-            .build()
+                        for (i in 0 until responseArray.length()) {
+                            val messageObject = responseArray.getJSONObject(i)
+                            val botMessage = messageObject.getString("text")
+                            botMessages.append(botMessage).append("\n")
+                        }
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        "Failed to connect to chatbot",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val responseData = response.body?.string()
-                if (responseData != null) {
-                    val responseObject = JSONObject(responseData)
-
-
-                    // ✅ Extract "messages" array
-                    val responseArray = responseObject.getJSONArray("messages")
-                    val botMessages = StringBuilder()
-
-                    for (i in 0 until responseArray.length()) {
-                        val messageObject = responseArray.getJSONObject(i)
-                        val botMessage = messageObject.getString("text")
-                        botMessages.append(botMessage).append("\n")
+                        runOnUiThread {
+                            addChatMessage("Bot: ${botMessages.toString().trim()}", false)
+                        }
+                    } catch (e: Exception) {
+                        runOnUiThread {
+                            Toast.makeText(
+                                applicationContext,
+                                "Error parsing chatbot response",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
+                }
 
+                override fun onFailure(error: String) {
                     runOnUiThread {
-                        addChatMessage("Bot: ${botMessages.toString().trim()}", false)
+                        Toast.makeText(
+                            applicationContext,
+                            "Failed to connect to chatbot",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
-            }
-        })
+            })
     }
 
     private fun addChatMessage(text: String, isUser: Boolean) {
@@ -289,7 +232,7 @@ class Journal_entries : AppCompatActivity() {
         messageView.text = text
         messageView.textSize = 16f
         messageView.setPadding(10, 10, 10, 10)
-        messageView.setTextColor(Color.WHITE)  // White text for better contrast
+        messageView.setTextColor(Color.WHITE)
         messageView.setTypeface(null, Typeface.BOLD)
 
         if (isUser) {
@@ -300,7 +243,6 @@ class Journal_entries : AppCompatActivity() {
 
         findViewById<LinearLayout>(R.id.chatContainer).addView(messageView)
 
-        // Scroll to the latest message
         chatScrollView.post {
             chatScrollView.fullScroll(View.FOCUS_DOWN)
         }
@@ -313,99 +255,110 @@ class Journal_entries : AppCompatActivity() {
             return
         }
 
-        val mediaArray = JSONArray()
-        val base64Image = convertImageViewToBase64(journalImageview)
-        if (base64Image != null) {
-            mediaArray.put(base64Image)  // Add Base64 image string to the JSON array
-        }
-
-        val json =
-            try {
-                JSONObject().apply {
-                    put("date", selectedDate)  // Must be in ISO8601 format (yyyy-MM-dd)
-                    put("userID", userID)
-                    put("text", journalText)
-                    put("media", mediaArray)  // Ensure this doesn't exceed size limits
-                }
-            } catch (e: JSONException) {
-                Log.e("JSON Error", "Failed to create JSON object", e)
-                null  // Return null or handle error accordingly
-            }
-
-        if (json != null) {
-            val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-
-            val request = Request.Builder()
-                .url("$BASE_URL/api/journal")
-                .post(requestBody)
-                .addHeader("Authorization", "Bearer $user_google_token")
-                .build()
-
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
+        journalApiClient.saveJournalEntry(
+            selectedDate,
+            userID,
+            user_google_token,
+            journalText,
+            journalImageview,
+            object : JournalApiClient.JournalCallback {
+                override fun onSuccess(response: String) {
                     runOnUiThread {
                         Toast.makeText(
                             applicationContext,
-                            "Failed to save journal!",
+                            "Journal saved successfully!",
                             Toast.LENGTH_SHORT
                         ).show()
+                        val intent = Intent(this@Journal_entries, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        intent.putExtra("added_date", selectedDate.toString())
+                        startActivity(intent)
+                        finish()
                     }
                 }
 
-                override fun onResponse(call: Call, response: Response) {
+                override fun onFailure(error: String) {
                     runOnUiThread {
-                        if (response.isSuccessful) {
-                            Toast.makeText(
-                                applicationContext,
-                                "Journal saved successfully!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            Toast.makeText(
-                                applicationContext,
-                                "Error: ${response.body?.string()}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
                     }
                 }
             })
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            intent.putExtra("added_date", selectedDate.toString())
-            startActivity(intent)
-            finish()
-        } else {
-            Log.e("Request Error", "JSON object is null, request not sent")
-        }
     }
 
-    private fun convertImageViewToBase64(imageView: ImageView): String? {
-        val drawable = imageView.drawable ?: return null
-        val bitmap = (drawable as BitmapDrawable).bitmap
+    private fun updateJournalEntry() {
+        val updatedText = journalentrytext.text.toString().trim()
+        if ((updatedText.isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
+            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        // Resize image to prevent large Base64 strings
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 300, 300, true)
+        journalApiClient.updateJournalEntry(
+            selectedDate,
+            userID,
+            user_google_token,
+            updatedText,
+            journalImageview,
+            object : JournalApiClient.JournalCallback {
+                override fun onSuccess(response: String) {
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            "Journal updated!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        val intent = Intent(this@Journal_entries, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        intent.putExtra("added_date", selectedDate.toString())
+                        startActivity(intent)
+                        finish()
+                    }
+                }
 
-        val outputStream = ByteArrayOutputStream()
-        resizedBitmap.compress(
-            Bitmap.CompressFormat.JPEG,
-            50,
-            outputStream
-        )  // Compress as JPEG with 50% quality
-        val byteArray = outputStream.toByteArray()
-
-        return Base64.encodeToString(byteArray, Base64.NO_WRAP) // Convert to Base64
+                override fun onFailure(error: String) {
+                    runOnUiThread {
+                        Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            })
     }
 
-    private fun decodeBase64ToBitmap(base64String: String): Bitmap? {
-        return try {
-            val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
-            BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-        } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
-            null
-        }
+    private fun fetchJournalEntry(intent: Intent) {
+        journalApiClient.fetchJournalEntry(
+            selectedDate,
+            userID,
+            user_google_token,
+            object : JournalApiClient.JournalCallback {
+                override fun onSuccess(response: String) {
+                    try {
+                        val jsonResponse = JSONObject(response)
+                        val journalObject = jsonResponse.getJSONObject("journal")
+                        val text = journalObject.getString("text")
+                        val mediaArray = journalObject.getJSONArray("media")
+
+                        if (text.isNotEmpty() || mediaArray.length() > 0) {
+                            runOnUiThread {
+                                intent.putExtra("added_date", selectedDate)
+                                startActivity(intent)
+                                finish()
+                            }
+                        } else {
+                            Log.d("Journal Entry", "No journal entry found for this date")
+                            startActivity(intent)
+                            finish()
+                        }
+                    } catch (e: JSONException) {
+                        Log.e("Journal Fetch", "Error parsing JSON", e)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
+
+                override fun onFailure(error: String) {
+                    Log.e("Journal Fetch", error)
+                    startActivity(intent)
+                    finish()
+                }
+            })
     }
 
     private fun showdeleteconformationpopup() {
@@ -416,164 +369,41 @@ class Journal_entries : AppCompatActivity() {
                 deleteJournalEntry()
             }
             .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss() // Dismiss dialog, do nothing
+                dialog.dismiss()
             }
             .create()
 
         alertDialog.show()
     }
 
-    private fun updateJournalEntry() {
-        val updatedText = journalentrytext.text.toString().trim()
-        if ((updatedText.isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
-            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val mediaArray = JSONArray()
-        val base64Image = convertImageViewToBase64(journalImageview)
-        if (base64Image != null) {
-            mediaArray.put(base64Image)  // Add Base64 image string to the JSON array
-        }
-
-        val json = JSONObject().apply {
-            put("date", selectedDate)
-            put("userID", userID) // Replace with actual user ID
-            put("text", updatedText)
-            put("media", mediaArray)
-        }
-
-        val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-
-        val request = Request.Builder()
-            .url("$BASE_URL/api/journal")
-            .put(requestBody)
-            .addHeader("Authorization", "Bearer $user_google_token")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        "Failed to update journal!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        Toast.makeText(applicationContext, "Journal updated!", Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
-                        Toast.makeText(
-                            applicationContext,
-                            "Error updating journal!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        })
-
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.putExtra("added_date", selectedDate.toString())
-        startActivity(intent)
-        finish()
-    }
-
-    private fun fetchJournalEntry(intent: Intent) {
-
-        val request = Request.Builder()
-            .url("$BASE_URL/api/journal?date=$selectedDate&userID=$userID")
-            .get()
-            .addHeader("Authorization", "Bearer $user_google_token")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-
-                    if (!responseBody.isNullOrEmpty()) {
-                        try {
-                            val jsonResponse = JSONObject(responseBody)
-                            val journalObject = jsonResponse.getJSONObject("journal")
-                            val text = journalObject.getString("text")
-                            val mediaArray = journalObject.getJSONArray("media")
-
-                            // Check if there is any text or media saved
-                            if (text.isNotEmpty() || mediaArray.length() > 0) {
-                                runOnUiThread {
-                                    intent.putExtra("added_date", selectedDate)
-                                    startActivity(intent)
-                                    finish()
-                                }
-                            } else {
-                                Log.d("Journal Entry", "No journal entry found for this date")
-                                startActivity(intent)
-                                finish()
-                            }
-                        } catch (e: JSONException) {
-                            Log.e("Journal Fetch", "Error parsing JSON", e)
-                        }
-                    } else {
-                        Log.d("Journal Entry", "Empty response from server")
-                    }
-                } else {
-                    Log.e("Journal Fetch", "Failed to fetch journal entry: ${response.code}")
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("Journal Fetch", "Error fetching journal entry", e)
-            }
-        })
-    }
-
     private fun deleteJournalEntry() {
-        val request = Request.Builder()
-            .url("$BASE_URL/api/journal?date=$selectedDate&userID=$userID")  // Replace with actual user ID
-            .delete()
-            .addHeader("Authorization", "Bearer $user_google_token")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        "Failed to delete journal!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        Toast.makeText(applicationContext, "Journal deleted!", Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
+        journalApiClient.deleteJournalEntry(
+            selectedDate,
+            userID,
+            user_google_token,
+            object : JournalApiClient.JournalCallback {
+                override fun onSuccess(response: String) {
+                    runOnUiThread {
                         Toast.makeText(
                             applicationContext,
-                            "Error deleting journal!",
+                            "Journal deleted!",
                             Toast.LENGTH_SHORT
                         ).show()
+                        journalentrytext.setText("")
+                        val intent = Intent(this@Journal_entries, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        intent.putExtra("deleted_date", selectedDate.toString())
+                        startActivity(intent)
+                        finish()
                     }
                 }
-            }
-        })
-        journalentrytext.setText("")
-        // Close activity and go back to main screen
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.putExtra("deleted_date", selectedDate.toString())
-        startActivity(intent)
-        finish()
+
+                override fun onFailure(error: String) {
+                    runOnUiThread {
+                        Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            })
     }
 
     private fun showUploadOptions() {
@@ -583,8 +413,8 @@ class Journal_entries : AppCompatActivity() {
             .setTitle("Upload Media")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> requestStoragePermission()  // Select from Gallery
-                    1 -> requestCameraPermission()   // Take a Photo
+                    0 -> requestStoragePermission()
+                    1 -> requestCameraPermission()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -593,9 +423,7 @@ class Journal_entries : AppCompatActivity() {
 
     private fun requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-
+            != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.CAMERA),
@@ -608,9 +436,7 @@ class Journal_entries : AppCompatActivity() {
 
     private fun requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-
+            != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -656,7 +482,7 @@ class Journal_entries : AppCompatActivity() {
             Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_SHORT).show()
             return
         }
-        pickImageLauncher.launch("image/*") // Opens gallery for image selection
+        pickImageLauncher.launch("image/*")
     }
 
     private fun openCamera() {
@@ -665,7 +491,7 @@ class Journal_entries : AppCompatActivity() {
             return
         }
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        takePhotoLauncher.launch(intent) // Opens camera
+        takePhotoLauncher.launch(intent)
     }
 
     private val pickImageLauncher = registerForActivityResult(
