@@ -15,7 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import { deriveKey, encryptData, decryptData } from "./src/utils/crypto_functions";
 
-const serverSecret = process.env.SERVER_SECRET || fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
+const serverSecret = process.env.SERVER_SECRET || fs.readFileSync(path.join(__dirname, './src/config/serverSecret.txt'), 'utf8').trim();
 
 const { DateTime } = require('luxon');
 
