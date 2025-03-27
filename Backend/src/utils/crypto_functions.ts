@@ -3,7 +3,7 @@ import { TextEncoder, TextDecoder } from 'util';
 import fs from "fs";
 import path from "path";
 
-const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim()||process.env.SERVER_SECRET;
+const serverSecret = process.env.SERVER_SECRET || fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 console.log(serverSecret)
 
 // Derive AES-CBC Key using PBKDF2
