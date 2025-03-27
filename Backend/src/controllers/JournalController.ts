@@ -133,7 +133,7 @@ async function getEmbeddings(entry: string, activitiesTracking: {
         throw new Error("Failed to parse response from API");
     }
 }
-const serverSecret = fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
+const serverSecret = process.env.SERVER_SECRET || fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
 // const isValidBase64 = (str: string) => {
 //     return /^data:image\/(png|jpeg|jpg);base64,[A-Za-z0-9+/=]+$/.test(str);
