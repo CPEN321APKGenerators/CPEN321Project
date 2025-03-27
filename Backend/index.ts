@@ -13,6 +13,9 @@ import cron from 'node-cron';
 import admin from 'firebase-admin';
 import fs from 'fs';
 import path from 'path';
+import { deriveKey, encryptData, decryptData } from "./src/utils/crypto_functions";
+
+const serverSecret = process.env.SERVER_SECRET || fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
 const { DateTime } = require('luxon');
 
@@ -245,9 +248,11 @@ export async function scheduleNotifications() {
             console.log("Current UTC Time:", utcTime);
 
             const users = await usersCollection.find({}).toArray();
+            const key = await deriveKey(serverSecret);
 
-            users.forEach(user => {
+            users.forEach(async user => {
                 const { reminderSetting, fcmToken, userID } = user;
+
                 console.log("Stored Reminder:", reminderSetting);
 
                 if (
@@ -255,6 +260,7 @@ export async function scheduleNotifications() {
                     reminderSetting.Weekday.includes(utcDay) && 
                     reminderSetting.time === utcTime
                 ) {
+                    const decryptedFcmToken = await decryptData(fcmToken, key);
                     console.log("Reminder matched for user:", userID);
 
                     const message = {
@@ -264,7 +270,7 @@ export async function scheduleNotifications() {
                             reminderTime: reminderSetting.time,
                             reminderDays: JSON.stringify(reminderSetting.Weekday)
                         },
-                        token: fcmToken
+                        token: decryptedFcmToken
                     };
 
                     admin.messaging().send(message)

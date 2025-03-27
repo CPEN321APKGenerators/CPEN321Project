@@ -4,6 +4,11 @@ import { ObjectId } from "mongodb";
 import admin from "firebase-admin";
 import { DateTime } from "luxon";
 import axios from 'axios';
+import { deriveKey, encryptData, decryptData } from "../utils/crypto_functions";
+import fs from 'fs';
+import path from 'path';
+
+const serverSecret = process.env.SERVER_SECRET || fs.readFileSync(path.join(__dirname, '../config/serverSecret.txt'), 'utf8').trim();
 
 // Initialize Firebase Admin SDK (Ensure serviceAccountKey.json is properly configured)
 if (!admin.apps.length) {
@@ -82,6 +87,10 @@ export class UserController {
             if (!user) {
                 return res.status(404).json({ error: "User not found" });
             }
+
+            const key = await deriveKey(serverSecret);
+            // Decrypt the FCM token
+            const decryptedFcmToken = await decryptData(user.fcmToken, key);
     
             // Return the user profile
             const profile = {
@@ -91,7 +100,7 @@ export class UserController {
                 activities_tracking: user.activities_tracking || [],
                 userReminderTime: user.userReminderTime || [],
                 createdAt: user.createdAt || "",
-                fcmToken: user.fcmToken || "",
+                fcmToken: decryptedFcmToken || "",
                 timeOffset: user.timeOffset || "",
                 googleNumID: user.googleNumID || ""
             };
@@ -294,7 +303,6 @@ export class UserController {
         }
     }
 
-
     // Store FCM Token
     async storeFcmToken(req: Request, res: Response, next: NextFunction) {
         const { userID, fcmToken, timeOffset } = req.body;
@@ -303,10 +311,14 @@ export class UserController {
             return res.status(400).json({ error: "userID, fcmToken, timeOffset are required" });
         }
 
+        const key = await deriveKey(serverSecret);
+        // Encrypt the FCM token before storing it
+        const encryptedFcmToken = await encryptData(fcmToken, key);
+
         try {
             const result = await client.db("cpen321journal").collection("users").updateOne(
                 { userID },
-                { $set: { fcmToken, timeOffset, updatedAt: new Date() } },
+                { $set: { fcmToken: encryptedFcmToken, timeOffset, updatedAt: new Date() } },
                 { upsert: true }
             );
 
