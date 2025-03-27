@@ -15,3 +15,4 @@ Backend/src/config/cpen321project-stripe-secret.txt
 
 # Ignore dependencies installed
 Backend/node_modules
+/Backend/src/config
