@@ -204,6 +204,16 @@ class Journal_entries : AppCompatActivity() {
                         runOnUiThread {
                             addChatMessage("Bot: ${botMessages.toString().trim()}", false)
                         }
+                    } catch (e: JSONException) {
+                        // Handles both JSONException and its subclass JSONException
+                        runOnUiThread {
+                            Toast.makeText(
+                                applicationContext,
+                                "Error parsing chatbot response",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        Log.e("ChatbotResponse", "JSON parsing error", e)
                     } catch (e: Exception) {
                         runOnUiThread {
                             Toast.makeText(
@@ -212,6 +222,7 @@ class Journal_entries : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                        Log.e("ChatbotResponse", "Unexpected error", e)
                     }
                 }
 
