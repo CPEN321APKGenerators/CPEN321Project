@@ -238,7 +238,10 @@ class ProfileManagement : AppCompatActivity() {
             val unit = unitSpinner.selectedItem.toString()
 
             if (activityName.isNotEmpty() && averageValue > 0) {
-                addNewActivity(activityName, averageValue, unit)
+                val newActivity = Activity(activityName, averageValue, unit)
+                activitiesList.add(newActivity)
+                activitiesAdapter.notifyDataSetChanged()
+                updateListViewHeight()
             } else {
                 Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_LONG).show()
             }
@@ -257,9 +260,9 @@ class ProfileManagement : AppCompatActivity() {
         builder.setTitle("Choose an option")
         builder.setItems(options) { _, which ->
             when (which) {
-//                0 -> showEditActivityDialog(position)  // Edit selected
-//                1 -> deleteActivity(position)           // Delete selected
-                0 -> deleteActivity(position)
+                0 -> {  activitiesList.removeAt(position)
+                        activitiesAdapter.notifyDataSetChanged()
+                        updateListViewHeight() }
             }
         }
         builder.show()
@@ -322,23 +325,6 @@ class ProfileManagement : AppCompatActivity() {
 
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         builder.show()
-    }
-
-
-    // Function to delete an activity
-    private fun deleteActivity(position: Int) {
-        activitiesList.removeAt(position)
-        activitiesAdapter.notifyDataSetChanged()
-        updateListViewHeight()
-    }
-
-
-    // Function to add a new activity to the list
-    private fun addNewActivity(name: String, averageValue: Float, unit: String) {
-        val newActivity = Activity(name, averageValue, unit)
-        activitiesList.add(newActivity)
-        activitiesAdapter.notifyDataSetChanged()
-        updateListViewHeight()
     }
 
 
