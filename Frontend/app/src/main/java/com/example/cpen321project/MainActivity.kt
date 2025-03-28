@@ -82,7 +82,9 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
             saveJournalEntries()  // Save after updating the set
         }
 
-        initWidgets()
+//        initWidgets()
+        calendarRecyclerView = findViewById(R.id.calenderrecycleView)
+        monthYearText = findViewById(R.id.Year_month_TV)
         selectedDate = LocalDate.now()
         setMonthView()
 
@@ -113,7 +115,16 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         }
 
         findViewById<Button>(R.id.export_button).setOnClickListener() {
-            showFormatSelectionDialog(googleUserId, googleidToken)
+//            showFormatSelectionDialog(googleUserId, googleidToken)
+            val formats = arrayOf("PDF", "CSV")
+
+            AlertDialog.Builder(this)
+                .setTitle("Choose file format")
+                .setItems(formats) { _, which ->
+                    val selectedFormat = formats[which].lowercase()
+                    get_downloadurl(selectedFormat, googleidToken, googleUserId)
+                }
+                .show()
         }
     }
 
@@ -131,17 +142,17 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         }
     }
 
-    private fun showFormatSelectionDialog(googleUserIdd: String?, googleidToken: String?) {
-        val formats = arrayOf("PDF", "CSV")
-
-        AlertDialog.Builder(this)
-            .setTitle("Choose file format")
-            .setItems(formats) { _, which ->
-                val selectedFormat = formats[which].lowercase()
-                get_downloadurl(selectedFormat, googleidToken, googleUserIdd)
-            }
-            .show()
-    }
+//    private fun showFormatSelectionDialog(googleUserIdd: String?, googleidToken: String?) {
+//        val formats = arrayOf("PDF", "CSV")
+//
+//        AlertDialog.Builder(this)
+//            .setTitle("Choose file format")
+//            .setItems(formats) { _, which ->
+//                val selectedFormat = formats[which].lowercase()
+//                get_downloadurl(selectedFormat, googleidToken, googleUserIdd)
+//            }
+//            .show()
+//    }
 
     private fun get_downloadurl(
         selectedFormat: String,
@@ -207,11 +218,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         clipboard.setPrimaryClip(clip)
 
         Toast.makeText(this, "File URL copied to clipboard!", Toast.LENGTH_LONG).show()
-    }
-
-    private fun initWidgets() {
-        calendarRecyclerView = findViewById(R.id.calenderrecycleView)
-        monthYearText = findViewById(R.id.Year_month_TV)
     }
 
     private fun setMonthView() {
