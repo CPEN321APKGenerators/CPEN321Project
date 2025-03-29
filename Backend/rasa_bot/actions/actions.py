@@ -43,9 +43,7 @@ class ActionSaveMessage(Action):
 
         if response.status_code == 200:
             logging.info("Journal entry saved successfully.")
-            dispatcher.utter_message(text="Your journal entry has been saved successfully.")
         else:
             logging.error(f"Failed to save journal entry. Status: {response.status_code}, Response: {response.text}")
             dispatcher.utter_message(text="Failed to save journal entry. Please try again later.")
-
         return []
