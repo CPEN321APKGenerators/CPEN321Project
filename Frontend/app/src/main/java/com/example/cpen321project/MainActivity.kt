@@ -86,45 +86,6 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         monthYearText = findViewById(R.id.Year_month_TV)
         selectedDate = LocalDate.now()
         setMonthView()
-
-//        findViewById<Button>(R.id.Last_month_button).setOnClickListener() {
-//            selectedDate = selectedDate.minusMonths(1)
-//            setMonthView()
-//        }
-//
-//        findViewById<Button>(R.id.Next_month_button).setOnClickListener() {
-//            selectedDate = selectedDate.plusMonths(1)
-//            setMonthView()
-//        }
-//
-//        findViewById<Button>(R.id.profile_button).setOnClickListener() {
-//            val intent = Intent(this, ProfileManagement::class.java)
-//            startActivity(intent)
-//        }
-//
-//        findViewById<Button>(R.id.log_out_button).setOnClickListener() {
-//            logOut()
-//        }
-//
-//        findViewById<Button>(R.id.analytics_button).setOnClickListener() {
-//            val intent = Intent(this, AnalyticsActivity::class.java)
-//            intent.putExtra("THE_DATE", selectedDate.toString())
-//            intent.putExtra("USER_ID", googleUserId)
-//            startActivity(intent)
-//        }
-//
-//        findViewById<Button>(R.id.export_button).setOnClickListener() {
-////            showFormatSelectionDialog(googleUserId, googleidToken)
-//            val formats = arrayOf("PDF", "CSV")
-//
-//            AlertDialog.Builder(this)
-//                .setTitle("Choose file format")
-//                .setItems(formats) { _, which ->
-//                    val selectedFormat = formats[which].lowercase()
-//                    get_downloadurl(selectedFormat, googleidToken, googleUserId)
-//                }
-//                .show()
-//        }
         setupButtonListeners(googleidToken,googleUserId)
     }
 
@@ -327,7 +288,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         })
     }
 
-    fun logOut() {
+    private fun logOut() {
         // Clear Google User ID from SharedPreferences
         getSharedPreferences("AppPreferences", MODE_PRIVATE)
             .edit()

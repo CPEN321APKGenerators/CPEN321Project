@@ -107,15 +107,15 @@ class AnalyticsActivity : AppCompatActivity() {
             activitiesData = savedatatokey(activityStats)
 
             runOnUiThread {
-                updateOverallScore(overallScore)
-                updateSummary(summaryList)
-                setupEmotionFilter(
+                binding.overallScoreText.text = "Overall Score: ${overallScore.toInt()}"
+                binding.summaryTextView.text = summaryList.joinToString("\n")
+                setupFilter(
                     activitiesData,
                     selectedActivities,
                     binding.activitiesChart,
                     binding.activityfilterButton
                 )
-                setupEmotionFilter(
+                setupFilter(
                     emotionsData,
                     selectedEmotions,
                     binding.analyticsChart,
@@ -197,20 +197,7 @@ class AnalyticsActivity : AppCompatActivity() {
         return last7Days
     }
 
-
-    private fun updateOverallScore(score: Double) {
-        runOnUiThread {
-            binding.overallScoreText.text = "Overall Score: ${score.toInt()}"
-        }
-    }
-
-    private fun updateSummary(summaryList: List<String>) {
-        runOnUiThread {
-            binding.summaryTextView.text = summaryList.joinToString("\n")
-        }
-    }
-
-    private fun setupEmotionFilter(
+    private fun setupFilter(
         Data: MutableMap<String, List<Float>>,
         selected: MutableSet<String>,
         Chart: LineChart,
