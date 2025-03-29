@@ -58,12 +58,6 @@ class Journal_entries : AppCompatActivity() {
         }
 
         journalApiClient = JournalApiClient()
-        initializeViews()
-        setupListeners()
-        checkUserPaidStatus()
-    }
-
-    private fun initializeViews() {
         journalentrytext = findViewById(R.id.journalEntryInput)
         journalImageview = findViewById(R.id.journalImageView)
         chatScrollView = findViewById(R.id.chatScrollView)
@@ -79,13 +73,23 @@ class Journal_entries : AppCompatActivity() {
         val entrytext = intent.getStringExtra("Journal_Entry_fetched") ?: ""
         loadscreenifexists(entrytext)
         journalentrytext.isEnabled = false
+        setupListeners()
+        journalApiClient.checkUserPaidStatus(userID) { isPaid ->
+            isPaidUser = isPaid
+            if (isPaidUser) {
+                Log.d("User Status", "User is a paid user")
+            } else {
+                Log.d("User Status", "User is NOT a paid user")
+            }
+        }
     }
 
     private fun setupListeners() {
         findViewById<Button>(R.id.Backbuttonentries).setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            fetchJournalEntry(intent)
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                fetchJournalEntry(this)
+            }
         }
 
         findViewById<ImageButton>(R.id.editbutton).setOnClickListener {
@@ -107,11 +111,7 @@ class Journal_entries : AppCompatActivity() {
         }
 
         save_entry.setOnClickListener {
-            if (journalentrytext.text.toString().trim().isEmpty()) {
-                saveentry()
-            } else {
-                updateJournalEntry()
-            }
+            if (journalentrytext.text.toString().trim().isEmpty()) saveentry() else updateJournalEntry()
         }
 
         findViewById<ImageButton>(R.id.addimageButton).setOnClickListener {
@@ -132,8 +132,7 @@ class Journal_entries : AppCompatActivity() {
         }
 
         sendChatButton.setOnClickListener {
-            val message = chatInput.text.toString().trim()
-            if (message.isNotEmpty()) {
+            chatInput.text.toString().trim().takeIf { it.isNotEmpty() }?.let { message ->
                 addChatMessage("You: $message", true)
                 sendMessageToChatbot(message)
                 chatInput.text.clear()
@@ -150,16 +149,96 @@ class Journal_entries : AppCompatActivity() {
         }
     }
 
-    private fun checkUserPaidStatus() {
-        journalApiClient.checkUserPaidStatus(userID) { isPaid ->
-            isPaidUser = isPaid
-            if (isPaidUser) {
-                Log.d("User Status", "User is a paid user")
-            } else {
-                Log.d("User Status", "User is NOT a paid user")
+    private fun handleJournalOperation(
+        operation: String,
+        successMessage: String,
+        errorIntentExtra: String? = null
+    ) {
+        val callback = object : JournalApiClient.JournalCallback {
+            override fun onSuccess(response: String) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, successMessage, Toast.LENGTH_SHORT).show()
+                    Intent(this@Journal_entries, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        errorIntentExtra?.let { putExtra(it, selectedDate.toString()) }
+                        startActivity(this)
+                        finish()
+                    }
+                }
+            }
+
+            override fun onFailure(error: String) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        when (operation) {
+            "save" -> journalApiClient.saveJournalEntry(
+                JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token,
+                    journalentrytext.text.toString().trim(), journalImageview),
+                callback
+            )
+            "update" -> journalApiClient.updateJournalEntry(
+                JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token,
+                    journalentrytext.text.toString().trim(), journalImageview),
+                callback
+            )
+            "delete" -> journalApiClient.deleteJournalEntry(selectedDate, userID, user_google_token, callback)
+            "fetch" -> {
+                val intent = Intent(this@Journal_entries, MainActivity::class.java)
+                journalApiClient.fetchJournalEntry(selectedDate, userID, user_google_token,
+                    object : JournalApiClient.JournalCallback {
+                        override fun onSuccess(response: String) {
+                            try {
+                                JSONObject(response).getJSONObject("journal").let { journal ->
+                                    if (journal.getString("text").isNotEmpty() ||
+                                        journal.getJSONArray("media").length() > 0) {
+                                        intent.putExtra("added_date", selectedDate)
+                                    }
+                                }
+                            } catch (e: JSONException) {
+                                Log.e("Journal Fetch", "Error parsing JSON", e)
+                            }
+                            startActivity(intent)
+                            finish()
+                        }
+                        override fun onFailure(error: String) {
+                            Log.e("Journal Fetch", error)
+                            startActivity(intent)
+                            finish()
+                        }
+                    })
             }
         }
     }
+
+    // Replace the original functions with calls to handleJournalOperation:
+    private fun saveentry() {
+        if ((journalentrytext.text.toString().trim().isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
+            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        handleJournalOperation("save", "Journal saved successfully!", "added_date")
+    }
+
+    private fun updateJournalEntry() {
+        if ((journalentrytext.text.toString().trim().isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
+            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        handleJournalOperation("update", "Journal updated!", "added_date")
+    }
+
+    private fun deleteJournalEntry() {
+        handleJournalOperation("delete", "Journal deleted!", "deleted_date")
+    }
+
+    private fun fetchJournalEntry(intent: Intent) {
+        handleJournalOperation("fetch", "")
+    }
+
 
     private fun loadscreenifexists(Savedentry: String) {
         if (Savedentry.isNotEmpty()) {
@@ -268,143 +347,6 @@ class Journal_entries : AppCompatActivity() {
         }
     }
 
-    private fun saveentry() {
-        val journalText = journalentrytext.text.toString().trim()
-        if ((journalText.isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
-            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val params = JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token, journalText, journalImageview)
-
-        journalApiClient.saveJournalEntry(
-            params,
-            object : JournalApiClient.JournalCallback {
-                override fun onSuccess(response: String) {
-                    runOnUiThread {
-                        Toast.makeText(
-                            applicationContext,
-                            "Journal saved successfully!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        val intent = Intent(this@Journal_entries, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        intent.putExtra("added_date", selectedDate.toString())
-                        startActivity(intent)
-                        finish()
-                    }
-                }
-
-                override fun onFailure(error: String) {
-                    runOnUiThread {
-                        Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            })
-    }
-
-    private fun updateJournalEntry() {
-        val updatedText = journalentrytext.text.toString().trim()
-        if ((updatedText.isEmpty() && journalImageview.drawable == null) || selectedDate == null) {
-            Toast.makeText(this, "Journal entry cannot be empty!", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val params = JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token, updatedText, journalImageview)
-
-        journalApiClient.updateJournalEntry(
-            params,
-            object : JournalApiClient.JournalCallback {
-                override fun onSuccess(response: String) {
-                    runOnUiThread {
-                        Toast.makeText(
-                            applicationContext,
-                            "Journal updated!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        val intent = Intent(this@Journal_entries, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        intent.putExtra("added_date", selectedDate.toString())
-                        startActivity(intent)
-                        finish()
-                    }
-                }
-
-                override fun onFailure(error: String) {
-                    runOnUiThread {
-                        Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            })
-    }
-
-    private fun fetchJournalEntry(intent: Intent) {
-        journalApiClient.fetchJournalEntry(
-            selectedDate,
-            userID,
-            user_google_token,
-            object : JournalApiClient.JournalCallback {
-                override fun onSuccess(response: String) {
-                    try {
-                        val jsonResponse = JSONObject(response)
-                        val journalObject = jsonResponse.getJSONObject("journal")
-                        val text = journalObject.getString("text")
-                        val mediaArray = journalObject.getJSONArray("media")
-
-                        if (text.isNotEmpty() || mediaArray.length() > 0) {
-                            runOnUiThread {
-                                intent.putExtra("added_date", selectedDate)
-                                startActivity(intent)
-                                finish()
-                            }
-                        } else {
-                            Log.d("Journal Entry", "No journal entry found for this date")
-                            startActivity(intent)
-                            finish()
-                        }
-                    } catch (e: JSONException) {
-                        Log.e("Journal Fetch", "Error parsing JSON", e)
-                        startActivity(intent)
-                        finish()
-                    }
-                }
-
-                override fun onFailure(error: String) {
-                    Log.e("Journal Fetch", error)
-                    startActivity(intent)
-                    finish()
-                }
-            })
-    }
-
-    private fun deleteJournalEntry() {
-        journalApiClient.deleteJournalEntry(
-            selectedDate,
-            userID,
-            user_google_token,
-            object : JournalApiClient.JournalCallback {
-                override fun onSuccess(response: String) {
-                    runOnUiThread {
-                        Toast.makeText(
-                            applicationContext,
-                            "Journal deleted!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        journalentrytext.setText("")
-                        val intent = Intent(this@Journal_entries, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        intent.putExtra("deleted_date", selectedDate.toString())
-                        startActivity(intent)
-                        finish()
-                    }
-                }
-
-                override fun onFailure(error: String) {
-                    runOnUiThread {
-                        Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            })
-    }
-
     private fun requestPermission(permission: String) {
         if (permission == "Camera") {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -510,7 +452,7 @@ class Journal_entries : AppCompatActivity() {
         val items: Pair<Array<String>, ((Int) -> Unit)?>? = null
     )
 
-    fun showAlertDialog(context: Context, config: AlertDialogConfig) {
+    private fun showAlertDialog(context: Context, config: AlertDialogConfig) {
         val builder = AlertDialog.Builder(context)
             .setTitle(config.title)
 
