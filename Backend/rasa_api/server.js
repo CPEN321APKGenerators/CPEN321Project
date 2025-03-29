@@ -10,10 +10,10 @@ app.use(cors());
 
 // Load SSL Certificate & Key
 const options = {
-    key: fs.readFileSync("./ssl/key.pem"),
-    cert: fs.readFileSync("./ssl/cert.pem"),
+    key: fs.readFileSync("/etc/letsencrypt/live/chatbot-wrapper.duckdns.org/privkey.pem"),
+    cert: fs.readFileSync("/etc/letsencrypt/live/chatbot-wrapper.duckdns.org/fullchain.pem"),
     secureOptions: require("crypto").constants.SSL_OP_NO_TLSv1 | require("crypto").constants.SSL_OP_NO_TLSv1_1,
-    minVersion: "TLSv1.2"  
+    minVersion: "TLSv1.2"
 };
 // Environment Variables
 const RASA_SERVER_URL = process.env.RASA_SERVER_URL || "http://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook";
