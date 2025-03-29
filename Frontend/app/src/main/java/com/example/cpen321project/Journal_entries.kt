@@ -2,6 +2,7 @@ package com.example.cpen321project
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -97,18 +98,12 @@ class Journal_entries : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.deletebutton).setOnClickListener {
-            val alertDialog = AlertDialog.Builder(this)
-                .setTitle("Delete Journal Entry")
-                .setMessage("Are you sure you want to delete this journal entry?")
-                .setPositiveButton("Yes") { _, _ ->
-                    deleteJournalEntry()
-                }
-                .setNegativeButton("Cancel") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .create()
-
-            alertDialog.show()
+            showAlertDialog(this, AlertDialogConfig(
+                title = "Delete Journal Entry",
+                message = "Are you sure you want to delete this journal entry?",
+                positiveButton = Pair("Yes") { deleteJournalEntry() },
+                negativeButton = Pair("Cancel", null)
+            ))
         }
 
         save_entry.setOnClickListener {
@@ -121,18 +116,16 @@ class Journal_entries : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.addimageButton).setOnClickListener {
             if (isPaidUser) {
-                val options = arrayOf("Select from Gallery", "Take a Photo")
-
-                AlertDialog.Builder(this)
-                    .setTitle("Upload Media")
-                    .setItems(options) { _, which ->
+                showAlertDialog(this, AlertDialogConfig(
+                    title = "Upload Media",
+                    items = Pair(arrayOf("Select from Gallery", "Take a Photo")) { which ->
                         when (which) {
                             0 -> requestPermission("Storage")
                             1 -> requestPermission("Camera")
                         }
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
+                    },
+                    negativeButton = Pair("Cancel", null)
+                ))
             } else {
                 Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_LONG).show()
             }
@@ -148,14 +141,12 @@ class Journal_entries : AppCompatActivity() {
         }
 
         journalImageview.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Delete Image")
-                .setMessage("Are you sure you want to delete this image?")
-                .setPositiveButton("Delete") { _, _ ->
-                    deleteImageFromJournal()
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+            showAlertDialog(this, AlertDialogConfig(
+                title = "Delete Image",
+                message = "Are you sure you want to delete this image?",
+                positiveButton = Pair("Delete") { deleteImageFromJournal() },
+                negativeButton = Pair("Cancel", null)
+            ))
         }
     }
 
@@ -509,5 +500,34 @@ class Journal_entries : AppCompatActivity() {
                 Toast.makeText(this, "Photo Captured!", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    data class AlertDialogConfig(
+        val title: String,
+        val message: String? = null,
+        val positiveButton: Pair<String, (() -> Unit)?>? = null,
+        val negativeButton: Pair<String, (() -> Unit)?>? = null,
+        val items: Pair<Array<String>, ((Int) -> Unit)?>? = null
+    )
+
+    fun showAlertDialog(context: Context, config: AlertDialogConfig) {
+        val builder = AlertDialog.Builder(context)
+            .setTitle(config.title)
+
+        config.message?.let { builder.setMessage(it) }
+
+        config.positiveButton?.let { (text, action) ->
+            builder.setPositiveButton(text) { _, _ -> action?.invoke() }
+        }
+
+        config.negativeButton?.let { (text, action) ->
+            builder.setNegativeButton(text) { _, _ -> action?.invoke() }
+        }
+
+        config.items?.let { (array, action) ->
+            builder.setItems(array) { _, which -> action?.invoke(which) }
+        }
+
+        builder.show()
     }
 }
