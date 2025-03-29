@@ -56,263 +56,317 @@ data class Activity(
 )
 
 class ProfileManagement : AppCompatActivity() {
-
     private lateinit var activityListView: ListView
     private lateinit var addActivityButton: Button
     private lateinit var activitiesAdapter: ArrayAdapter<Activity>
     private val activitiesList = mutableListOf<Activity>()
-    private lateinit var reminderSpinner: Spinner
-    val permissionsArr = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
-    lateinit var notificationManager: NotificationManager
     private val selectedDays = mutableListOf<Int>()
-
-    lateinit var paymentSheet: PaymentSheet
-    lateinit var customerConfig: PaymentSheet.CustomerConfiguration
-    lateinit var paymentIntentClientSecret: String
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var paymentSheet: PaymentSheet
+    private lateinit var customerConfig: PaymentSheet.CustomerConfiguration
+    private lateinit var paymentIntentClientSecret: String
+    private val profileApiClient = ProfileApiClient()
 
     companion object {
         private const val TAG = "Profile Management"
+        private const val CHANNEL_ID = "channel_id"
+        private val permissionsArr = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getUserProfile()
         enableEdgeToEdge()
         setContentView(R.layout.activity_profile_management)
-        val saveSettingsButton: Button = findViewById(R.id.save_settings_button)
-        val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
-        val preferredNameText = findViewById<EditText>(R.id.profile_name_input)
-        val backbutton = findViewById<Button>(R.id.profile_back_button)
-        backbutton.setOnClickListener {
-            finish()
-        }
-        // Load the selected days from SharedPreferences
+
+        setupViews()
+        NotificationHelper.setupNotificationChannel(this)
+        notificationManager = NotificationHelper.getNotificationManager(this)
         val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedDays = prefs.getStringSet("SelectedDays", emptySet()) ?: emptySet()
         selectedDays.clear()
         selectedDays.addAll(savedDays.map { it.toInt() })
 
-        saveSettingsSetOnClick(saveSettingsButton, timePicker, preferredNameText)
-        setUpNotificationChannel()
+        loadUserProfile()
+        setupPaymentSheet()
 
-        // Apply window insets for proper layout
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_view)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
 
-        // Initialize views
+    private fun setupViews() {
+        // Back button
+        findViewById<Button>(R.id.profile_back_button).setOnClickListener { finish() }
+
+        // Activity list setup
         activityListView = findViewById(R.id.profile_activity_list)
         addActivityButton = findViewById(R.id.profile_add_activity_button)
-
-        // Set up the custom ListView adapter
         activitiesAdapter = ActivitiesAdapter(this, activitiesList)
         activityListView.adapter = activitiesAdapter
 
-        // Handle "Add Activity" button click
-        addActivityButton.setOnClickListener {
-            showAddActivityDialog()
-        }
-
-        // Handle long press for edit/delete
+        // Button click listeners
+        addActivityButton.setOnClickListener { showAddActivityDialog() }
         activityListView.setOnItemLongClickListener { _, _, position, _ ->
-            showEditDeleteDialog(position)
+            val options = arrayOf("Delete")
+            AlertDialog.Builder(this)
+                .setTitle("Choose an option")
+                .setItems(options) { _, which ->
+                    if (which == 0) activitiesList.removeAt(position)
+                    activitiesAdapter.notifyDataSetChanged()
+                    updateListViewHeight()
+                }
+                .show()
             true
         }
+        findViewById<Button>(R.id.profile_upgrade_button).setOnClickListener { paymentSheet.presentWithPaymentIntent(
+            paymentIntentClientSecret,
+            PaymentSheet.Configuration(
+                merchantDisplayName = "My merchant name",
+                customer = customerConfig,
+                allowsDelayedPaymentMethods = true
+            )
+        ) }
 
-        findViewById<Button>(R.id.profile_upgrade_button).setOnClickListener() {
-            presentPaymentSheet()
+        // Save settings button
+        val saveSettingsButton: Button = findViewById(R.id.save_settings_button)
+        val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
+        val preferredNameText = findViewById<EditText>(R.id.profile_name_input)
+
+        saveSettingsButton.setOnClickListener {
+            saveSettings(
+                selectedDays,
+                timePicker,
+                preferredNameText.text.toString().trim()
+            )
         }
-        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        val jsonBody = JSONObject()
-        jsonBody.put("userID", userID)
 
+        // Day selection setup
+        setupDaySelection()
+    }
+
+    private fun setupPaymentSheet() {
         paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
 
-        PostPaymentSheet(jsonBody)
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
+        val jsonBody = JSONObject().apply {
+            put("userID", userID)
+        }
 
-        // Ensure ListView expands correctly inside ScrollView
-        updateListViewHeight()
-        setupDayCircles()
-        highlightSelectedDays()
-
-    }
-
-    private fun saveSettingsSetOnClick(
-        saveSettingsButton: Button,
-        timePicker: TimePicker,
-        preferredNameText: EditText
-    ) {
-        saveSettingsButton.setOnClickListener {
-            // Get selected time from TimePicker
-            val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
-            val minute =
-                if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
-            val formattedTime = String.format("%02d:%02d", hour, minute)
-            val preferredName = preferredNameText.text.toString().trim()
-
-            // Save the selected days locally
-            val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            prefs.edit().putStringSet("SelectedDays", selectedDays.map { it.toString() }.toSet())
-                .apply()
-
-            sendReminderSettings(selectedDays, formattedTime)
-            sendUserProfile(preferredName, activitiesList)
+        profileApiClient.getPaymentSheet(userID) { paymentSheetData ->
+            paymentSheetData?.let {
+                paymentIntentClientSecret = it.paymentIntent
+                customerConfig = PaymentSheet.CustomerConfiguration(
+                    id = it.customerId,
+                    ephemeralKeySecret = it.ephemeralKey
+                )
+                PaymentConfiguration.init(this, it.publishableKey)
+            }
         }
     }
 
-    private fun PostPaymentSheet(jsonBody: JSONObject) {
-        "https://cpen321project-journal.duckdns.org/api/payment-sheet".httpPost()
-            .header("Content-Type" to "application/json")
-            .body(jsonBody.toString())
-            .responseJson { _, _, result ->
-                if (result is Result.Success) {
-                    val responseJson = result.get().obj()
-                    Log.d(TAG, "Response from payment sheet: ${responseJson}")
-                    paymentIntentClientSecret = responseJson.getString("paymentIntent")
-                    customerConfig = PaymentSheet.CustomerConfiguration(
-                        id = responseJson.getString("customer"),
-                        ephemeralKeySecret = responseJson.getString("ephemeralKey")
-                    )
-                    val publishableKey = responseJson.getString("publishableKey")
-                    PaymentConfiguration.init(this, publishableKey)
-                } else {
-                    Log.e(TAG, "Failed to get payment sheet: ${result}")
+    private fun saveSettings(weekdays: List<Int>, timePicker: TimePicker, preferredName: String) {
+        val hour = if (Build.VERSION.SDK_INT >= 23) timePicker.hour else timePicker.currentHour
+        val minute = if (Build.VERSION.SDK_INT >= 23) timePicker.minute else timePicker.currentMinute
+        val formattedTime = String.format("%02d:%02d", hour, minute)
+
+        // Save locally
+        val prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        prefs.edit().putStringSet("SelectedDays", weekdays.map { it.toString() }.toSet()).apply()
+
+        // Send to server
+        val userID = prefs.getString("GoogleUserID", null)
+        val googleToken = prefs.getString("GoogleIDtoken", null)
+
+        profileApiClient.updateReminder(userID, weekdays, formattedTime, object : ProfileApiClient.ProfileCallback {
+            override fun onSuccess(response: String) {
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, response, Toast.LENGTH_LONG).show()
                 }
             }
+
+            override fun onFailure(error: String) {
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, error, Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+
+        profileApiClient.updateProfile(userID, googleToken, preferredName, activitiesList,
+            object : ProfileApiClient.ProfileCallback {
+                override fun onSuccess(response: String) {
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, response, Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                override fun onFailure(error: String) {
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, error, Toast.LENGTH_LONG).show()
+                    }
+                }
+            })
     }
 
-    private fun setUpNotificationChannel() {
-        if (checkSelfPermission(permissionsArr[0]) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, permissionsArr, 200)
+    private fun loadUserProfile() {
+        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            .getString("GoogleUserID", null)
+
+        profileApiClient.getProfile(userID, object : ProfileApiClient.ProfileCallback {
+            override fun onSuccess(response: String) {
+                try {
+                    val jsonResponse = JSONObject(response)
+                    runOnUiThread {
+                        // Update preferred name
+                        findViewById<EditText>(R.id.profile_name_input).setText(jsonResponse.optString("preferred_name", ""))
+
+                        // Update account status
+                        val accountStatus = jsonResponse.optBoolean("isPaid", false)
+                        if (accountStatus) {
+                            findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Premium"
+                            findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
+                            findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
+                        } else {
+                            findViewById<ImageView>(R.id.stars_icon).visibility = View.GONE
+                            findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Free"
+                        }
+
+                        // Update activities
+                        val activitiesTracking = jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
+                        activitiesList.clear()
+                        for (i in 0 until activitiesTracking.length()) {
+                            val activityJson = activitiesTracking.getJSONObject(i)
+                            activitiesList.add(
+                                Activity(
+                                    activityJson.optString("name", ""),
+                                    activityJson.optDouble("averageValue", 0.0).toFloat(),
+                                    activityJson.optString("unit", "")
+                                )
+                            )
+                        }
+                        activitiesAdapter.notifyDataSetChanged()
+                        updateListViewHeight()
+
+                        // Update reminder
+                        val userReminderTime = jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
+                        updateReminderUI(userReminderTime)
+                    }
+                } catch (e: IOException) {
+                    Log.e(TAG, "Error parsing profile data", e)
+                    runOnUiThread {
+                        Toast.makeText(this@ProfileManagement, "Error loading profile", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+
+            override fun onFailure(error: String) {
+                runOnUiThread {
+                    Toast.makeText(this@ProfileManagement, error, Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+    }
+
+    private fun updateReminderUI(userReminderTime: JSONObject) {
+        val weekdays = userReminderTime.optJSONArray("Weekday") ?: JSONArray()
+        selectedDays.clear()
+        for (i in 0 until weekdays.length()) {
+            selectedDays.add(weekdays.getInt(i))
         }
-        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "General Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
+        val daysOfWeek = listOf(
+            findViewById<ImageView>(R.id.day_mon),
+            findViewById<ImageView>(R.id.day_tue),
+            findViewById<ImageView>(R.id.day_wed),
+            findViewById<ImageView>(R.id.day_thu),
+            findViewById<ImageView>(R.id.day_fri),
+            findViewById<ImageView>(R.id.day_sat),
+            findViewById<ImageView>(R.id.day_sun)
+        )
+
+        for ((index, day) in daysOfWeek.withIndex()) {
+            val dayNumber = index + 1
+            day.setBackgroundResource(
+                if (selectedDays.contains(dayNumber)) R.drawable.circle_purple
+                else R.drawable.circle_grey
             )
-            notificationManager.createNotificationChannel(channel)
+        }
+
+        val reminderTime = userReminderTime.optString("time", "")
+        if (reminderTime.isNotEmpty()) {
+            val (hour, minute) = reminderTime.split(":").map { it.toInt() }
+            val timePicker: TimePicker = findViewById(R.id.profile_reminder_timepicker)
+            if (Build.VERSION.SDK_INT >= 23) {
+                timePicker.hour = hour
+                timePicker.minute = minute
+            } else {
+                timePicker.currentHour = hour
+                timePicker.currentMinute = minute
+            }
         }
     }
 
-    // Function to show input dialog for adding an activity
+    private fun setupDaySelection() {
+        val daysOfWeek = listOf(
+            findViewById<ImageView>(R.id.day_mon),  // Monday -> 1
+            findViewById<ImageView>(R.id.day_tue),  // Tuesday -> 2
+            findViewById<ImageView>(R.id.day_wed),  // Wednesday -> 3
+            findViewById<ImageView>(R.id.day_thu),  // Thursday -> 4
+            findViewById<ImageView>(R.id.day_fri),  // Friday -> 5
+            findViewById<ImageView>(R.id.day_sat),  // Saturday -> 6
+            findViewById<ImageView>(R.id.day_sun)   // Sunday -> 7
+        )
+
+        for ((index, day) in daysOfWeek.withIndex()) {
+            val dayNumber = index + 1
+            day.setOnClickListener {
+                if (selectedDays.contains(dayNumber)) {
+                    selectedDays.remove(dayNumber)
+                    day.setBackgroundResource(R.drawable.circle_grey)
+                } else {
+                    selectedDays.add(dayNumber)
+                    day.setBackgroundResource(R.drawable.circle_purple)
+                }
+            }
+        }
+    }
+
+    // Activity List Management
     private fun showAddActivityDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Add New Activity")
 
-        // Create a LinearLayout to hold the inputs
-        val layout = LinearLayout(this)
-        layout.orientation = LinearLayout.VERTICAL
-        layout.setPadding(50, 40, 50, 10)
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 10)
+        }
 
-        // Activity Name Input
-        val nameInput = EditText(this)
-        nameInput.hint = "Enter activity name"
+        val nameInput = EditText(this).apply { hint = "Enter activity name" }
+        val valueInput = EditText(this).apply {
+            hint = "Enter average value"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        val unitSpinner = Spinner(this).apply {
+            adapter = ArrayAdapter(this@ProfileManagement,
+                android.R.layout.simple_spinner_item,
+                arrayOf("Hours", "Minutes", "Times")).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+        }
+
         layout.addView(nameInput)
-
-        // Average Value Input
-        val valueInput = EditText(this)
-        valueInput.hint = "Enter average value"
-        valueInput.inputType =
-            android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
         layout.addView(valueInput)
-
-        // Unit Dropdown
-        val units = arrayOf("Hours", "Minutes", "Times")
-        val unitSpinner = Spinner(this)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, units)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        unitSpinner.adapter = adapter
         layout.addView(unitSpinner)
-
         builder.setView(layout)
 
-        // Add "Add" and "Cancel" buttons
         builder.setPositiveButton("Add") { _, _ ->
             val activityName = nameInput.text.toString().trim()
             val averageValue = valueInput.text.toString().toFloatOrNull() ?: 0f
             val unit = unitSpinner.selectedItem.toString()
 
             if (activityName.isNotEmpty() && averageValue > 0) {
-                addNewActivity(activityName, averageValue, unit)
-            } else {
-                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        builder.show()
-    }
-
-
-    // Function to show edit/delete options on long press
-    private fun showEditDeleteDialog(position: Int) {
-//        val options = arrayOf("Edit", "Delete")
-        val options = arrayOf("Delete")
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Choose an option")
-        builder.setItems(options) { _, which ->
-            when (which) {
-//                0 -> showEditActivityDialog(position)  // Edit selected
-//                1 -> deleteActivity(position)           // Delete selected
-                0 -> deleteActivity(position)
-            }
-        }
-        builder.show()
-    }
-
-    // Function to show an edit dialog
-    private fun showEditActivityDialog(position: Int) {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Edit Activity")
-
-        // Create a LinearLayout to hold the inputs
-        val layout = LinearLayout(this)
-        layout.orientation = LinearLayout.VERTICAL
-        layout.setPadding(50, 40, 50, 10)
-
-        // Get the current activity details
-        val currentActivity = activitiesList[position]
-
-        // Activity Name Input
-        val nameInput = EditText(this)
-        nameInput.hint = "Enter activity name"
-        nameInput.setText(currentActivity.name)
-        layout.addView(nameInput)
-
-        // Average Value Input
-        val valueInput = EditText(this)
-        valueInput.hint = "Enter average value"
-        valueInput.inputType =
-            android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-        valueInput.setText(currentActivity.averageValue.toString())
-        layout.addView(valueInput)
-
-        // Unit Dropdown
-        val units = arrayOf("Hours", "Minutes", "Times")
-        val unitSpinner = Spinner(this)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, units)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        unitSpinner.adapter = adapter
-        unitSpinner.setSelection(units.indexOf(currentActivity.unit))
-        layout.addView(unitSpinner)
-
-        builder.setView(layout)
-
-        // Update activity on "Save"
-        builder.setPositiveButton("Save") { _, _ ->
-            val updatedName = nameInput.text.toString().trim()
-            val updatedValue = valueInput.text.toString().toFloatOrNull() ?: 0f
-            val updatedUnit = unitSpinner.selectedItem.toString()
-
-            if (updatedName.isNotEmpty() && updatedValue > 0) {
-                currentActivity.name = updatedName
-                currentActivity.averageValue = updatedValue
-                currentActivity.unit = updatedUnit
+                activitiesList.add(Activity(activityName, averageValue, unit))
                 activitiesAdapter.notifyDataSetChanged()
                 updateListViewHeight()
             } else {
@@ -325,24 +379,6 @@ class ProfileManagement : AppCompatActivity() {
     }
 
 
-    // Function to delete an activity
-    private fun deleteActivity(position: Int) {
-        activitiesList.removeAt(position)
-        activitiesAdapter.notifyDataSetChanged()
-        updateListViewHeight()
-    }
-
-
-    // Function to add a new activity to the list
-    private fun addNewActivity(name: String, averageValue: Float, unit: String) {
-        val newActivity = Activity(name, averageValue, unit)
-        activitiesList.add(newActivity)
-        activitiesAdapter.notifyDataSetChanged()
-        updateListViewHeight()
-    }
-
-
-    // Function to dynamically adjust ListView height
     private fun updateListViewHeight() {
         val listAdapter = activityListView.adapter ?: return
         var totalHeight = 0
@@ -358,351 +394,20 @@ class ProfileManagement : AppCompatActivity() {
         activityListView.requestLayout()
     }
 
-
-    private fun sendReminderSettings(weekdays: List<Int>, time: String) {
-        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        val url = "https://cpen321project-journal.duckdns.org/api/profile/reminder"
-//        val url = "http://10.0.2.2:3001/api/profile/reminder"
-
-        // Construct the JSON body with updated structure
-        val json = JSONObject()
-        val updatedReminder = JSONObject()
-        updatedReminder.put("Weekday", JSONArray(weekdays))
-        updatedReminder.put("time", time)
-
-        json.put("userID", userID)
-        json.put("updated_reminder", updatedReminder)
-
-        val client = OkHttpClient()
-        val requestBody = RequestBody.create(
-            "application/json".toMediaTypeOrNull(), json.toString()
-        )
-
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    Log.d("Reminder", "Reminder settings updated successfully")
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@ProfileManagement,
-                            "Reminder updated successfully!",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } else {
-                    Log.e("Reminder", "Failed to update reminder settings")
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@ProfileManagement,
-                            "Failed to update reminder settings",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("Reminder", "Failed to connect to server", e)
-                runOnUiThread {
-                    Toast.makeText(
-                        this@ProfileManagement,
-                        "Connection error. Please try again.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        })
-    }
-
-
-    private fun setupDayCircles() {
-        val daysOfWeek = listOf(
-            findViewById<ImageView>(R.id.day_mon),  // Monday -> 1
-            findViewById<ImageView>(R.id.day_tue),  // Tuesday -> 2
-            findViewById<ImageView>(R.id.day_wed),  // Wednesday -> 3
-            findViewById<ImageView>(R.id.day_thu),  // Thursday -> 4
-            findViewById<ImageView>(R.id.day_fri),  // Friday -> 5
-            findViewById<ImageView>(R.id.day_sat),  // Saturday -> 6
-            findViewById<ImageView>(R.id.day_sun)   // Sunday -> 7
-        )
-
-        for ((index, day) in daysOfWeek.withIndex()) {
-            val dayNumber = index + 1  // Matches [1 = Monday, ..., 7 = Sunday]
-            day.setOnClickListener {
-                if (selectedDays.contains(dayNumber)) {
-                    selectedDays.remove(dayNumber)
-                    day.setBackgroundResource(R.drawable.circle_grey)
-                } else {
-                    selectedDays.add(dayNumber)
-                    day.setBackgroundResource(R.drawable.circle_purple)
-                }
-            }
-        }
-    }
-
-
-    private fun getUserProfile() {
-        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        Log.d(TAG, "get user profile $userID")
-        val url = "https://cpen321project-journal.duckdns.org/api/profile?userID=$userID"
-
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    response.body?.string()?.let { responseBody ->
-                        val jsonResponse = JSONObject(responseBody)
-                        Log.d(TAG, "get user response: ${jsonResponse}")
-
-                        // Extract fields from response
-                        val preferredName = jsonResponse.optString("preferred_name", "")
-                        val accountStatus = jsonResponse.optBoolean("isPaid", false)
-                        val activitiesTracking =
-                            jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
-                        val userReminderTime =
-                            jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
-                        val weekdays = userReminderTime.optJSONArray("Weekday") ?: JSONArray()
-                        val reminderTime = userReminderTime.optString("time", "")
-
-                        // Update UI on the main thread
-                        runOnUiThread {
-                            updateProfileUIFromGetUser(
-                                preferredName,
-                                accountStatus,
-                                activitiesTracking,
-                                weekdays,
-                                reminderTime
-                            )
-                        }
-                    }
-                } else {
-                    Log.e("UserProfile", "Failed to get user profile")
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@ProfileManagement,
-                            "Failed to get user profile",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("UserProfile", "Failed to connect to server", e)
-                runOnUiThread {
-                    Toast.makeText(
-                        this@ProfileManagement,
-                        "Connection error. Please try again.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        })
-    }
-
-    private fun updateProfileUIFromGetUser(
-        preferredName: String?,
-        accountStatus: Boolean,
-        activitiesTracking: JSONArray,
-        weekdays: JSONArray,
-        reminderTime: String
-    ) {
-        // Update preferred name
-        findViewById<EditText>(R.id.profile_name_input).setText(preferredName)
-
-        // Update account status
-        if (accountStatus) {
-            findViewById<TextView>(R.id.profile_account_status).text =
-                "Account Status: Premium"
-            findViewById<Button>(R.id.profile_upgrade_button).visibility =
-                View.GONE
-            findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
-        } else {
-            findViewById<ImageView>(R.id.stars_icon).visibility = View.GONE
-            findViewById<TextView>(R.id.profile_account_status).text =
-                "Account Status: Free"
-        }
-
-        // Update activities tracking list
-        activitiesList.clear()
-        for (i in 0 until activitiesTracking.length()) {
-            val activityJson = activitiesTracking.getJSONObject(i)
-            val activityName = activityJson.optString("name", "")
-            val averageValue =
-                activityJson.optDouble("averageValue", 0.0).toFloat()
-            val unit = activityJson.optString("unit", "")
-
-            // Create a new Activity object and add it to the list
-            val activity = Activity(activityName, averageValue, unit)
-            activitiesList.add(activity)
-        }
-        activitiesAdapter.notifyDataSetChanged()
-        updateListViewHeight()
-
-        // Update reminder days selection
-        selectedDays.clear()
-        for (i in 0 until weekdays.length()) {
-            selectedDays.add(weekdays.getInt(i))
-        }
-        highlightSelectedDays()
-
-        // Update TimePicker with the saved time
-        if (reminderTime.isNotEmpty()) {
-            val (hour, minute) = reminderTime.split(":").map { it.toInt() }
-            val timePicker: TimePicker =
-                findViewById(R.id.profile_reminder_timepicker)
-            if (Build.VERSION.SDK_INT >= 23) {
-                timePicker.hour = hour
-                timePicker.minute = minute
-            } else {
-                timePicker.currentHour = hour
-                timePicker.currentMinute = minute
-            }
-        }
-    }
-
-
-    private fun highlightSelectedDays() {
-        val daysOfWeek = listOf(
-            findViewById<ImageView>(R.id.day_mon),  // Monday -> 1
-            findViewById<ImageView>(R.id.day_tue),  // Tuesday -> 2
-            findViewById<ImageView>(R.id.day_wed),  // Wednesday -> 3
-            findViewById<ImageView>(R.id.day_thu),  // Thursday -> 4
-            findViewById<ImageView>(R.id.day_fri),  // Friday -> 5
-            findViewById<ImageView>(R.id.day_sat),  // Saturday -> 6
-            findViewById<ImageView>(R.id.day_sun)   // Sunday -> 7
-        )
-
-        for ((index, day) in daysOfWeek.withIndex()) {
-            val dayNumber = index + 1  // Matches [1 = Monday, ..., 7 = Sunday]
-            if (selectedDays.contains(dayNumber)) {
-                day.setBackgroundResource(R.drawable.circle_purple)  // Highlight selected days
-            } else {
-                day.setBackgroundResource(R.drawable.circle_grey)  // Unselected days
-            }
-        }
-        Log.d("Highlight", "Selected Days: $selectedDays")
-    }
-
-
-    fun presentPaymentSheet() {
-        paymentSheet.presentWithPaymentIntent(
-            paymentIntentClientSecret,
-            PaymentSheet.Configuration(
-                merchantDisplayName = "My merchant name",
-                customer = customerConfig,
-                // Set `allowsDelayedPaymentMethods` to true if your business handles
-                // delayed notification payment methods like US bank accounts.
-                allowsDelayedPaymentMethods = true
-            )
-        )
-    }
-
-    fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
+    private fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
         when (paymentSheetResult) {
-            is PaymentSheetResult.Canceled -> {
-                Log.d(TAG, "Canceled")
-            }
-
-            is PaymentSheetResult.Failed -> {
-                Log.d(TAG, "Error: ${paymentSheetResult.error}")
-            }
-
+            is PaymentSheetResult.Canceled -> Log.d(TAG, "Canceled")
+            is PaymentSheetResult.Failed -> Log.d(TAG, "Error: ${paymentSheetResult.error}")
             is PaymentSheetResult.Completed -> {
-                // Display for example, an order confirmation screen
                 Log.d(TAG, "Completed")
-                findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
-                findViewById<TextView>(R.id.profile_account_status).setText("Account Status: Premium")
-                findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
-                //postrequest to make the user paid
-                //User_paid_to_premium()
-            }
-        }
-    }
-
-    private fun sendUserProfile(preferredName: String, activities: List<Activity>) {
-        val userID = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleUserID", null)
-        val googleidtoken = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            .getString("GoogleIDtoken", null)
-        val url = "https://cpen321project-journal.duckdns.org/api/profile"
-
-        // Construct JSON body
-        val json = JSONObject()
-        json.put("userID", userID)
-        json.put("preferred_name", preferredName)
-
-        val activitiesArray = JSONArray()
-        for (activity in activities) {
-            val activityJson = JSONObject()
-            activityJson.put("name", activity.name)
-            activityJson.put("averageValue", activity.averageValue)
-            activityJson.put("unit", activity.unit)
-            activitiesArray.put(activityJson)
-        }
-        json.put("activities_tracking", activitiesArray)
-        json.put("googleToken", googleidtoken)
-
-        val client = OkHttpClient()
-        val requestBody = RequestBody.create(
-            "application/json".toMediaTypeOrNull(), json.toString()
-        )
-        Log.d(TAG, "Request body of send user profile: ${requestBody}")
-
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    Log.d("UserProfile", "User profile updated successfully")
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@ProfileManagement,
-                            "Profile updated successfully!",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } else {
-
-                    Log.e("UserProfile", "Failed to update user profile")
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@ProfileManagement,
-                            "Failed to update profile",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("UserProfile", "Failed to connect to server", e)
                 runOnUiThread {
-                    Toast.makeText(
-                        this@ProfileManagement,
-                        "Connection error. Please try again.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
+                    findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Premium"
+                    findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
                 }
             }
-        })
+        }
     }
-
 }
 
 class ActivitiesAdapter(context: Context, private val activities: List<Activity>) :
