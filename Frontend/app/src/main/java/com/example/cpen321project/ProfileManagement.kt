@@ -109,7 +109,15 @@ class ProfileManagement : AppCompatActivity() {
         // Button click listeners
         addActivityButton.setOnClickListener { showAddActivityDialog() }
         activityListView.setOnItemLongClickListener { _, _, position, _ ->
-            showEditDeleteDialog(position)
+            val options = arrayOf("Delete")
+            AlertDialog.Builder(this)
+                .setTitle("Choose an option")
+                .setItems(options) { _, which ->
+                    if (which == 0) activitiesList.removeAt(position)
+                    activitiesAdapter.notifyDataSetChanged()
+                    updateListViewHeight()
+                }
+                .show()
             true
         }
         findViewById<Button>(R.id.profile_upgrade_button).setOnClickListener { paymentSheet.presentWithPaymentIntent(
@@ -271,7 +279,23 @@ class ProfileManagement : AppCompatActivity() {
         for (i in 0 until weekdays.length()) {
             selectedDays.add(weekdays.getInt(i))
         }
-        highlightSelectedDays()
+        val daysOfWeek = listOf(
+            findViewById<ImageView>(R.id.day_mon),
+            findViewById<ImageView>(R.id.day_tue),
+            findViewById<ImageView>(R.id.day_wed),
+            findViewById<ImageView>(R.id.day_thu),
+            findViewById<ImageView>(R.id.day_fri),
+            findViewById<ImageView>(R.id.day_sat),
+            findViewById<ImageView>(R.id.day_sun)
+        )
+
+        for ((index, day) in daysOfWeek.withIndex()) {
+            val dayNumber = index + 1
+            day.setBackgroundResource(
+                if (selectedDays.contains(dayNumber)) R.drawable.circle_purple
+                else R.drawable.circle_grey
+            )
+        }
 
         val reminderTime = userReminderTime.optString("time", "")
         if (reminderTime.isNotEmpty()) {
@@ -309,26 +333,6 @@ class ProfileManagement : AppCompatActivity() {
                     day.setBackgroundResource(R.drawable.circle_purple)
                 }
             }
-        }
-    }
-
-    private fun highlightSelectedDays() {
-        val daysOfWeek = listOf(
-            findViewById<ImageView>(R.id.day_mon),
-            findViewById<ImageView>(R.id.day_tue),
-            findViewById<ImageView>(R.id.day_wed),
-            findViewById<ImageView>(R.id.day_thu),
-            findViewById<ImageView>(R.id.day_fri),
-            findViewById<ImageView>(R.id.day_sat),
-            findViewById<ImageView>(R.id.day_sun)
-        )
-
-        for ((index, day) in daysOfWeek.withIndex()) {
-            val dayNumber = index + 1
-            day.setBackgroundResource(
-                if (selectedDays.contains(dayNumber)) R.drawable.circle_purple
-                else R.drawable.circle_grey
-            )
         }
     }
 
@@ -376,18 +380,6 @@ class ProfileManagement : AppCompatActivity() {
 
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         builder.show()
-    }
-
-    private fun showEditDeleteDialog(position: Int) {
-        val options = arrayOf("Delete")
-        AlertDialog.Builder(this)
-            .setTitle("Choose an option")
-            .setItems(options) { _, which ->
-                if (which == 0) activitiesList.removeAt(position)
-                activitiesAdapter.notifyDataSetChanged()
-                updateListViewHeight()
-            }
-            .show()
     }
 
 
