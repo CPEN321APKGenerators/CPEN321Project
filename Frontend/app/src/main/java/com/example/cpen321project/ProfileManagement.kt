@@ -254,7 +254,6 @@ class ProfileManagement : AppCompatActivity() {
 
     // Function to show edit/delete options on long press
     private fun showEditDeleteDialog(position: Int) {
-//        val options = arrayOf("Edit", "Delete")
         val options = arrayOf("Delete")
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose an option")
@@ -267,66 +266,6 @@ class ProfileManagement : AppCompatActivity() {
         }
         builder.show()
     }
-
-    // Function to show an edit dialog
-    private fun showEditActivityDialog(position: Int) {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Edit Activity")
-
-        // Create a LinearLayout to hold the inputs
-        val layout = LinearLayout(this)
-        layout.orientation = LinearLayout.VERTICAL
-        layout.setPadding(50, 40, 50, 10)
-
-        // Get the current activity details
-        val currentActivity = activitiesList[position]
-
-        // Activity Name Input
-        val nameInput = EditText(this)
-        nameInput.hint = "Enter activity name"
-        nameInput.setText(currentActivity.name)
-        layout.addView(nameInput)
-
-        // Average Value Input
-        val valueInput = EditText(this)
-        valueInput.hint = "Enter average value"
-        valueInput.inputType =
-            android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-        valueInput.setText(currentActivity.averageValue.toString())
-        layout.addView(valueInput)
-
-        // Unit Dropdown
-        val units = arrayOf("Hours", "Minutes", "Times")
-        val unitSpinner = Spinner(this)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, units)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        unitSpinner.adapter = adapter
-        unitSpinner.setSelection(units.indexOf(currentActivity.unit))
-        layout.addView(unitSpinner)
-
-        builder.setView(layout)
-
-        // Update activity on "Save"
-        builder.setPositiveButton("Save") { _, _ ->
-            val updatedName = nameInput.text.toString().trim()
-            val updatedValue = valueInput.text.toString().toFloatOrNull() ?: 0f
-            val updatedUnit = unitSpinner.selectedItem.toString()
-
-            if (updatedName.isNotEmpty() && updatedValue > 0) {
-                currentActivity.name = updatedName
-                currentActivity.averageValue = updatedValue
-                currentActivity.unit = updatedUnit
-                activitiesAdapter.notifyDataSetChanged()
-                updateListViewHeight()
-            } else {
-                Toast.makeText(this, "Please enter valid inputs!", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        builder.show()
-    }
-
 
     // Function to dynamically adjust ListView height
     private fun updateListViewHeight() {
