@@ -210,8 +210,30 @@ class ProfileManagement : AppCompatActivity() {
             override fun onSuccess(response: String) {
                 try {
                     val jsonResponse = JSONObject(response)
-                    updateUIWithProfileData(jsonResponse)
-                } catch (e: Exception) {
+                    runOnUiThread {
+                        // Update preferred name
+                        findViewById<EditText>(R.id.profile_name_input).setText(jsonResponse.optString("preferred_name", ""))
+
+                        // Update account status
+                        val accountStatus = jsonResponse.optBoolean("isPaid", false)
+                        if (accountStatus) {
+                            findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Premium"
+                            findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
+                            findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
+                        } else {
+                            findViewById<ImageView>(R.id.stars_icon).visibility = View.GONE
+                            findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Free"
+                        }
+
+                        // Update activities
+                        val activitiesTracking = jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
+                        updateActivitiesList(activitiesTracking)
+
+                        // Update reminder
+                        val userReminderTime = jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
+                        updateReminderUI(userReminderTime)
+                    }
+                } catch (e: IOException) {
                     Log.e(TAG, "Error parsing profile data", e)
                     runOnUiThread {
                         Toast.makeText(this@ProfileManagement, "Error loading profile", Toast.LENGTH_LONG).show()
@@ -225,36 +247,6 @@ class ProfileManagement : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    private fun updateUIWithProfileData(jsonResponse: JSONObject) {
-        runOnUiThread {
-            // Update preferred name
-            findViewById<EditText>(R.id.profile_name_input).setText(jsonResponse.optString("preferred_name", ""))
-
-            // Update account status
-            val accountStatus = jsonResponse.optBoolean("isPaid", false)
-            updateAccountStatusUI(accountStatus)
-
-            // Update activities
-            val activitiesTracking = jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
-            updateActivitiesList(activitiesTracking)
-
-            // Update reminder
-            val userReminderTime = jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
-            updateReminderUI(userReminderTime)
-        }
-    }
-
-    private fun updateAccountStatusUI(isPremium: Boolean) {
-        if (isPremium) {
-            findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Premium"
-            findViewById<Button>(R.id.profile_upgrade_button).visibility = View.GONE
-            findViewById<ImageView>(R.id.stars_icon).visibility = View.VISIBLE
-        } else {
-            findViewById<ImageView>(R.id.stars_icon).visibility = View.GONE
-            findViewById<TextView>(R.id.profile_account_status).text = "Account Status: Free"
-        }
     }
 
     private fun updateActivitiesList(activitiesTracking: JSONArray) {
