@@ -235,7 +235,19 @@ class ProfileManagement : AppCompatActivity() {
 
                         // Update activities
                         val activitiesTracking = jsonResponse.optJSONArray("activities_tracking") ?: JSONArray()
-                        updateActivitiesList(activitiesTracking)
+                        activitiesList.clear()
+                        for (i in 0 until activitiesTracking.length()) {
+                            val activityJson = activitiesTracking.getJSONObject(i)
+                            activitiesList.add(
+                                Activity(
+                                    activityJson.optString("name", ""),
+                                    activityJson.optDouble("averageValue", 0.0).toFloat(),
+                                    activityJson.optString("unit", "")
+                                )
+                            )
+                        }
+                        activitiesAdapter.notifyDataSetChanged()
+                        updateListViewHeight()
 
                         // Update reminder
                         val userReminderTime = jsonResponse.optJSONObject("userReminderTime") ?: JSONObject()
@@ -255,22 +267,6 @@ class ProfileManagement : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    private fun updateActivitiesList(activitiesTracking: JSONArray) {
-        activitiesList.clear()
-        for (i in 0 until activitiesTracking.length()) {
-            val activityJson = activitiesTracking.getJSONObject(i)
-            activitiesList.add(
-                Activity(
-                    activityJson.optString("name", ""),
-                    activityJson.optDouble("averageValue", 0.0).toFloat(),
-                    activityJson.optString("unit", "")
-                )
-            )
-        }
-        activitiesAdapter.notifyDataSetChanged()
-        updateListViewHeight()
     }
 
     private fun updateReminderUI(userReminderTime: JSONObject) {
