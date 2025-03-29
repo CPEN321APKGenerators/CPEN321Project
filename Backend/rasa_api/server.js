@@ -62,6 +62,6 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-https.createServer(options, app).listen(PORT, () => {
+https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
     console.log(`Node.js API running with HTTPS on port ${PORT}`);
 });
