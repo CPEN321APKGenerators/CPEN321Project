@@ -97,7 +97,18 @@ class Journal_entries : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.deletebutton).setOnClickListener {
-            showdeleteconformationpopup()
+            val alertDialog = AlertDialog.Builder(this)
+                .setTitle("Delete Journal Entry")
+                .setMessage("Are you sure you want to delete this journal entry?")
+                .setPositiveButton("Yes") { _, _ ->
+                    deleteJournalEntry()
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+
+            alertDialog.show()
         }
 
         save_entry.setOnClickListener {
@@ -110,7 +121,18 @@ class Journal_entries : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.addimageButton).setOnClickListener {
             if (isPaidUser) {
-                showUploadOptions()
+                val options = arrayOf("Select from Gallery", "Take a Photo")
+
+                AlertDialog.Builder(this)
+                    .setTitle("Upload Media")
+                    .setItems(options) { _, which ->
+                        when (which) {
+                            0 -> requestPermission("Storage")
+                            1 -> requestPermission("Camera")
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
             } else {
                 Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_LONG).show()
             }
@@ -126,7 +148,14 @@ class Journal_entries : AppCompatActivity() {
         }
 
         journalImageview.setOnClickListener {
-            showdeletiondialog()
+            AlertDialog.Builder(this)
+                .setTitle("Delete Image")
+                .setMessage("Are you sure you want to delete this image?")
+                .setPositiveButton("Delete") { _, _ ->
+                    deleteImageFromJournal()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
@@ -169,17 +198,6 @@ class Journal_entries : AppCompatActivity() {
             sendChatButton.visibility = View.VISIBLE
             save_entry.visibility = View.VISIBLE
         }
-    }
-
-    private fun showdeletiondialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Delete Image")
-            .setMessage("Are you sure you want to delete this image?")
-            .setPositiveButton("Delete") { _, _ ->
-                deleteImageFromJournal()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 
     private fun deleteImageFromJournal() {
@@ -366,21 +384,6 @@ class Journal_entries : AppCompatActivity() {
             })
     }
 
-    private fun showdeleteconformationpopup() {
-        val alertDialog = AlertDialog.Builder(this)
-            .setTitle("Delete Journal Entry")
-            .setMessage("Are you sure you want to delete this journal entry?")
-            .setPositiveButton("Yes") { _, _ ->
-                deleteJournalEntry()
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-
-        alertDialog.show()
-    }
-
     private fun deleteJournalEntry() {
         journalApiClient.deleteJournalEntry(
             selectedDate,
@@ -411,44 +414,30 @@ class Journal_entries : AppCompatActivity() {
             })
     }
 
-    private fun showUploadOptions() {
-        val options = arrayOf("Select from Gallery", "Take a Photo")
-
-        AlertDialog.Builder(this)
-            .setTitle("Upload Media")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> requestStoragePermission()
-                    1 -> requestCameraPermission()
-                }
+    private fun requestPermission(permission: String) {
+        if (permission == "Camera") {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.CAMERA),
+                    REQUEST_CODE_CAMERA_PERMISSION
+                )
+            } else {
+                openCamera()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun requestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.CAMERA),
-                REQUEST_CODE_CAMERA_PERMISSION
-            )
-        } else {
-            openCamera()
-        }
-    }
-
-    private fun requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_CODE_STORAGE_PERMISSION
-            )
-        } else {
-            openMediaPicker()
+        } else if(permission == "Storage"){
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    REQUEST_CODE_STORAGE_PERMISSION
+                )
+            } else {
+                openMediaPicker()
+            }
         }
     }
 

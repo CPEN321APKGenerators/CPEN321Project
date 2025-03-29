@@ -281,7 +281,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     }
 
     private fun storeFcmTokenInBackend(fcmToken: String, userID: String) {
-        Log.d(TAG, "storing fcm token for ${userID}")
+        Log.d(TAG, "storing fcm token for $userID")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
         val url =
             "https://cpen321project-journal.duckdns.org/api/profile/fcmtoken"
@@ -403,7 +403,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         }
     }
 
-    fun isIdTokenExpired(idToken: String): Boolean {
+    private fun isIdTokenExpired(idToken: String): Boolean {
         val parts = idToken.split(".")
         if (parts.size != 3) return true  // Invalid token
 
