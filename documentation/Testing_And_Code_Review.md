@@ -3,9 +3,9 @@
 ## 1. Change History
 
 
-| **Change Date**   | **Modified Sections** | **Rationale** |
-| ------------------- | ----------------------- | --------------- |
-| _Nothing to show_ |                       |               |
+| **Change Date**  | **Modified Sections**     | **Rationale**                                                                |
+| ------------------ | --------------------------- | ------------------------------------------------------------------------------ |
+| March 30th, 2025 | 2.1.1, 5.1, 5.2, 5.3, 5.4 | Correct errors to address problems in M5 Grading + Fixed some Codacy issues. |
 
 ---
 
@@ -25,14 +25,14 @@
 | **GET /api/journal/file**      | [`/Backend/tests/unmocked/journal.unmocked.test.ts#L433`](#)   | [`/Backend/tests/mocked/journal.mocked.test.ts#L230`](#)                                                               | MongoDB Query Operations                                |
 | **POST /api/payment-sheet**    | [`/Backend/tests/unmocked/payment.unmocked.test.ts#L57`](#)    | [`/Backend/tests/mocked/payment.mocked.test.ts#L68`](#)                                                                | Stripe Customers, EphemeralKeys, PaymentIntents         |
 | **GET /api/analytics**         | [`/Backend/tests/unmocked/analytics.unmocked.test.ts#L258`](#) | [`/Backend/tests/mocked/analytics.mocked.test.ts#L25`](#)                                                              | MongoDB Analytics Queries                               |
-| **POST /webhook**              | [`/Backend/tests/unmocked/webhook.unmocked.test.ts#L56`](#)    | [`/Backend/tests/mocked/webhook.mocked.test.ts#L56`](#)                                                                | -                                                       |
+| **POST /webhook**              | [`/Backend/tests/unmocked/webhook.unmocked.test.ts#L56`](#)    | [`/Backend/tests/mocked/webhook.mocked.test.ts#L56`](#)                                                                | MongoDB Update Operations                               |
 | **GET /api/profile**           | [`/Backend/tests/unmocked/user.unmocked.test.ts#L87`](#)       | [`/Backend/tests/mocked/user.mocked.test.ts#L87`](#)                                                                   | Firebase Admin, MongoDB User Collection                 |
 | **POST /api/profile**          | [`/Backend/tests/unmocked/user.unmocked.test.ts#L121`](#)      | [`/Backend/tests/mocked/user.mocked.test.ts#L118`](#)                                                                  | Google Auth API, MongoDB Insertions                     |
-| **GET /api/profile/isPaid**    | [`/Backend/tests/unmocked/user.unmocked.test.ts#L199`](#)      | [`/Backend/tests/mocked/user.mocked.test.ts#L235`](#)                                                                  | -                                                       |
+| **GET /api/profile/isPaid**    | [`/Backend/tests/unmocked/user.unmocked.test.ts#L199`](#)      | [`/Backend/tests/mocked/user.mocked.test.ts#L235`](#)                                                                  | MongoDB FindOne Operations                              |
 | **POST /api/profile/reminder** | [`/Backend/tests/unmocked/user.unmocked.test.ts#L231`](#)      | [`/Backend/tests/mocked/user.mocked.test.ts#L197`](#)                                                                  | MongoDB Update Operations                               |
 | **POST /api/profile/fcmtoken** | [`/Backend/tests/unmocked/user.unmocked.test.ts#L271`](#)      | [`/Backend/tests/mocked/user.mocked.test.ts#L159`](#)                                                                  | Firebase Cloud Messaging (FCM)                          |
-| **POST /api/chat**             | [`/Backend/rasa_api/__tests__/server.test.js#L100`](#)       | [`/Backend/rasa_api/__tests__/server.test.js#L30`](#)                                                                   | Rasa API (via HTTP), message validation                 |
-| **POST /api/chat**             | [`/Backend/rasa_api/__tests__/server.test.js#L200`](#)      | [`/Backend/rasa_api/__tests__/server.test.js#L110`](#)                                                                  |  Rasa Server Response                                   |
+| **POST /api/chat**             | [`/Backend/rasa_api/__tests__/server.test.js#L100`](#)         | [`/Backend/rasa_api/__tests__/server.test.js#L30`](#)                                                                  | Rasa API (via HTTP), message validation                 |
+| **POST /api/chat**             | [`/Backend/rasa_api/__tests__/server.test.js#L200`](#)         | [`/Backend/rasa_api/__tests__/server.test.js#L110`](#)                                                                 | Rasa Server Response                                    |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
@@ -41,11 +41,12 @@
 #### 2.1.3. Explanation on How to Run the Tests
 
 0. To prevent some unexpected dependency issues preventing our peer group to evaluate our tests, We have recorded some videos of running the tests on our local machine.
-[Click me to see recodings of running some tests](https://drive.google.com/drive/folders/1WzEkeR2aDnn9rlQX-dLO9DsFJDA8YIZk?usp=sharing)
+   [Click me to see recodings of running some tests](https://drive.google.com/drive/folders/1WzEkeR2aDnn9rlQX-dLO9DsFJDA8YIZk?usp=sharing)
 
 ##### Backend Tests:
+
 1. Clone the Repository:
- Open your terminal and run to clone:
+   Open your terminal and run to clone:
 
    ```
    git clone https://github.com/example/your-project.git
@@ -85,15 +86,16 @@ PUBLISHABLE_STRIPE_KEY=`your_stripe_account's_publishable_key
 ```
 
 4. In `/Backend/src/config`, put in the firebase admin json file, your stripe secret, and our server secret with names: `cpen321project-c324e-firebase-adminsdk.json`, `cpen321project-stripe-secret.txt`, and `severSecret.txt`. Contact our group to obtain the server secret.
-
 5. Change you working directory to `/Backend`. Run the command:
 
 ```
   npm test
 ```
+
 **Running Rasa tests**
 
 1. Ensure that your .env in file in the rasa_api directory has the following variables set:
+
 ```
 {
 RASA_SERVER_URL=https://ec2-54-234-28-190.compute-1.amazonaws.com:5005/webhooks/myio/webhook
@@ -101,11 +103,13 @@ ACTION_SERVER_URL=https://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook
 PORT=3001
 }
 ```
+
 2. Run the tests by navagating to `/Backend/rasa_api/__tests__` and Run with command:
+
 ```
  PORT=4000 NODE_ENV=production npm test
 ```
-   
+
 **Running Frontend tests**
 
 1. Set up the local.properties file to have:
@@ -119,9 +123,6 @@ GOOGLE_USER_ID='your_google_email_address'
 ```
 
 2. Please note that for GOOGLE_REAL_TOKEN, it needs to be updated every 1 or 2 hours to ensure the tests pass.
-
-
-   
 
 ### 2.2. GitHub Actions Configuration Location
 
@@ -144,7 +145,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
 ![alt text](images/Unmocked.png)
 ![alt text](images/rasa_mocked+unmocked.PNG)
----
+--------------------------------------------
 
 ## 3. Back-end Test Specification: Tests of Non-Functional Requirements
 
@@ -675,27 +676,35 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`f579e43beef4743617ee236638461d7b239306e0`
+`a56addf8e1fc012e66c92b1c577269d98a2bb1d0`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
 ##### Issue category: Errorprone
+
 ![alt text](images/errorprone_issues.png)
+
 ##### Issue category: Security
-![alt text](images/errorprone_issues.png)
+
+![alt text](images/security_issues.png)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
 ##### Code Pattern: Insecure dependencies detection (medium severity)
+
 ![alt text](images/sec-medium.png)
+
 ##### Code Pattern: Too many functions inside a class (medium severity)
+
 ![alt text](images/too_many_fns.png)
-##### Code Pattern: One method should have one responsibility (medium severity)
-![alt text](images/too_many_lines.png)
+
 ##### Code Pattern: Insecure Dependencies Detection (high severity)
+
 ![alt text](images/high_sec.png)
-##### Code Pattern: Insecure dependencies detection (minor severity)
-![alt text](images/low_severity.png)
+
+##### Code Pattern: Others (minor-medium severity)
+
+![alt text](images/other_issues.png)
 
 ### 5.4. Justifications for Unfixed Issues
 
@@ -720,27 +729,11 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
      - **Justification:** The scikit-learn dependency at version 1.1.3 is flagged for a possible sensitive data leak. The dependency will be updated to version 1.5.0 once it has been tested for compatibility with RASA's ML operations during the next developnment cycle.
 - **Code Pattern: [Too many functions inside a class (medium severity)](#)**
   1. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/AnalyticsActivity.kt#L30`](#)
-     - **Justification:** The AnalyticsActivity class contains 11 functions, reaching the defined threshold. Refactoring is planned to distribute responsibilities across multiple classes to adhere to the single responsibility principle.
-  2. **Issue**
      - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/MainActivity.kt#L36`](#)
-     - **Justification:**  The MainActivity class has 12 functions, exceeding the recommended limit. A redesign is scheduled to modularize functionalities into separate components.
-  3. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/Journal_entries.kt#L47`](#)
-     - **Justification:** The Journal_entries class comprises 22 functions, significantly surpassing the threshold. A comprehensive refactor is planned to improve maintainability by delegating responsibilities to smaller classes.
-  4. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/ProfileManagement.kt#L58](#)
-     - **Justification:** The ProfileManagement class contains 15 functions. Future development cycles will address this by implementing a more modular architecture.
-- **Code Pattern: [One method should have one responsibility (medium severity)](#)**
-  1. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/Journal_entries.kt#L72`](#)
-     - **Justification:** The `onCreate` function in this file is lengthy due to multiple necessary initializations, including UI setup and event listeners. Breaking it into smaller methods could add unnecessary complexity and reduce readability. Additionally, restructuring would require extensive refactoring and testing, which is currently not feasible within the project's timeline.
+     - **Justification:**  The MainActivity class has 12 functions, exceeding the recommended limit. However, since MainActivity contains the most functionalities (profile, log out, manage journals, export journals, analytics), we need these number of functions to keep our code for modularity.
   2. **Issue**
-     - **Location in Git:** [`Frontend/app/src/androidTest/java/com/example/cpen321project/Nonfunctional_clicks_test.kt#L49`](#)
-     - **Justification:**  The function `user_clicks_less_than_threshold` is part of a testing script where all actions are meant to be executed sequentially in a controlled environment. Splitting it into multiple methods would not improve maintainability and may negatively impact the readability of test execution flow.
-  3. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/MainActivity.kt#L46`](#)
-     - **Justification:** Similar to the previous `onCreate` function, this method handles multiple setup operations necessary for the activity lifecycle. While some refactoring is possible in the future, the current implementation follows Android development best practices for initializing UI components and handling necessary dependencies.
+     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/Journal_entries.kt#L47`](#)
+     - **Justification:** The Journal_entries class comprises 22 functions, significantly surpassing the threshold. However, since journal_entries contains many functions with separate responsibilities for journal mangement component, we think it would be best to keep these functions in the same class.
 - **Code Pattern: [Insecure Dependencies Detection (high severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L59`](#)
