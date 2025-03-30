@@ -22,7 +22,7 @@ import java.io.IOException
 class JournalApiClient {
     private val client = OkHttpClient()
     private val BASE_URL = "https://cpen321project-journal.duckdns.org"
-    private val chatbotUrl = "https://54.234.28.190:3001/api/chat"
+    private val chatbotUrl = "https://chatbot-wrapper.duckdns.org:3001/api/chat"
 
     interface JournalCallback {
         fun onSuccess(response: String)
