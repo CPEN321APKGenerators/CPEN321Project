@@ -94,7 +94,7 @@ describe('User APIs - No Mocks (Integration)', () => {
     it('should return 200 with user profile when valid userID is provided', async () => {
       const res = await request(app)
         .get('/api/profile')
-        .query({ userID: testUserID });
+        .query({ userID: google_user_prefix+"@gmail.com" });
       
       expect(res.statusCode).toEqual(200);
       expect(res.body).toHaveProperty('preferred_name');

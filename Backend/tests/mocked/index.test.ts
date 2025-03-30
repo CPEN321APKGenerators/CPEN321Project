@@ -121,34 +121,20 @@ describe('Stripe Secret Configuration', () => {
      * - **Mock Behavior:** `fs.readFileSync` is mocked to throw an error only for the Stripe secret file.
      * - **Expected Behavior:** A **warning** should be logged, and the environment variable should be used instead.
      */
-    it('logs warning when Stripe file is missing and uses env fallback', () => {
+    it('throws error if Stripe secret is missing', () => {
         const fs = require('fs');
-        const path = require('path');
-        const originalReadFileSync = fs.readFileSync;
-
-        // Expected path for the Stripe secret file
-        const expectedPath = path.join(__dirname, '../../src/config/cpen321project-stripe-secret.txt');
-
-        // Mock readFileSync to throw only for the Stripe secret file
-        jest.spyOn(fs, 'readFileSync').mockImplementation((filePath, ...args) => {
-            if (filePath === expectedPath) {
-                throw new Error('File not found');
-            } else {
-                return originalReadFileSync.call(fs, filePath, ...args);
-            }
+        jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+            throw new Error('File not found');
         });
-
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-        process.env.STRIPE_SECRET = 'env_secret';
-        require('../../index'); // Load the app
-
-        expect(consoleWarnSpy).toHaveBeenCalledWith(
-            'Stripe secret file not found, falling back to environment variable.'
-        );
-
-        // Cleanup
-        consoleWarnSpy.mockRestore();
-        fs.readFileSync.mockRestore();
+    
+        // Clear any existing Stripe secret from the environment
+        delete process.env.STRIPE_SECRET;
+    
+        // Re-require the module to trigger the error
+        expect(() => {
+            jest.isolateModules(() => {
+                require('../../index'); // Force fresh module loading
+            });
+        }).toThrow('Missing Stripe Secret Key!');
     });
 });
