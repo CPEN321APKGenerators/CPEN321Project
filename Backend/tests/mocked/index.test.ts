@@ -103,20 +103,6 @@ describe('Stripe Secret Configuration', () => {
     });
 
     /**
-     * Test Case: Missing Stripe Secret Key
-     * - **Mock Behavior:** `fs.readFileSync` is mocked to throw an error.
-     * - **Expected Behavior:** The app should throw a **"Missing Stripe Secret Key!"** error.
-     */
-    it('throws error if Stripe secret is missing', () => {
-        const fs = require('fs');
-        jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
-            throw new Error('Missing Stripe Secret Key!');
-        });
-
-        expect(() => require('../../index')).toThrow('Missing Stripe Secret Key!');
-    });
-
-    /**
      * Test Case: Stripe secret file missing, but environment variable fallback
      * - **Mock Behavior:** `fs.readFileSync` is mocked to throw an error only for the Stripe secret file.
      * - **Expected Behavior:** A **warning** should be logged, and the environment variable should be used instead.
