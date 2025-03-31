@@ -5,7 +5,9 @@
   "scripts": {
     "start": "ts-node index.ts",
     "dev": "dotenv -e .env -- npx nodemon -e .ts index.ts",
-    "test": "jest"
+    "test": "jest",
+    "test:mocked": "jest tests/mocked",
+    "test:unmocked": "jest tests/unmocked"
   },
   "author": "",
   "license": "ISC",

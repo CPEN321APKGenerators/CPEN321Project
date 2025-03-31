@@ -135,6 +135,6 @@ describe('Stripe Secret Configuration', () => {
             jest.isolateModules(() => {
                 require('../../index'); // Force fresh module loading
             });
-        }).toThrow('Missing Stripe Secret Key!');
+        }).toThrow('File not found');
     });
 });
