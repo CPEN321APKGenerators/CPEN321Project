@@ -7,7 +7,8 @@
     "dev": "dotenv -e .env -- npx nodemon -e .ts index.ts",
     "test": "jest",
     "test:mocked": "jest tests/mocked",
-    "test:unmocked": "jest tests/unmocked"
+    "test:unmocked": "jest tests/unmocked",
+    "test_onlyserver": "jest --coverage --testPathIgnorePatterns=Backend/rasa_api/__tests__"
   },
   "author": "",
   "license": "ISC",
