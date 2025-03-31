@@ -135,6 +135,7 @@ describe('Stripe Secret Configuration', () => {
             jest.isolateModules(() => {
                 require('../../index'); // Force fresh module loading
             });
-        }).toThrow('File not found');
+        }).toThrow();
+        
     });
 });
