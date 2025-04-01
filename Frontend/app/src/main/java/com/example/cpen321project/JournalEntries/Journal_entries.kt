@@ -108,9 +108,7 @@ class Journal_entries : AppCompatActivity() {
                 title = "Delete Journal Entry",
                 message = "Are you sure you want to delete this journal entry?",
                 positiveButton = Pair("Yes") { deleteJournalEntry() },
-                negativeButton = Pair("Cancel", null)
-            )
-            )
+                negativeButton = Pair("Cancel", null)))
         }
 
         save_entry.setOnClickListener {
@@ -127,9 +125,7 @@ class Journal_entries : AppCompatActivity() {
                             1 -> requestPermission("Camera")
                         }
                     },
-                    negativeButton = Pair("Cancel", null)
-                )
-                )
+                    negativeButton = Pair("Cancel", null))                )
             } else {
                 Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_LONG).show()
             }
@@ -148,9 +144,7 @@ class Journal_entries : AppCompatActivity() {
                 title = "Delete Image",
                 message = "Are you sure you want to delete this image?",
                 positiveButton = Pair("Delete") { deleteImageFromJournal() },
-                negativeButton = Pair("Cancel", null)
-            )
-            )
+                negativeButton = Pair("Cancel", null)))
         }
     }
 
