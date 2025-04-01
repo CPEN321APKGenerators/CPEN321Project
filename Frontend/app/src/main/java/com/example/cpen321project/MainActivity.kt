@@ -17,6 +17,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.cpen321project.JournalEntries.Journal_entries
+import com.example.cpen321project.calendar.CalendarAdapter
+import com.example.cpen321project.profile.ProfileManagement
 import com.google.firebase.messaging.FirebaseMessaging
 import okhttp3.Call
 import okhttp3.Callback

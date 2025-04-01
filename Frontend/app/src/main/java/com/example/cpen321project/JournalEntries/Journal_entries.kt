@@ -1,4 +1,4 @@
-package com.example.cpen321project
+package com.example.cpen321project.JournalEntries
 
 import android.Manifest
 import android.app.Activity
@@ -29,6 +29,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.cpen321project.MainActivity
+import com.example.cpen321project.R
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -107,7 +109,8 @@ class Journal_entries : AppCompatActivity() {
                 message = "Are you sure you want to delete this journal entry?",
                 positiveButton = Pair("Yes") { deleteJournalEntry() },
                 negativeButton = Pair("Cancel", null)
-            ))
+            )
+            )
         }
 
         save_entry.setOnClickListener {
@@ -125,7 +128,8 @@ class Journal_entries : AppCompatActivity() {
                         }
                     },
                     negativeButton = Pair("Cancel", null)
-                ))
+                )
+                )
             } else {
                 Toast.makeText(this, "Upgrade to upload media!", Toast.LENGTH_LONG).show()
             }
@@ -145,7 +149,8 @@ class Journal_entries : AppCompatActivity() {
                 message = "Are you sure you want to delete this image?",
                 positiveButton = Pair("Delete") { deleteImageFromJournal() },
                 negativeButton = Pair("Cancel", null)
-            ))
+            )
+            )
         }
     }
 
@@ -176,13 +181,17 @@ class Journal_entries : AppCompatActivity() {
 
         when (operation) {
             "save" -> journalApiClient.saveJournalEntry(
-                JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token,
-                    journalentrytext.text.toString().trim(), journalImageview),
+                JournalApiClient.JournalEntryParams(
+                    selectedDate, userID, user_google_token,
+                    journalentrytext.text.toString().trim(), journalImageview
+                ),
                 callback
             )
             "update" -> journalApiClient.updateJournalEntry(
-                JournalApiClient.JournalEntryParams(selectedDate, userID, user_google_token,
-                    journalentrytext.text.toString().trim(), journalImageview),
+                JournalApiClient.JournalEntryParams(
+                    selectedDate, userID, user_google_token,
+                    journalentrytext.text.toString().trim(), journalImageview
+                ),
                 callback
             )
             "delete" -> journalApiClient.deleteJournalEntry(selectedDate, userID, user_google_token, callback)

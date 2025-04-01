@@ -1,10 +1,8 @@
-package com.example.cpen321project
+package com.example.cpen321project.profile
 
 import android.Manifest
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -24,24 +22,13 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
+import com.example.cpen321project.NotificationHelper
+import com.example.cpen321project.R
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -180,7 +167,8 @@ class ProfileManagement : AppCompatActivity() {
         val userID = prefs.getString("GoogleUserID", null)
         val googleToken = prefs.getString("GoogleIDtoken", null)
 
-        profileApiClient.updateReminder(userID, weekdays, formattedTime, object : ProfileApiClient.ProfileCallback {
+        profileApiClient.updateReminder(userID, weekdays, formattedTime, object :
+            ProfileApiClient.ProfileCallback {
             override fun onSuccess(response: String) {
                 runOnUiThread {
                     Toast.makeText(this@ProfileManagement, response, Toast.LENGTH_LONG).show()

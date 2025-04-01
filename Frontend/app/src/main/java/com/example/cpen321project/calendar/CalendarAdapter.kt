@@ -1,4 +1,4 @@
-package com.example.cpen321project
+package com.example.cpen321project.calendar
 
 import android.content.Context
 import android.graphics.Color
@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.cpen321project.R
 import java.time.LocalDate
 
 class CalendarAdapter(

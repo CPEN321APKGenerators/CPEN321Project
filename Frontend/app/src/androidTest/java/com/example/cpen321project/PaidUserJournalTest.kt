@@ -16,6 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.example.cpen321project.BuildConfig.GOOGLE_REAL_TOKEN
 import com.example.cpen321project.BuildConfig.GOOGLE_USER_ID
+import com.example.cpen321project.calendar.CalendarAdapter
 import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder

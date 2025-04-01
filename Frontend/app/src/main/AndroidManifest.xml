@@ -33,10 +33,10 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".Journal_entries"
+            android:name=".JournalEntries.Journal_entries"
             android:exported="false" />
         <activity
-            android:name=".ProfileManagement"
+            android:name=".profile.ProfileManagement"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

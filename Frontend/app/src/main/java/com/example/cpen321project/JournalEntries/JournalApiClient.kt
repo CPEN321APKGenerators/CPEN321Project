@@ -1,4 +1,4 @@
-package com.example.cpen321project
+package com.example.cpen321project.JournalEntries
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

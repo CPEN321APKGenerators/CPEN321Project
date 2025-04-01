@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.example.cpen321project.BuildConfig.GOOGLE_REAL_TOKEN
 import com.example.cpen321project.BuildConfig.GOOGLE_USER_ID
+import com.example.cpen321project.calendar.CalendarAdapter
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
