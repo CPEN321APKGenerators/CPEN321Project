@@ -1,4 +1,4 @@
-package com.example.cpen321project
+package com.example.cpen321project.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.example.cpen321project.R
 import com.example.cpen321project.databinding.FragmentSecondBinding
 
 /**

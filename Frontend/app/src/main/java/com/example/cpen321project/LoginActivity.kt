@@ -39,6 +39,7 @@ class LoginActivity : AppCompatActivity() {
 
 
     private val activityScope = CoroutineScope(Dispatchers.Main)
+    private val BASE_URL = "https://cpen321project-journal.duckdns.org"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,7 +141,7 @@ class LoginActivity : AppCompatActivity() {
     private fun callCreateUser(userID: String, googleToken: String) {
         Log.d(TAG, "creating user ${userID}")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
-        val url = "https://cpen321project-journal.duckdns.org/api/profile"
+        val url = "$BASE_URL/api/profile"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val json = JSONObject()
         json.put("userID", userID)

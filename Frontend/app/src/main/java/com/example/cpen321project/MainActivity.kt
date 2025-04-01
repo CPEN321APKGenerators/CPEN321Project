@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
     private lateinit var monthYearText: TextView
     private lateinit var selectedDate: LocalDate
     private val journalentries = mutableSetOf<String>()
+    private val BASE_URL = "https://cpen321project-journal.duckdns.org"
 
     companion object {
         private const val TAG = "MainActivity"
@@ -112,7 +113,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         googleUserIdd: String?
     ) {
         val url =
-            "https://cpen321project-journal.duckdns.org/api/journal/file?userID=$googleUserIdd&format=$selectedFormat"
+            "$BASE_URL/api/journal/file?userID=$googleUserIdd&format=$selectedFormat"
 
         val request = Request.Builder()
             .url(url)
@@ -248,7 +249,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         Log.d(TAG, "storing fcm token for $userID")
 //        val userID = "12345" // Get this dynamically (e.g., after user login)
         val url =
-            "https://cpen321project-journal.duckdns.org/api/profile/fcmtoken"
+            "$BASE_URL/api/profile/fcmtoken"
 //        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val currentZone = ZoneId.systemDefault()
         val zonedDateTime = ZonedDateTime.now(currentZone)
@@ -311,7 +312,7 @@ class MainActivity : AppCompatActivity(), CalendarAdapter.OnItemListener {
         intent: Intent
     ) {
         val url =
-            "https://cpen321project-journal.duckdns.org/api/journal/?date=$date&userID=$userId"
+            "$BASE_URL/api/journal/?date=$date&userID=$userId"
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
