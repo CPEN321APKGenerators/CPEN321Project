@@ -16,6 +16,7 @@ Link to your GitHub repository: [CPEN 321 Journal Project](https://github.com/CP
 Commit SHA of your final released version: (on the main branch)
 
 
+
 #### 3. Location of front-end and back-end tests
 Front-End tests: `Frontend/app/src/androidTest/java/com/example/cpen321project`
 Back-end tests: 
@@ -111,9 +112,6 @@ All sensitive operations (create/edit/delete journals, fetch profile, etc.) requ
 
 - FCM Token Encryption
 Users' FCM tokens (for notifications) are encrypted using a server-stored secret before saving to the database. This protects against misuse of tokens and safeguards users from spam notification attacks.
-
-- Test Coverage
-We implemented full backend tests that confirm encryption and decryption workflows, further validating the integrity of the system​.
 
 
 #### 9. Limitations of Our Project
