@@ -222,6 +222,7 @@ nlu:
     - I'm finished
     - all done
     - that's all for today
+    - done
 
 - regex: date
   examples: |

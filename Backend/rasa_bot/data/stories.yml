@@ -42,11 +42,10 @@ stories:
   - action: utter_done
 
 # User affirms they'd like to continue but chooses something out of scope
-- story: User affirms with no matching feature
+- rule: User says yes → show options again
   steps:
   - intent: affirm
-  - action: utter_out_of_scope
-  - action: utter_ask_continue
+  - action: utter_post_journal_options
 
 # User denies further interaction
 - story: User says no to continue
