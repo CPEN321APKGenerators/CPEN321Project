@@ -18,14 +18,37 @@ rules:
   - intent: journal_provided
   - action: action_save_message
   - action: utter_journal_confirmation
-  - action: utter_journal_follow_up
+  - action: utter_post_journal_options
+
+- rule: Provide self-care suggestion
+  steps:
+  - intent: request_selfcare
+  - action: utter_selfcare_suggestion
+  - action: utter_ask_continue
+
+- rule: Provide mental health resources
+  steps:
+  - intent: request_resources
+  - action: utter_mental_health_resources
+  - action: utter_ask_continue
+
+- rule: Provide calming exercise
+  steps:
+  - intent: request_exercise
+  - action: utter_guided_exercise
+  - action: utter_ask_continue
+
+- rule: End session if done
+  steps:
+  - intent: done
+  - action: utter_done
 
 - rule: Say goodbye
   steps:
   - intent: deny
   - action: utter_goodbye
 
-- rule: Handle After Journal
+- rule: Handle after journal affirm (unsupported feature)
   steps:
   - intent: affirm
   - action: utter_out_of_scope

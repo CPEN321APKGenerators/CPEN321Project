@@ -6,29 +6,94 @@ nlu:
   examples: |
     - hello
     - hi
+    - hii
+    - hiii
     - hey
     - hi there
-    - hello bot
     - greetings
+    - yo
+    - what's up
+    - good morning
+    - good afternoon
+    - good evening
+    - hey there!
+    - howdy
+    - sup
+    - hey hey
+    - hi again
+    - heyy
+    - hello again
+    - heyyy
+    - hii
+    - helloo
+    - what’s good
+    - wassup
+    - yo 
+    - hey, how’s it going?
+    - hi, nice to see you
 
 - intent: goodbye
   examples: |
     - bye
+    - byee
+    - byeee
     - goodbye
+    - goodbyee
     - see you later
     - see you soon
     - take care
     - have a great day
+    - catch you later
+    - talk to you soon
+    - peace out
+    - later
+    - bye for now
+    - have a good one
+    - until next time
+    - I’m heading out
+    - see ya
+    - ciao
+    - I'm off
+    - gotta go
+    - logging off
+    - adios
+    - see you tomorrow
+    - time to go
+    - thanks, bye!
+    - alright, later!
+    - it was nice talking to you
+    - see ya 
 
 - intent: affirm
   examples: |
     - yea
     - yes
+    - yess
+    - yesss
     - yeah
     - sure
     - absolutely
     - of course
     - definitely
+    - yup
+    - totally
+    - for sure
+    - indeed
+    - that's right
+    - you bet
+    - sure thing
+    - why not
+    - sounds good
+    - ok
+    - okk
+    - okay
+    - mmhmm
+    - yep
+    - 100%
+    - correct
+    - you got it
+    - true
+    - no doubt
 
 - intent: deny
   examples: |
@@ -37,14 +102,51 @@ nlu:
     - not really
     - I don’t think so
     - no thanks
+    - nah
+    - never
+    - not at all
+    - I’m good
+    - I’d rather not
+    - don’t think so
+    - no way
+    - I don’t want to
+    - that’s not right
+    - not today
+    - I’d say no
+    - hard pass
+    - not now
+    - I’m gonna pass
+    - nope, not today
+    - pass
 
 - intent: journal_provided
   examples: |
-    - [Today was great](message)
-    - [Had a rough day, but I managed](message)
-    - [Feeling happy and motivated](message)
-    - [It was a long but productive day](message)
-    - [I am not doing good](message)
+    - [All of a sudden, everything feels overwhelming](message)
+    - [Been feeling really disconnected lately](message)
+    - [Can’t shake this anxious feeling](message)
+    - [Did something outside my comfort zone today](message)
+    - [Everything worked out better than I thought](message)
+    - [Feeling lost but trying to stay hopeful](message)
+    - [Grateful for the little things today](message)
+    - [Had a long talk with a friend—it helped](message)
+    - [I’m proud of the small steps I took today](message)
+    - [Just wanted to get this off my chest](message)
+    - [Kept busy so I wouldn’t overthink](message)
+    - [Laughed a lot today, which felt nice](message)
+    - [Made progress on my goals today](message)
+    - [Nothing feels right, but I’m still trying](message)
+    - [Overwhelmed but managing somehow](message)
+    - [Pushed through my fear and spoke up](message)
+    - [Questioning a lot of things lately](message)
+    - [Really proud of myself for getting through this week](message)
+    - [Still figuring it all out](message)
+    - [Tired, but I made it through](message)
+    - [Used today to rest and reset](message)
+    - [Very emotional day, but healing slowly](message)
+    - [Woke up feeling a little lighter today](message)
+    - [X-rayed my thoughts all day—super reflective mood](message)
+    - [Yesterday felt like a blur](message)
+    - [Zoned out for most of the day, just floating](message)
 
 - intent: inform
   examples: |
@@ -67,6 +169,57 @@ nlu:
     - start 
     - journal
   
+- intent: request_selfcare
+  examples: |
+    - can I get a self-care tip?
+    - I need a self-care suggestion
+    - give me something uplifting
+    - any self-care ideas?
+    - suggest a self-care activity
+    - do you have a self-care tip for me?
+    - what can I do to feel better?
+    - help me calm down
+    - show me something relaxing
+    - self care
+    - selfcare
+    - 1 
+
+- intent: request_resources
+  examples: |
+    - I need mental health support
+    - give me a mental health resource
+    - can I talk to someone?
+    - any websites for help?
+    - I’m struggling, what can I do?
+    - mental health hotline?
+    - where can I get help?
+    - do you have any crisis resources?
+    - resources
+    -2
+
+- intent: request_exercise
+  examples: |
+    - give me an exercise
+    - I want to try a calming activity
+    - do you have a breathing exercise?
+    - help me reset my mind
+    - I’d like a mindfulness exercise
+    - show me a grounding technique
+    - guide me through a breathing session
+    - something short to help me relax
+    - exericse
+    - 3
+
+- intent: done
+  examples: |
+    - I’m good for now
+    - that’s it
+    - no thanks, I’m done
+    - I don’t need anything else
+    - I'm finished
+    - all done
+    - that's all for today
+    - 4
 
 - regex: date
   examples: |

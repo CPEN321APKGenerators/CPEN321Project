@@ -7,33 +7,107 @@ intents:
   - deny
   - journal_provided
   - start
+  - request_selfcare
+  - request_resources
+  - request_exercise
+  - done
 
 entities: []
 
 slots:
-
   message:
     type: text
     mappings:
       - type: from_text  
+  post_journal_choice:
+    type: text
+    mappings:
+      - type: from_text
 
 responses:
   utter_greet:
     - text: "Hi!"
+    - text: "Hey there!"
+    - text: "Good to see you again!"
+    - text: "Welcome back!"
+
   utter_ask_journal:
-    - text: "Please type start to begin journaling."
+    - text: "Please type 'start' to begin journaling."
+    - text: "Type 'start' whenever you're ready to reflect."
+    - text: "Ready to write? Just type 'start'."
+    - text: "Whenever you're set, send 'start' and we’ll begin."
+
   utter_goodbye:
     - text: "See you tomorrow. Bye!"
+    - text: "Take care! See you soon."
+    - text: "Goodbye for now. Stay well."
+    - text: "Signing off. Have a great rest of your day!"
+
   utter_journal_confirmation:
     - text: "Congrats on being consistent, your entry is saved and processed."
+    - text: "Nice work—your thoughts have been logged!"
+    - text: "Your entry is saved. Keep it up!"
+    - text: "Thanks for sharing. I’ve saved your entry."
+
   utter_journaling_prompt:
     - text: "Feel free to write down your thoughts. What's on your mind today?"
+    - text: "Hey, how are you feeling today?"
+    - text: "What's been on your mind lately?"
+    - text: "Let it all out. How was your day?"
+    - text: "Ready when you are. What’s weighing on you or lifting you up?"
+    - text: "Take your time. What would you like to share today?"
+
   utter_journal_follow_up:
     - text: "Is there anything else I can do for you today?"
+    - text: "Would you like to do anything else before we wrap up?"
+    - text: "Anything more you'd like help with right now?"
+    - text: "Happy to help with anything else. Just let me know!"
+
   utter_ask_continue:
     - text: "Is there anything else I can do for you today?"
+    - text: "Would you like to continue or are we done for now?"
+    - text: "Do you want to reflect a bit more?"
+    - text: "I'm still here if you want to talk more."
+
   utter_out_of_scope:
     - text: "This feature isn't available as of now, thank you."
+    - text: "Oops, I can't help with that just yet."
+    - text: "I'm not sure how to help with that. Thanks for understanding."
+    - text: "Sorry, that feature isn't supported right now."
+
+  utter_post_journal_options:
+    - text: |
+        Thanks for sharing. Would you like to:
+        1. 💆 Get a self-care tip  
+        2. 🧠 See mental health resources  
+        3. 🧘 Try a calming exercise  
+        4. ❌ Finish for now  
+        Please type what you’d like to do (e.g. "1", "2", "self-care tip" or "mental health resources").
+
+  utter_selfcare_suggestion:
+    - text: "Try stepping outside for a 5-minute walk. A breath of fresh air can reset your whole vibe 🌿"
+    - text: "Write down 3 things you're grateful for—it’s a great way to shift your mood."
+    - text: "Put your favorite song on and just vibe for a minute 🎧"
+    - text: "Take 5 slow deep breaths. Close your eyes if that helps you ground."
+
+  utter_mental_health_resources:
+    - text: |
+        Here are some mental health resources you can explore:
+        - Crisis Text Line: [https://www.crisistextline.org](https://www.crisistextline.org)  
+        - WHO Mental Health Tools: [https://www.who.int](https://www.who.int/teams/mental-health-and-substance-use)  
+        - Find a therapist: [https://www.psychologytoday.com](https://www.psychologytoday.com)
+
+  utter_guided_exercise:
+    - text: |
+        Let’s try a grounding technique:
+        1. Inhale for 4 seconds  
+        2. Hold for 4 seconds  
+        3. Exhale for 4 seconds  
+        Repeat 3 times.  
+        Want to try a longer one later?
+
+  utter_done:
+    - text: "Awesome. I’ll be here if you need anything else. Have a fantastic day"
 
 actions:
   - action_save_message
