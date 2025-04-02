@@ -320,43 +320,8 @@ describe("Analytics API - Unmocked", () => {
             summary: [
               {
                 activity: 'Running',
-                emotion: 'Joy',
-                display: 'Running rises while Joy rises at around the same time with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Joy',
-                display: 'Running falls while Joy falls at around the same time with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Joy',
-                display: 'Joy tends to fall while Running rises after with an average delay of 1 day(s) with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Joy',
-                display: 'Running falls while Joy rises at around the same time with 2 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Sadness',
-                display: 'Running rises while Sadness rises at around the same time with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Sadness',
-                display: 'Running falls while Sadness falls at around the same time with 2 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Sadness',
-                display: 'Running tends to rise while Sadness falls after with an average delay of 1 day(s) with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Sadness',
-                display: 'Running falls while Sadness rises at around the same time with 2 notable occurence(s).'
+                emotion: 'Stress',
+                display: 'Running falls while Stress falls at around the same time with 3 notable occurence(s).'
               },
               {
                 activity: 'Running',
@@ -365,58 +330,13 @@ describe("Analytics API - Unmocked", () => {
               },
               {
                 activity: 'Running',
-                emotion: 'Anger',
-                display: 'Running tends to rise while Anger falls after with an average delay of 1 day(s) with 1 notable occurence(s).'
+                emotion: 'Sadness',
+                display: 'Running falls while Sadness rises at around the same time with 2 notable occurence(s).'
               },
               {
                 activity: 'Running',
-                emotion: 'Resilience',
-                display: 'Running falls while Resilience falls at around the same time with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Resilience',
-                display: 'Running tends to rise while Resilience falls after with an average delay of 2 day(s) with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Stress',
-                display: 'Running tends to rise while Stress rises after with an average delay of 2 day(s) with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Stress',
-                display: 'Running falls while Stress falls at around the same time with 3 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Stress',
-                display: 'Running rises while Stress falls at around the same time with 2 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'Stress',
-                display: 'Running falls while Stress rises at around the same time with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'SenseOfPurpose',
-                display: 'SenseOfPurpose tends to rise while Running rises after with an average delay of 1 day(s) with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'SenseOfPurpose',
-                display: 'Running falls while SenseOfPurpose falls at around the same time with 2 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'SenseOfPurpose',
-                display: 'Running tends to rise while SenseOfPurpose falls after with an average delay of 1 day(s) with 1 notable occurence(s).'
-              },
-              {
-                activity: 'Running',
-                emotion: 'SenseOfPurpose',
-                display: 'SenseOfPurpose tends to rise while Running falls after with an average delay of 1 day(s) with 2 notable occurence(s).'
+                emotion: 'Joy',
+                display: 'Running falls while Joy rises at around the same time with 2 notable occurence(s).'
               }
             ]
           };
@@ -424,8 +344,7 @@ describe("Analytics API - Unmocked", () => {
         const postResponse = await request(app)
             .get("/api/analytics")
             .query({ userID: googleUserID, date: "2025-01-07" });
-
-        // expect(postResponse.body).toEqual(expectedResponse);
+        expect(postResponse.body).toEqual(expectedResponse);
         expect(postResponse.status).toBe(200);
         
     });
@@ -467,7 +386,7 @@ describe("Analytics API - Unmocked", () => {
             { $set: { activities_tracking: null } }
         );
 
-        const emptyExpectedResponse = {
+        const ExpectedResponse = {
             emotionStats: {
                 Joy: [ 0.8, 0.4, 0.7, 0.9, 0.8, 0.8, 0.8],
                 Sadness: [ 0.5, 0.4, 0.6, 0.4, 0.3, 0.3, 0.3],
@@ -490,7 +409,7 @@ describe("Analytics API - Unmocked", () => {
             .query({ userID: googleUserID, date: "2025-01-07" });
 
         expect(emptyPostResponse.status).toBe(200);
-        expect(emptyPostResponse.body).toEqual(emptyExpectedResponse);
+        expect(emptyPostResponse.body).toEqual(ExpectedResponse);
     });        
  
     

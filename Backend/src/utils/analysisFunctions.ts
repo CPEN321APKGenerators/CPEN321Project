@@ -1,6 +1,6 @@
 import { error } from "console";
 import { client } from "../../services";
-import { ObjectFlags } from "typescript";
+import { flattenDiagnosticMessageText, ObjectFlags } from "typescript";
 import { last } from "pdf-lib";
 
 const emotionIncreaseThreshold = 0.18;
@@ -25,10 +25,10 @@ export class RelationshipMap {
             this.map[activity] = {};
             for (const emotion of emotions) {
                 this.map[activity][emotion] = {
-                    pprelationship: new RelationshipLog(),
-                    nnrelationship: new RelationshipLog(),
-                    pnrelationship: new RelationshipLog(),
-                    nprelationship: new RelationshipLog(),
+                    pprelationship: new RelationshipLog(activity, emotion, "pprelationship"),
+                    nnrelationship: new RelationshipLog(activity, emotion, "nnrelationship"),
+                    pnrelationship: new RelationshipLog(activity, emotion, "pnrelationship"),
+                    nprelationship: new RelationshipLog(activity, emotion, "nprelationship"),
                 };
             }
         }
@@ -44,20 +44,67 @@ export class RelationshipMap {
         return this.map[activity]?.[emotion];
     }
     summarizeRelationships(): {activity: string, emotion: string, display: string}[] {
-        const summary: {activity: string, emotion: string, display: string}[] = [];
+        const summary = new Summary();
         for (const activity in this.map) {
             for (const emotion in this.map[activity]) {
+                var positiveCorrelation : RelationshipLog[]  = [];
+                var negativeCorrelation : RelationshipLog[]  = [];
                 for (const relationship in this.map[activity][emotion]) {
-                    const relationshiLog = this.map[activity][emotion][relationship];
-                    if (relationshiLog.getLogs().length > 0) {
-                        const summaryEntry = relationshiLog.convertSummaryEntry(activity, emotion, relationship);
-                        summary.push(summaryEntry);
-                        
+                    const relationshipLog = this.map[activity][emotion][relationship];
+
+                    if (relationshipLog.getLogs().length > 0 ) {
+                        if(!positiveCorrelation.length && (relationship == "pprelationship" || relationship == "nnrelationship")){
+                            positiveCorrelation.push(relationshipLog);
+                        }
+                        else if(!negativeCorrelation.length && (relationship == "nprelationship" || relationship == "pnrelationship")){
+                        negativeCorrelation.push(relationshipLog);
+                        }
+                        else if(positiveCorrelation.length && (relationship == "pprelationship" || relationship == "nnrelationship")){
+                            if(relationshipLog.isHigherRank(positiveCorrelation[0])){
+                                positiveCorrelation.unshift(relationshipLog);
+                            }
+                            else{
+                                positiveCorrelation.push(relationshipLog);
+                            }
+                        }
+                        else if(negativeCorrelation.length && (relationship == "nprelationship" || relationship == "pnrelationship")){
+                            if(relationshipLog.isHigherRank(negativeCorrelation[0])){
+                                negativeCorrelation.unshift(relationshipLog);
+                            }
+                            else{
+                                negativeCorrelation.push(relationshipLog);
+                            }
+                        }
+                    }
+                }
+
+                if(!positiveCorrelation.length && !negativeCorrelation.length){
+                    continue;
+                }
+                else if(positiveCorrelation.length && !negativeCorrelation.length){
+                    for(const relation of positiveCorrelation){
+                        summary.updateTopRelations(relation);
+                    }
+                }
+                else if(negativeCorrelation.length && !positiveCorrelation.length){
+                    for(const relation of negativeCorrelation){
+                        summary.updateTopRelations(relation);
+                    }
+                }
+                else if(positiveCorrelation[0].isHigherRank(negativeCorrelation[0])){
+                    for(const relation of positiveCorrelation){
+                        summary.updateTopRelations(relation);
+                    }
+                }
+                else if(!positiveCorrelation[0].isHigherRank(negativeCorrelation[0])){
+                    for(const relation of negativeCorrelation){
+                        summary.updateTopRelations(relation);
                     }
                 }
             }
         }
-        return summary;
+        const readableSummary = summary.getReadableSummary();
+        return readableSummary;
     }
 }
 
@@ -65,11 +112,17 @@ export class RelationshipLog {
     private count: number;
     private avgDateDelay: number;
     private logs: { startDate: Date; latestDate: Date; dateDelay: number }[];
+    private activity: string;
+    private emotion: string;
+    private relationshipType: string;
 
-    constructor() {
+    constructor(activity: string, emotion: string, relationshipType: string) {
         this.count = 0;
         this.avgDateDelay = 0;
         this.logs = [];
+        this.activity = activity
+        this.emotion = emotion;
+        this.relationshipType = relationshipType;
     }
 
     addLog(startDate: Date, latestDate: Date, dateDelay: number): void {
@@ -101,7 +154,22 @@ export class RelationshipLog {
         return this.logs;
     }
 
-    convertSummaryEntry(activity: string, emotion: string, relationship: string): {activity: string, emotion: string, display: string} {
+    isHigherRank(relation: RelationshipLog): boolean {
+        if (this.count > relation.count) {
+            return true;
+        }
+        else if(this.count === relation.count && Math.abs(this.avgDateDelay) < Math.abs(relation.avgDateDelay)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    convertSummaryEntry(): {activity: string, emotion: string, display: string} {
+        const activity = this.activity;
+        const emotion = this.emotion;
+        const relationship = this.relationshipType;
         const trendDescriptions : string[] = trendMap[relationship]; 
         const occurences = this.logs.length;
         if(this.avgDateDelay > 0.5){
@@ -126,6 +194,49 @@ export class RelationshipLog {
 
         const display: string = `${firstTrend} tends to ${firstDescription} while ${secondTrend} ${secondDescription}s after with an average delay of ${absAvgDateDelay} day(s) with ${occurences} notable occurence(s).`;
         return {activity, emotion, display};
+    }
+}
+
+class Summary {
+    topRelations: RelationshipLog[];
+
+    constructor() {
+        this.topRelations = [];
+    }
+
+    private getLowestRelation(): RelationshipLog | undefined {
+        return this.topRelations[this.topRelations.length - 1];
+    }
+
+    private addRelation(relation: RelationshipLog) {
+        if(this.topRelations.length === 0){
+            this.topRelations.push(relation);
+            return;
+        }
+        for (let i = 0; i < this.topRelations.length; i++) {
+            if (!this.topRelations[i].isHigherRank(relation)) {
+                this.topRelations.splice(i, 0, relation);
+                return;
+            }
+        }
+    }
+    updateTopRelations(relation: RelationshipLog): void {
+        if (this.topRelations.length < 4) {
+            this.addRelation(relation);
+        } else {
+            const lowestRelation = this.getLowestRelation();
+            if (lowestRelation && relation.isHigherRank(lowestRelation)) {
+                this.topRelations.pop();
+                this.addRelation(relation);
+            }
+        }
+    }
+    getReadableSummary() : {activity: string, emotion: string, display: string}[] {
+        var readableSummary : {activity: string, emotion: string, display: string}[] = [];
+        for (const relation of this.topRelations){
+            readableSummary.push(relation.convertSummaryEntry());
+        }
+        return readableSummary;
     }
 }
 
@@ -284,7 +395,6 @@ function outputTrend(dataArr: number[], trendArr: number[], incrThreshold: numbe
         } else if ((dataArr[i + 1] - dataArr[i]) > ( incrThreshold)) {
             trendArr.push(1);
         } else if (Math.abs(dataArr[i + 1] - dataArr[i]) > (decrThreshold)) {
-            console.log(dataArr, incrThreshold)
             trendArr.push(-1);
         } else {
             trendArr.push(0);
