@@ -1,4 +1,4 @@
-package com.example.cpen321project
+package com.example.cpen321project.notification
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -6,46 +6,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.TimePicker
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
-import com.stripe.android.PaymentConfiguration
-import com.stripe.android.paymentsheet.PaymentSheet
-import com.stripe.android.paymentsheet.PaymentSheetResult
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.IOException
 
 object NotificationHelper {
     const val CHANNEL_ID = "channel_id"

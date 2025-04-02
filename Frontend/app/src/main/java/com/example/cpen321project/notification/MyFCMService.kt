@@ -1,4 +1,4 @@
-package com.example.cpen321project
+package com.example.cpen321project.notification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,6 +8,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.cpen321project.MainActivity
+import com.example.cpen321project.R
 import com.example.cpen321project.profile.CHANNEL_ID
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
