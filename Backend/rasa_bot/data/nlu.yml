@@ -147,6 +147,11 @@ nlu:
     - [X-rayed my thoughts all day—super reflective mood](message)
     - [Yesterday felt like a blur](message)
     - [Zoned out for most of the day, just floating](message)
+    - [Today was great](message)
+    - [Had a rough day, but I managed](message)
+    - [Feeling happy and motivated](message)
+    - [It was a long but productive day](message)
+    - [I am not doing good](message)
 
 - intent: inform
   examples: |
