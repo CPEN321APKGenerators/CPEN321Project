@@ -68,7 +68,7 @@ nlu:
   examples: |
     - start 
     - journal
-    
+
 - intent: affirm
   examples: |
     - yea
@@ -188,7 +188,6 @@ nlu:
     - show me something relaxing
     - self care
     - selfcare
-    - 1 
 
 - intent: request_resources
   examples: |
@@ -201,7 +200,6 @@ nlu:
     - where can I get help?
     - do you have any crisis resources?
     - resources
-    - 2
 
 - intent: request_exercise
   examples: |
@@ -214,7 +212,6 @@ nlu:
     - guide me through a breathing session
     - something short to help me relax
     - exericse
-    - 3
 
 - intent: done
   examples: |
@@ -225,7 +222,6 @@ nlu:
     - I'm finished
     - all done
     - that's all for today
-    - 4
 
 - regex: date
   examples: |
