@@ -92,7 +92,7 @@ class UnpaidUserJournalTest {
         Log.d(TAG, "Clicking send chat button")
         onView(withId(R.id.sendChatButton)).perform(click())
 
-        sleep(1000)
+        sleep(5000)
 
         Log.d(TAG, "Typing journal entry: $journalText")
         onView(withId(R.id.chatInput))
@@ -139,11 +139,11 @@ class UnpaidUserJournalTest {
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
-                    hasDescendant(withText("6")), click()
+                    hasDescendant(withText("1")), click()
                 )
             )
 
-        sleep(1000)
+        sleep(3000)
 
         Log.d(TAG, "Checking if Save Entry button is displayed")
         onView(withId(R.id.Saveentrybutton)).check(matches(isDisplayed()))
@@ -151,7 +151,7 @@ class UnpaidUserJournalTest {
         Log.d(TAG, "Clicking edit button")
         onView(withId(R.id.editbutton)).perform(click())
 
-        sleep(500)
+        sleep(1000)
 
         Log.d(TAG, "Typing additional text: $additionalText")
         onView(withId(R.id.journalEntryInput)).perform(
@@ -162,7 +162,7 @@ class UnpaidUserJournalTest {
         Log.d(TAG, "Clicking Save Entry button")
         onView(withId(R.id.Saveentrybutton)).perform(click())
 
-        sleep(1000)
+        sleep(2000)
 
         Log.d(TAG, "Checking if calendar view is displayed")
         onView(withId(R.id.calenderrecycleView)).check(matches(isDisplayed()))
@@ -173,7 +173,7 @@ class UnpaidUserJournalTest {
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("6"),
+                            withText("1"),
                             withBackground(R.drawable.circle_background)
                         )
                     )
@@ -187,17 +187,17 @@ class UnpaidUserJournalTest {
     fun C_User_click_on_higlighted_delete_entry() {
         Log.d(TAG, "Starting test: C_User_click_on_higlighted_delete_entry")
 
-        sleep(1000)
+        sleep(2000)
 
         Log.d(TAG, "Clicking on a highlighted date")
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
-                    hasDescendant(withText("6")), click()
+                    hasDescendant(withText("1")), click()
                 )
             )
 
-        sleep(1000)
+        sleep(2000)
 
         Log.d(TAG, "Checking if delete button is displayed")
         onView(withId(R.id.deletebutton)).check(matches(isDisplayed()))
@@ -205,17 +205,17 @@ class UnpaidUserJournalTest {
         Log.d(TAG, "Clicking delete button")
         onView(withId(R.id.deletebutton)).perform(click())
 
-        sleep(1000)
+        sleep(2000)
 
         Log.d(TAG, "Checking if confirmation dialog is displayed")
         onView(withText("Delete Journal Entry")).check(matches(isDisplayed()))
 
-        sleep(1000)
+        sleep(2000)
 
         Log.d(TAG, "Clicking Yes to confirm deletion")
         onView(allOf(withText("Yes"), isDisplayed())).perform(click())
 
-        sleep(1000)
+        sleep(2000)
 
         Log.d(TAG, "Verifying if the date is no longer highlighted")
         onView(withId(R.id.calenderrecycleView))
@@ -223,7 +223,7 @@ class UnpaidUserJournalTest {
                 matches(
                     hasDescendant(
                         allOf(
-                            withText("6"),
+                            withText("1"),
                             not(withBackground(R.drawable.circle_background))
                         )
                     )

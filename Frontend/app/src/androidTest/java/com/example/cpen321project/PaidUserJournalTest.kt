@@ -127,7 +127,7 @@ class PaidUserJournalTest {
         onView(withId(R.id.calenderrecycleView))
             .perform(
                 RecyclerViewActions.actionOnItem<CalendarAdapter.ViewHolder>(
-                    hasDescendant(withText("12")), click()
+                    hasDescendant(withText("1")), click()
                 )
             )
         sleep(1000)
