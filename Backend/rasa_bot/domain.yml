@@ -37,6 +37,14 @@ responses:
     - text: "Ready to write? Just type 'start'."
     - text: "Whenever you're set, send 'start' and we’ll begin."
 
+  utter_journaling_prompt:
+    - text: "Feel free to write down your thoughts. What's on your mind today?"
+    - text: "Hey, how are you feeling today?"
+    - text: "What's been on your mind lately?"
+    - text: "Let it all out. How was your day?"
+    - text: "Ready when you are. What’s weighing on you or lifting you up?"
+    - text: "Take your time. What would you like to share today?"
+    
   utter_goodbye:
     - text: "See you tomorrow. Bye!"
     - text: "Take care! See you soon."
@@ -48,14 +56,6 @@ responses:
     - text: "Nice work—your thoughts have been logged!"
     - text: "Your entry is saved. Keep it up!"
     - text: "Thanks for sharing. I’ve saved your entry."
-
-  utter_journaling_prompt:
-    - text: "Feel free to write down your thoughts. What's on your mind today?"
-    - text: "Hey, how are you feeling today?"
-    - text: "What's been on your mind lately?"
-    - text: "Let it all out. How was your day?"
-    - text: "Ready when you are. What’s weighing on you or lifting you up?"
-    - text: "Take your time. What would you like to share today?"
 
   utter_journal_follow_up:
     - text: "Is there anything else I can do for you today?"
