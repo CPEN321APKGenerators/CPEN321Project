@@ -64,6 +64,11 @@ nlu:
     - it was nice talking to you
     - see ya 
 
+- intent: start
+  examples: |
+    - start 
+    - journal
+    
 - intent: affirm
   examples: |
     - yea
@@ -169,10 +174,6 @@ nlu:
     - thanks a lot
     - many thanks
 
-- intent: start
-  examples: |
-    - start 
-    - journal
   
 - intent: request_selfcare
   examples: |
@@ -200,7 +201,7 @@ nlu:
     - where can I get help?
     - do you have any crisis resources?
     - resources
-    -2
+    - 2
 
 - intent: request_exercise
   examples: |
