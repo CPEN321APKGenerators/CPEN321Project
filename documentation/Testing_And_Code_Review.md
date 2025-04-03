@@ -2,6 +2,7 @@
 
 ## 1. Change History
 
+<div style="overflow-x: auto;">
 
 | **Change Date**  | **Modified Sections**     | **Rationale**                                                                |
 | ------------------ | --------------------------- | ------------------------------------------------------------------------------ |
@@ -15,6 +16,19 @@
 
 #### 2.1.1. Tests (update line numbers)
 
+<style>
+table {
+  table-layout: fixed;
+  width: 100%;
+  word-wrap: break-word;
+  font-size: 10px;
+}
+th, td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+</style>
 
 | **Interface**                  | **Describe Group Location, No Mocks**                          | **Describe Group Location, With Mocks**                                                                                | **Mocked Components**                                   |
 | -------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
@@ -151,6 +165,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
 ### 3.1. Test Locations in Git
 
+<div style="overflow-x: auto;">
 
 | **Non-Functional Requirement**  | **Location in Git**                                                                              |
 | --------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -220,6 +235,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
   - **Verification:** The response time for our project is evaluated using automated test logs from all written test cases that validate API endpoints. Each test suite is executed five times, and the response time for each endpoint is averaged to obtain a reliable measurement. These tests ensure that our system meets the expected performance criteria under typical usage scenarios. The logs provide insight into the execution time of key endpoints, including journal entry management, sentiment analysis, and chatbot interactions. By leveraging real-world usage patterns captured through our test automation, we can proactively identify and address performance bottlenecks, ensuring a seamless user experience. The comprehensive logs from multiple test runs help verify that response times remain within acceptable limits, preventing delays that could impact usability.
   - **Log Output**
 
+  <div style="overflow-x: auto;">
 
     | API Endpoint                                                                  | Time to Complete |
     | ------------------------------------------------------------------------------- | ------------------ |
@@ -247,6 +263,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
   - **Verification:** This test simulates user interaction with the journal feature by performing multiple clicks (less than the threshold), including selecting dates, typing journal entries, sending messages, and confirming deletions. The test verifies that each step, from creating, editing and deleting journal entries, functions correctly in the app within 3 clicks as discussed din the requirements. The test also ensures that UI elements such as the chat input field, send button, delete button, and confirmation dialogs are displayed and intractable.
   - **Log Output**
 
+  <div style="overflow-x: auto;">
 
     | **Timestamp**           | **Process ID** | **Test Suite** | **Package Name**           | **Log Level** | **Description**                                                                                                              |
     | ------------------------- | ---------------- | ---------------- | ---------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -285,6 +302,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                                 | **Test Case Steps**                                                                                                                                                       |
     | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -295,6 +313,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 5. The entry is saved, and the calendar refreshes. | Click`Backbuttonentries`, check that `calenderrecycleView` is displayed with the date highlighted.                                                                        |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID | Test Suite   | Package Name               | Log Level | Description                                                                                                                  |
     | ------------------------- | ------------ | -------------- | ---------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -312,6 +331,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                                  | **Test Case Steps**                                                                                                                                    |
     | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -321,6 +341,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 4. The entry is saved, and the calendar refreshes.  | Check that`calenderrecycleView` is displayed with the date still highlighted.                                                                          |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                                                    |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | -------------------------------------------------------------------------------- |
@@ -337,6 +358,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                                   | **Test Case Steps**                                                                       |
     | ------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
@@ -346,6 +368,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 4. The entry is deleted, and the calendar refreshes. | Check that`calenderrecycleView` is displayed, ensuring the date is no longer highlighted. |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                                         |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | --------------------------------------------------------------------- |
@@ -361,6 +384,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                   | **Test Case Steps**                                            |
     | -------------------------------------- | ---------------------------------------------------------------- |
@@ -369,6 +393,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 3. The app displays a toast message. | Verify "Cannot add a journal for future dates!" toast message. |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                           |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | ------------------------------------------------------- |
@@ -380,6 +405,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                   | **Test Case Steps**                              |
     | -------------------------------------- | -------------------------------------------------- |
@@ -388,6 +414,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 3. The app displays a toast message. | Verify "Upgrade to upload media!" toast message. |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                            |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | -------------------------------------------------------- |
@@ -399,6 +426,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                          | **Test Case Steps**                                   |
     | --------------------------------------------- | ------------------------------------------------------- |
@@ -406,6 +434,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 2. The app displays a confirmation message. | Verify "File URL copied to clipboard!" toast message. |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                        |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | ---------------------------------------------------- |
@@ -417,6 +446,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                   | **Test Case Steps**                           |
     | -------------------------------------- | ----------------------------------------------- |
@@ -426,6 +456,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 4. User selects "Take a Photo".      | Click "Take a Photo".                         |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                                        |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | -------------------------------------------------------------------- |
@@ -440,6 +471,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                     | **Test Case Steps**                           |
     | ---------------------------------------- | ----------------------------------------------- |
@@ -449,6 +481,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 4. User selects "Select from Gallery". | Click "Select from Gallery".                  |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                                        |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | -------------------------------------------------------------------- |
@@ -463,6 +496,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                               | **Test Case Steps**                           |
     | -------------------------------------------------- | ----------------------------------------------- |
@@ -472,6 +506,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 4. User confirms deletion.                       | Click "Delete".                               |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID  | Test Suite   | Package Name               | Log Level | Description                                                           |
     | ------------------------- | ------------- | -------------- | ---------------------------- | ----------- | ----------------------------------------------------------------------- |
@@ -486,6 +521,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                     | **Test Case Steps**                           |
     | ---------------------------------------- | ----------------------------------------------- |
@@ -497,6 +533,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 6. The analytics chart updates.        | Check that`analyticsChart` is displayed.      |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID | Thread ID | Tag          | Package                    | Log Level | Message                                                   |
     | ------------------------- | ------------ | ----------- | -------------- | ---------------------------- | ----------- | ----------------------------------------------------------- |
@@ -513,6 +550,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                      | **Test Case Steps**                            |
     | ----------------------------------------- | ------------------------------------------------ |
@@ -524,6 +562,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 6. The activities chart updates.        | Check that`activities_chart` is displayed.     |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID | Thread ID | Tag          | Package                    | Log Level | Message                                                     |
     | ------------------------- | ------------ | ----------- | -------------- | ---------------------------- | ----------- | ------------------------------------------------------------- |
@@ -540,6 +579,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                                                                                                                                                                  | **Test Case Steps**                                                                                                                                     |
     | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -552,6 +592,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 7. The system sends a notification at the selected time.                                                                                                                            | Wait for the selected time.Check that a notification with text "Journal Reminder" appears.                                                              |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID | Thread ID | Tag          | Package                    | Log Level | Message                                        |
     | ------------------------- | ------------ | ----------- | -------------- | ---------------------------- | ----------- | ------------------------------------------------ |
@@ -571,6 +612,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                                                              | **Test Case Steps**                                                                                                                                          |
     | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -584,6 +626,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 8. The system displays a success message confirming the update.                 | Check that a toast message with text "Profile updated successfully!" is displayed.                                                                           |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID | Thread ID | Tag          | Package                    | Log Level | Message                                   |
     | ------------------------- | ------------ | ----------- | -------------- | ---------------------------- | ----------- | ------------------------------------------- |
@@ -604,6 +647,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   - **Expected Behaviors:**
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                                                    | **Test Case Steps**                                                                  |
     | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -616,6 +660,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
     | 7. The system retains the updated preferred name.                     | Verify that the preferred name field contains "John Doe".                            |
   - **Test Logs:**
 
+    <div style="overflow-x: auto;">
 
     | Timestamp               | Process ID | Thread ID | Tag          | Package                    | Log Level | Message                                                |
     | ------------------------- | ------------ | ----------- | -------------- | ---------------------------- | ----------- | -------------------------------------------------------- |
@@ -635,6 +680,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
     For non-paid users:
 
+    <div style="overflow-x: auto;">
 
     | **Scenario Steps**                             | **Test Case Steps**                                           |
     | ------------------------------------------------ | --------------------------------------------------------------- |
@@ -650,6 +696,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   **Non-Paid user Test:**
 
+  <div style="overflow-x: auto;">
 
   | Timestamp               | Process ID | Thread ID | Tag          | Package                    | Log Level | Message                                   |
   | ------------------------- | ------------ | ----------- | -------------- | ---------------------------- | ----------- | ------------------------------------------- |
@@ -661,6 +708,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
   **Paid user Test**
 
+  <div style="overflow-x: auto;">
 
   | Timestamp               | Process ID | Thread ID | Tag          | Package                    | Log Level | Message                                   |
   | ------------------------- | ------------ | ----------- | -------------- | ---------------------------- | ----------- | ------------------------------------------- |
@@ -676,7 +724,7 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`a56addf8e1fc012e66c92b1c577269d98a2bb1d0`
+`06ce5bc2f9ba0e14e8d8298d3f9259bd619abcb2`
 
 ### 5.2. Unfixed Issues per Codacy Category
 

@@ -1,27 +1,26 @@
 ## Journal - Part 2
 
 #### 1. Contribution of each member
-Contribution of each team member: describe the work done by each team member towards the
-completion of this milestone (1-2 sentences per member). Specify the time (in hours) spent by each
-team member towards completion of the milestone.
-
+**For M6:**
 Amod Ghimire (15 hours) - Implementation and testing of Frontend of the Application
-Kevin Li - Implementation and testing of Complex Algorithm 
-Nyi Nyi Oo - Implementation and Testing of Chatbot
-Christine Jiang (15 hours) - Implementation and Testing of Backend API and Frontend, Github Action configuration
+Kevin Li (10 hours) - Implementation and testing of Complex Algorithm 
+Nyi Nyi Oo (10 hours) - Implementation and Testing of Chatbot
+Christine Jiang (20 hours) - Implementation and Testing of Backend API and Frontend, Github Action configuration
 
 
 #### 2. Github Repository Info
 Link to your GitHub repository: [CPEN 321 Journal Project](https://github.com/CPEN321APKGenerators/CPEN321Project)
 Commit SHA of your final released version: (on the main branch)
-
+`06ce5bc2f9ba0e14e8d8298d3f9259bd619abcb2`
 
 
 #### 3. Location of front-end and back-end tests
-Front-End tests: `Frontend/app/src/androidTest/java/com/example/cpen321project`
-Back-end tests: 
+
 |Type of Tests | Location |
 | -------- | ------- |
+| **General Backend mocked tests** | [`/Backend/tests/mocked`](https://github.com/CPEN321APKGenerators/CPEN321Project/tree/main/Backend/tests/mocked) |
+| **General Backend unmocked tests** | [`/Backend/rasa_api/__tests__`](https://github.com/CPEN321APKGenerators/CPEN321Project/blob/main/Backend/rasa_api/__tests__/server.test.js) |
+| **General RASA chatbot tests** | [`/Backend/tests/unmocked`](https://github.com/CPEN321APKGenerators/CPEN321Project/tree/main/Backend/rasa_api/__tests__) |
 | **Performance (Response Time)**   | [`/Backend/tests/*`](https://github.com/CPEN321APKGenerators/CPEN321Project/tree/main/Backend/tests) (All tests for api endpoints)    |
 | **Encryption of Entries** | [`/Backend/tests/unmocked/journal.unmocked.test.ts#L266`](https://github.com/CPEN321APKGenerators/CPEN321Project/blob/main/Backend/tests/unmocked/journal.unmocked.test.ts)       |
 | **Usability (Frontend)**    | [`Frontend/app/src/androidTest/java/com/example/cpen321project/Nonfunctional_clicks_test.kt`](https://github.com/CPEN321APKGenerators/CPEN321Project/blob/main/Frontend/app/src/androidTest/java/com/example/cpen321project/Nonfunctional_clicks_test.kt)    |
@@ -34,11 +33,14 @@ Model: S10
 
 
 #### 5. Information about Back-end Server
-Public IP of Back-end server: ec2-35-183-201-213.ca-central-1.compute.amazonaws.com
-Domain name: https://cpen321project-journal.duckdns.org
-Rasa Action Server (NodeJSWrapper): https://54.234.28.190:3001/api/chat
-RASA Action Server (EC2): https://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook
-
+Public IP of Back-end server:
+```ec2-35-183-201-213.ca-central-1.compute.amazonaws.com```
+Domain name: 
+```https://cpen321project-journal.duckdns.org```
+Rasa Action Server (NodeJSWrapper): 
+```https://54.234.28.190:3001/api/chat```
+RASA Action Server (EC2): 
+```https://ec2-54-234-28-190.compute-1.amazonaws.com:5055/webhook```
 
 
 #### 6. Neccessary User Accounts to run our App
@@ -99,9 +101,6 @@ Our core complexity is implemented in the weekly trend analysis feature within t
 
 
 #### 8. Humblebrag
-a description of any technical extra part of your project you are particularly proud of.
-TODO: Everyone should write one thing we are proud of!!
-
 We’re especially proud of our end-to-end encrypted journaling system and secure access control, both of which required close coordination between the frontend, backend, and database layers:
 
 - AES Encryption of Journal Entries
@@ -140,16 +139,25 @@ While we’re proud of our app, it has a few limitations:
     - The app is primarily designed with English prompts and UI. the underlying NLP (via OpenAI) is capable of handling multiple languages, the app's reflection prompts from the chatbot and the interface does not support languages other than English.
 
 #### 10. Reflections on Generative AI Technologies
-Reflections on using Generative AI technologies for software engineering tasks. You must answer
-and elaborate on all the following questions in 1-2 paragraphs each:
-    a. Which Generative AI technologies did you use in the scope of this course?
-    b. For which phases of the overall Software Engineering process and which concrete tasks
-    in these phases was Generative AI the most helpful and why? Discuss phases such as
-    requirements elicitation and documentation, design, implementation, code review, testing,
-    and project refinement (for the final release).
-    c. For which phases of the overall Software Engineering process and which concrete tasks
-    in these phases was Generative AI the least helpful and why? Discuss phases such as
-    requirements elicitation and documentation, design, implementation, code review, testing,
-    and project refinement (for the final release).
-    d. Is there anything else you would like to share about AI’s impact on your software
-    engineering tasks?
+1. Which Generative AI technologies did you use in the scope of this course?
+    - Throughout the course, our team primarily used ChatGPT as our main generative AI assistant, and occasionally explored DeepSeek for more technical code-generation support. ChatGPT was used extensively for brainstorming, refining documentation, debugging, and assisting with test writing, while DeepSeek was used in specific scenarios where we wanted code output with greater technical focus or alternatives. While most of the team gravitated toward ChatGPT for its general flexibility and natural language support, DeepSeek was tested as a complementary tool for its code-completion strengths.
+
+2. For which phases of the overall Software Engineering process and which concrete tasks in these phases was Generative AI the most helpful and why? Discuss phases such as requirements elicitation and documentation, design, implementation, code review, testing, and project refinement (for the final release).
+
+    - Generative AI was especially helpful during the requirements elicitation, design, and documentation phases. It played a key role in helping us clarify functional and non-functional requirements, brainstorm and refine user flows, and structure technical documents efficiently. In the design phase, AI assisted us in rapidly drafting function headers, data structure outlines, and system architecture ideas. This accelerated alignment across our team by providing consistent baselines that we could refine collaboratively.
+
+    - During documentation tasks — such as writing milestone reports, user-facing instructions, and API descriptions — AI tools were extremely helpful for polishing tone, correcting grammar, and generating content quickly. We also found AI particularly helpful during the testing phase, especially for generating test skeletons (e.g., Espresso tests, mocking interfaces in Jest) and suggesting edge cases. In these stages, where repetitive patterns and boilerplate dominate, AI tools saved time and effort, and helped us think more clearly about what we were doing — especially when we already understood the context.
+
+3. For which phases of the overall Software Engineering process and which concrete tasks in these phases was Generative AI the least helpful and why? Discuss phases such as
+requirements elicitation and documentation, design, implementation, code review, testing,
+and project refinement (for the final release).
+
+- Generative AI was least helpful during the implementation and project refinement phases, especially when dealing with project-specific logic or frameworks (like Android, Firebase, or Stripe). While AI could generate code snippets, these were often syntactically incorrect, outdated, or incompatible with our existing setup. For example, AI-generated test code would frequently use deprecated methods or incorrect libraries, leading to more time spent debugging or rewriting than if we had written the code ourselves from scratch.
+
+- Additionally, AI struggled to understand context-specific constraints, such as dependencies across files, project structure, or user flow logic. When we asked for help with mid-to-late implementation tasks — like integrating payment APIs or resolving framework-specific errors — the answers often hallucinated methods, assumed wrong structures, or lacked depth. Without strong prior knowledge, the AI outputs were more misleading than helpful. We learned to use AI effectively only when we already knew what we wanted and needed help getting unstuck.
+
+
+4. Is there anything else you would like to share about AI’s impact on your software
+engineering tasks?
+
+    - Overall, AI was a valuable companion . It was most effective when used as a support tool for brainstorming, accelerating repetitive tasks, and cleaning up documentation and being available 24/7. However, we quickly learned that blind reliance led to frustration, especially when AI produced overly confident but incorrect answers. The hallucinations and lack of awareness about project-specific context meant we often had to double-check everything it produced.
