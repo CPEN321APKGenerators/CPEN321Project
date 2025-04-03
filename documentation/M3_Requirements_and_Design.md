@@ -2,6 +2,8 @@
 
 ## 1. Change History
 
+<div style="overflow-x: auto;">
+
 | date    | modified section(s) | rationale for the modification|
 | -------- | ---------------- |--------------|
 | Feb. 12th  |  Functional Requirements, Databases, Designs Specification| Correct the errors mentioned in our Milestone 3 grading|
@@ -11,6 +13,7 @@
 | Mar. 2nd | Non-functional requiresments, Sequence Diagram, Dependency Diagram  | Updated based on implementation |
 | Mar. 3rd | Complex feature section updated with the new complex feature. Pseudocode also added. Also changed diagrams to distinguish LLM weight analysis and week overview analytics. Lastly gave a bit more justification for our non-functional requirements. | Updated based on implementation |
 | Mar. 16th | Display Sentiment Trends in Analytics, Exporting the entries | Updated based on implementation. Detailed the steps for selecting emotions and activities in the new multi-selection pop-ups and chart updates after applying selections. |
+| Apr. 2nd    | Non-Functional Requirements   | Added justification for magic numbers. |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
@@ -792,7 +795,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
     For prompting the user, we will use the RASA framework to customize our own chatbot LLM to analyze and follow a set flow of conversation and to log activities that the user reports throughout the day for statistics tracking. Using this framework will allow us to be more flexible in that it can be run much faster than an external API call.
 
 3. **Usability**
-    - **Planned Implementation**: We will make sure the buttons design flow will be within 3 click. The user would click on the entry from calendar activity, which would take the user to the entry view activity. Then the user would do their final click of manage entry to get access to the entry. Please refer to the Screen Mockups for a detailed view.
+    - **Planned Implementation**: We will make sure the buttons design flow will be within 3 click, aligning with the "three-click rule", a well-known UX principle which suggests users should be able to find any information or complete an action within three taps or interactions. The user would click on the entry from calendar activity, which would take the user to the entry view activity. Then the user would do their final click of manage entry to get access to the entry. Please refer to the Screen Mockups for a detailed view.
 
 
 ### **4.8. Main Project Complexity Design**
