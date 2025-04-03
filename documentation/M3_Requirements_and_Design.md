@@ -14,6 +14,7 @@
 | Mar. 3rd | Complex feature section updated with the new complex feature. Pseudocode also added. Also changed diagrams to distinguish LLM weight analysis and week overview analytics. Lastly gave a bit more justification for our non-functional requirements. | Updated based on implementation |
 | Mar. 16th | Display Sentiment Trends in Analytics, Exporting the entries | Updated based on implementation. Detailed the steps for selecting emotions and activities in the new multi-selection pop-ups and chart updates after applying selections. |
 | Apr. 2nd    | Non-Functional Requirements   | Added justification for magic numbers. |
+| Apr. 2nd    | Functional Requirements   | Very small fix for the create use case of the journal management. |
 
 ## 2. Project Description
 Journal - Journey with the Bot is an unique journaling and mental health companion application designed to help users track their moods, engage in self-reflection, and manage stress effectively. Unlike traditional journaling apps, our platform integrates an AI-powered therapy bot that provides sophisticated prompts, emotional support, and personalized feedback. By analyzing user entries and mood trends, the app encourages healthier emotional habits and enhances mental well-being.
@@ -47,6 +48,7 @@ Journal - Journey with the Bot is an unique journaling and mental health compani
         2. The user is prompted to chat with the RASA bot
         3. The user is prompted to journal
         4. The user types and replies their journal entry to the chatbot
+        5. The chatbot saves the user's journal
         5. The user presses back button to save their changes
         5. The calendar view is updated to highlight the day indicating it is journaled
         - **Failure scenario(s)**: 
