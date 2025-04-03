@@ -1,5 +1,7 @@
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.events import FollowupAction
+
 import requests
 import logging
 
@@ -8,28 +10,28 @@ class ActionSaveMessage(Action):
     def name(self):
         return "action_save_message"
 
-    def run(self, dispatcher, tracker: Tracker, domain):
-        # Retrieve metadata from tracker
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
         metadata = tracker.latest_message.get("metadata", {})
         date = metadata.get("date")
         userID = metadata.get("userID")
         google_token = metadata.get("google_token")
         message = tracker.latest_message.get("text")
 
-        # Log retrieved values
-        logging.info(f"Retrieved -> date: {date}, userID: {userID}, google_token: {google_token}, message: {message}")
+        logging.info(f"[SaveMessage] Retrieved -> date: {date}, userID: {userID}, token: {bool(google_token)}, message: {bool(message)}")
 
-        # Validate required fields
+        # Check for missing metadata or very short messages
         if not all([date, userID, google_token, message]):
-            logging.error("Missing required journal entry fields.")
-            dispatcher.utter_message(text="Failed to save journal entry. Missing information.")
-            return []
+            dispatcher.utter_message(text="Apologies, something went wrong while saving your entry. Let's try again.")
+            return [FollowupAction("utter_journaling_prompt")]
 
-        # Construct request payload
+        if len(message.strip()) < 10:
+            dispatcher.utter_message(text="That felt a bit short 🤏 — want to expand on it a little?")
+            return [FollowupAction("utter_journaling_prompt")]
+
         payload = {
             "date": date,
             "userID": userID,
-            "google_token": google_token,  
+            "google_token": google_token,
             "text": message
         }
 
@@ -38,14 +40,25 @@ class ActionSaveMessage(Action):
             "Authorization": f"Bearer {google_token}"
         }
 
-        # Send request to journal API
-        response = requests.post("https://cpen321project-journal.duckdns.org/api/journal", json=payload, headers=headers)
+        try:
+            response = requests.post(
+                "https://cpen321project-journal.duckdns.org/api/journal",
+                json=payload,
+                headers=headers,
+                timeout=8
+            )
 
-        if response.status_code == 200:
-            logging.info("Journal entry saved successfully.")
-            dispatcher.utter_message(text="Your journal entry has been saved successfully.")
-        else:
-            logging.error(f"Failed to save journal entry. Status: {response.status_code}, Response: {response.text}")
-            dispatcher.utter_message(text="Failed to save journal entry. Please try again later.")
+            if response.status_code == 200:
+                logging.info("Journal entry saved successfully.")
+                dispatcher.utter_message(text="Boom! 💣 Your thoughts are locked in. Keep it going!")
+                dispatcher.utter_message(response="utter_post_journal_options")
+                return []
+            else:
+                logging.error(f"Save failed: {response.status_code} - {response.text}")
+                dispatcher.utter_message(text="Hmm, that didn’t save right. Let’s try again:")
+                return [FollowupAction("utter_journaling_prompt")]
 
-        return []
+        except Exception as e:
+            logging.exception("Exception during journal save")
+            dispatcher.utter_message(text="There was a problem saving your journal. Let's try again:")
+            return [FollowupAction("utter_journaling_prompt")]
