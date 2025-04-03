@@ -14,34 +14,29 @@ stories:
   - action: utter_journal_confirmation
   - action: utter_post_journal_options
 
-# Self-care option after journaling
 - story: User requests self-care tip
   steps:
   - intent: request_selfcare
   - action: utter_selfcare_suggestion
   - action: utter_ask_continue
 
-# Mental health resource option
 - story: User requests mental health resources
   steps:
   - intent: request_resources
   - action: utter_mental_health_resources
   - action: utter_ask_continue
 
-# Guided exercise option
 - story: User requests guided exercise
   steps:
   - intent: request_exercise
   - action: utter_guided_exercise
   - action: utter_ask_continue
 
-# Done after journaling
 - story: User is done after journaling
   steps:
   - intent: done
   - action: utter_done
 
-# User denies further interaction
 - story: User says no to continue
   steps:
   - intent: goodbye
