@@ -180,7 +180,7 @@ nlu:
     - show me a grounding technique
     - guide me through a breathing session
     - something short to help me relax
-    - exericse
+    - exercise
 
 - intent: done
   examples: |
