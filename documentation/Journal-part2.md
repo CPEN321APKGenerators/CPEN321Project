@@ -5,10 +5,10 @@ Contribution of each team member: describe the work done by each team member tow
 completion of this milestone (1-2 sentences per member). Specify the time (in hours) spent by each
 team member towards completion of the milestone.
 
-Amod Ghimire - Implementation and testing of Frontend of the Application
+Amod Ghimire (15 hours) - Implementation and testing of Frontend of the Application
 Kevin Li - Implementation and testing of Complex Algorithm 
 Nyi Nyi Oo - Implementation and Testing of Chatbot
-Christine Jiang - Implementation and Testing of Backend API and Frontend, Github Action configuration
+Christine Jiang (15 hours) - Implementation and Testing of Backend API and Frontend, Github Action configuration
 
 
 #### 2. Github Repository Info
@@ -102,16 +102,18 @@ Our core complexity is implemented in the weekly trend analysis feature within t
 a description of any technical extra part of your project you are particularly proud of.
 TODO: Everyone should write one thing we are proud of!!
 
-One of our proudest technical achievements is our secure-by-design encryption system, which integrates several layers of protection:
+We’re especially proud of our end-to-end encrypted journaling system and secure access control, both of which required close coordination between the frontend, backend, and database layers:
 
 - AES Encryption of Journal Entries
-Implemented via the crypto_functions.ts module, all journal data is encrypted before being stored in MongoDB. We verified this with test cases that confirm the database only stores encrypted content, and that decryption only occurs server-side for authenticated users.
+Each journal entry is encrypted before being stored in MongoDB. We implemented AES-based encryption and ensured that no plain text is saved. Entries are decrypted only after successful user authentication. This protects sensitive mental health data even if the database were compromised.
 
-- Google-based Token Authentication
-All sensitive operations (create/edit/delete journals, fetch profile, etc.) require a valid Google token. These are validated on the backend (authentication_functions.ts), ensuring access control without needing to manage passwords.
+- Strict Google-Based Auth Enforcement
+All data operations require Google token validation. This adds a strong layer of access control, letting users manage their data securely without traditional password-based login.
 
 - FCM Token Encryption
 Users' FCM tokens (for notifications) are encrypted using a server-stored secret before saving to the database. This protects against misuse of tokens and safeguards users from spam notification attacks.
+
+While we acknowledge the limitation in our salt design (use of a static serverSecret), we’ve laid a strong foundation for integrating per-user dynamic salts or key derivation enhancements in future work.
 
 
 #### 9. Limitations of Our Project

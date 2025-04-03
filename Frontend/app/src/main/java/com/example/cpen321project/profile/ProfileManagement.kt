@@ -107,14 +107,25 @@ class ProfileManagement : AppCompatActivity() {
                 .show()
             true
         }
-        findViewById<Button>(R.id.profile_upgrade_button).setOnClickListener { paymentSheet.presentWithPaymentIntent(
-            paymentIntentClientSecret,
-            PaymentSheet.Configuration(
-                merchantDisplayName = "My merchant name",
-                customer = customerConfig,
-                allowsDelayedPaymentMethods = true
-            )
-        ) }
+        findViewById<Button>(R.id.profile_upgrade_button).setOnClickListener {
+            it.isEnabled = false // prevent double click
+
+            try {
+                paymentSheet.presentWithPaymentIntent(
+                    paymentIntentClientSecret,
+                    PaymentSheet.Configuration(
+                        merchantDisplayName = "My merchant name",
+                        customer = customerConfig,
+                        allowsDelayedPaymentMethods = true
+                    )
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error launching payment sheet: ${e.message}")
+                Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
+                it.isEnabled = true
+            }
+            it.isEnabled = true
+        }
 
         // Save settings button
         val saveSettingsButton: Button = findViewById(R.id.save_settings_button)
@@ -143,13 +154,20 @@ class ProfileManagement : AppCompatActivity() {
         }
 
         profileApiClient.getPaymentSheet(userID) { paymentSheetData ->
-            paymentSheetData?.let {
-                paymentIntentClientSecret = it.paymentIntent
-                customerConfig = PaymentSheet.CustomerConfiguration(
-                    id = it.customerId,
-                    ephemeralKeySecret = it.ephemeralKey
-                )
-                PaymentConfiguration.init(this, it.publishableKey)
+            runOnUiThread {
+                if (paymentSheetData != null) {
+                    // ⬇️ UI + Stripe SDK config safely inside runOnUiThread
+                    PaymentConfiguration.init(applicationContext, paymentSheetData.publishableKey)
+
+                    paymentIntentClientSecret = paymentSheetData.paymentIntent
+                    customerConfig = PaymentSheet.CustomerConfiguration(
+                        id = paymentSheetData.customerId,
+                        ephemeralKeySecret = paymentSheetData.ephemeralKey
+                    )
+                    findViewById<Button>(R.id.profile_upgrade_button).isEnabled = true
+                } else {
+                    Toast.makeText(this, "Failed to load payment info", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
