@@ -46,3 +46,8 @@ stories:
   steps:
   - intent: deny
   - action: utter_goodbye
+
+- story: User says goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye

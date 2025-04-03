@@ -99,6 +99,7 @@ nlu:
     - you got it
     - true
     - no doubt
+    - keep going 
 
 - intent: deny
   examples: |
