@@ -328,7 +328,7 @@ nlu:
     - [mentally unplugged](message)
     - [journal entry: existing](message)
     - [i showed up, barely](message)
-    
+
 - intent: inform
   examples: |
     - I did some yoga
@@ -402,10 +402,8 @@ nlu:
     - byeee
     - goodbye
     - goodbyee
-    - take care
     - have a great day
     - catch you later
-    - talk to you soon
     - peace out
     - later
     - bye for now
@@ -418,7 +416,6 @@ nlu:
     - logging off
     - adios
     - see you tomorrow
-    - time to go
     - thanks, bye!
     - alright, later!
     - it was nice talking to you
