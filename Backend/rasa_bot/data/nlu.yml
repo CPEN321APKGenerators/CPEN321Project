@@ -200,8 +200,6 @@ nlu:
     - byeee
     - goodbye
     - goodbyee
-    - see you later
-    - see you soon
     - take care
     - have a great day
     - catch you later
@@ -212,7 +210,6 @@ nlu:
     - have a good one
     - until next time
     - I’m heading out
-    - see ya
     - ciao
     - I'm off
     - gotta go
@@ -223,7 +220,6 @@ nlu:
     - thanks, bye!
     - alright, later!
     - it was nice talking to you
-    - see ya 
 
 
 - regex: date
