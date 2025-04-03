@@ -6,6 +6,7 @@
 | **Change Date**  | **Modified Sections**     | **Rationale**                                                                |
 | ------------------ | --------------------------- | ------------------------------------------------------------------------------ |
 | March 30th, 2025 | 2.1.1, 5.1, 5.2, 5.3, 5.4 | Correct errors to address problems in M5 Grading + Fixed some Codacy issues. |
+| April 2nd, 2025 | 5.4 | Added a new codacy issue for testing and updated the justification for few others |
 
 ---
 
@@ -729,11 +730,11 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
      - **Justification:** The scikit-learn dependency at version 1.1.3 is flagged for a possible sensitive data leak. The dependency will be updated to version 1.5.0 once it has been tested for compatibility with RASA's ML operations during the next developnment cycle.
 - **Code Pattern: [Too many functions inside a class (medium severity)](#)**
   1. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/MainActivity.kt#L36`](#)
+     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/MainActivity.kt#L39`](#)
      - **Justification:**  The MainActivity class has 12 functions, exceeding the recommended limit. However, since MainActivity contains the most functionalities (profile, log out, manage journals, export journals, analytics), we need these number of functions to keep our code for modularity.
   2. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/Journal_entries.kt#L47`](#)
-     - **Justification:** The Journal_entries class comprises 22 functions, significantly surpassing the threshold. However, since journal_entries contains many functions with separate responsibilities for journal mangement component, we think it would be best to keep these functions in the same class.
+     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/Journal_entries.kt#L37`](#)
+     - **Justification:** The Journal_entries class comprises 16 functions, significantly surpassing the threshold. However, since journal_entries contains many functions with separate responsibilities for journal management component, we think it would be best to keep these functions in the same class. Previously it was 22 functions. It has been reduced to the maximum possible way by writing a class for API calls to the backend and the chatbot
 - **Code Pattern: [Insecure Dependencies Detection (high severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L59`](#)
@@ -748,3 +749,8 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L121`](#)
      - **Justification:** The sentry-sdk version 1.14.0 is flagged for a known vulnerability (CVE-2024-40647). We plan to upgrade to version 2.8.0, which addresses this vulnerability, after verifying compatibility with other parts of the application.
+
+- **Code Pattern: [Others (medium severity)](#)**
+  1. **Issue**
+     - **Location in Git:** [`Frontend/app/src/androidTest/java/com/example/cpen321project/Nonfunctional_clicks_test.kt#L56`](#)
+     - **Justification:** This is one of the test case for testing the non functional requirement of usability. It is long because we do all three test of managing journal (delete, create, edit) in the same test case. Since It is not a part of the implementation, we could aorry less about it.
