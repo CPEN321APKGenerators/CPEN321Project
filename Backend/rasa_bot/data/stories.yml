@@ -11,8 +11,6 @@ stories:
   - action: utter_journaling_prompt
   - intent: journal_provided
   - action: action_save_message
-  - action: utter_journal_confirmation
-  - action: utter_post_journal_options
 
 - story: User requests self-care tip
   steps:

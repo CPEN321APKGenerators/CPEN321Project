@@ -17,8 +17,6 @@ rules:
   steps:
   - intent: journal_provided
   - action: action_save_message
-  - action: utter_journal_confirmation
-  - action: utter_post_journal_options
 
 - rule: Provide self-care suggestion
   steps:
