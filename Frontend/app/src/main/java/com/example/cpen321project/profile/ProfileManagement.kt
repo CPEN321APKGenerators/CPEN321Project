@@ -119,7 +119,7 @@ class ProfileManagement : AppCompatActivity() {
                         allowsDelayedPaymentMethods = true
                     )
                 )
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 Log.e(TAG, "Error launching payment sheet: ${e.message}")
                 Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
                 it.isEnabled = true
