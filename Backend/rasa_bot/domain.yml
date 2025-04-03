@@ -45,11 +45,6 @@ responses:
     - text: "Ready when you are — what’s weighing on you or lifting you up today? ⚖️"
     - text: "Take your time 🕊️ What would you like to share today?"
 
-  utter_goodbye:
-    - text: "See you tomorrow 👋 Take care!"
-    - text: "You got this 💪 Until next time!"
-    - text: "Goodbye for now. Be kind to yourself 💛"
-    - text: "Logging off — sending good vibes your way ✨"
 
   utter_journal_confirmation:
     - text: "Nice work 🌟 Your entry’s saved and processed!"
@@ -113,6 +108,12 @@ responses:
 
   utter_done:
     - text: "All done for now. Thanks for checking in. Take good care of yourself. 🌻"
+
+  utter_goodbye:
+    - text: "See you tomorrow 👋 Take care!"
+    - text: "You got this 💪 Until next time!"
+    - text: "Goodbye for now. Be kind to yourself 💛"
+    - text: "Logging off — sending good vibes your way ✨"
 
 actions:
   - action_save_message
