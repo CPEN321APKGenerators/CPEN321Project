@@ -760,45 +760,40 @@ For Rasa Jest Testing, the test suite includes both mocked and unmocked tests to
 - **Code Pattern: [Insecure dependencies detection (medium severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L91`](#)
-     - **Justification:** The pydantic version 1.10.9 is flagged for a regular expression denial of service vulnerability. This issue can be mitigated by upgrading to a more recent, stable version once it is available and tested for compatibility with RASA's required functionality.
+     - **Justification:** We acknowledge the vulnerability in pydantic==1.10.9 related to regular expression denial of service (ReDoS). However, upgrading to >=1.10.10 is not currently compatible with RASA 3.6.21, which has a strict upper bound <1.10.10. We will prioritize upgrading Pydantic and RASA together during the next major refactor once official support or patches are released by RASA.
   2. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L59`](#)
-     - **Justification:** The dnspython version 2.3.0 has a denial of service vulnerability, upgrading to version 2.6.1 will be considered during the next dependency for a more stable and secure version.
+     - **Justification:** We attempted to upgrade dnspython to version 2.6.1 to resolve the DoS vulnerability. However, rasa==3.6.21 enforces dnspython==2.3.0 as a hard dependency. Upgrading would cause a dependency resolution failure. 
   3. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L87`](#)
-     - **Justification:** The pymongo version 4.3.3 has an out-of-bounds read in the BSON module. Updating to 4.6.3 will be performed during the next dependency once it has been tested for backward compatibility with RASA's database handling functions.
+     - **Justification:** We tested an upgrade to pymongo==4.6.3, which resolves the BSON out-of-bounds read. However, the update caused TLS-related issues and lead to dependencie issues. 
   4. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L31`](#)
-     - **Justification:** The keras dependency at version 2.12.0 has an arbitrary file write vulnerability via its get_file function. Unfortunately, no fix is currently available, and a fix will be implemented as soon as it is feasible.
+     - **Justification:** Although Keras 2.13.1 fixes the issue, it conflicts with tensorflow==2.12.0, which requires keras<2.13. A fix will be implemented as soon as it is feasible.
   5. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L119`](#)
      - **Justification:** The aiohttp version 3.9.5 contains a vulnerability in handling compressed files as symlinks, updating to a more stable version will be considered during the next developnment cycle.
   6. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L5`](#)
-     - **Justification:** The scikit-learn dependency at version 1.1.3 is flagged for a possible sensitive data leak. The dependency will be updated to version 1.5.0 once it has been tested for compatibility with RASA's ML operations during the next developnment cycle.
+     - **Justification:** RASA 3.6.21 requires scikit-learn <1.2, so we’re currently locked at 1.1.3 despite the data leak concern. Upgrading to 1.5.0 is not possible without breaking RASA’s ML compatibility. 
 - **Code Pattern: [Too many functions inside a class (medium severity)](#)**
   1. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/MainActivity.kt#L39`](#)
+     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/MainActivity.kt#L36`](#)
      - **Justification:**  The MainActivity class has 12 functions, exceeding the recommended limit. However, since MainActivity contains the most functionalities (profile, log out, manage journals, export journals, analytics), we need these number of functions to keep our code for modularity.
   2. **Issue**
-     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/Journal_entries.kt#L37`](#)
-     - **Justification:** The Journal_entries class comprises 16 functions, significantly surpassing the threshold. However, since journal_entries contains many functions with separate responsibilities for journal management component, we think it would be best to keep these functions in the same class. Previously it was 22 functions. It has been reduced to the maximum possible way by writing a class for API calls to the backend and the chatbot
+     - **Location in Git:** [`Frontend/app/src/main/java/com/example/cpen321project/Journal_entries.kt#L47`](#)
+     - **Justification:** The Journal_entries class comprises 22 functions, significantly surpassing the threshold. However, since journal_entries contains many functions with separate responsibilities for journal mangement component, we think it would be best to keep these functions in the same class.
 - **Code Pattern: [Insecure Dependencies Detection (high severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L59`](#)
-     - **Justification:** The keras version 2.12.0 is flagged for a code injection vulnerability. This is a critical issue that needs to be addressed by updating to 2.13.1rc0. We plan to prioritize this update as part of the next major dependency update, after verifying compatibility with other parts of the application.
+     - **Justification:** The keras version 2.12.0 is flagged for a code injection vulnerability. While 2.13.1rc0 resolves this, it is not compatible with tensorflow==2.12.0, which is required by rasa==3.6.21. Attempting to upgrade both results in breaking changes and dependency resolution errors.
   2. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L134`](#)
-     - **Justification:**  The tensorflow version 2.12.0 is affected by a known security vulnerability (CVE-2023-33976), upgrading to 2.13.0 will be carried out once the new version is tested for compatibility.
+     - **Justification:**  The tensorflow version 2.12.0 is affected by a known security vulnerability (CVE-2023-33976), We attempted to upgrade to 2.13.0, but it conflicts with other RASA requirements, particularly tensorflow-text and keras.
   3. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L125`](#)
      - **Justification:** The skops version 0.9.0 has a vulnerability due to unsafe deserialization, which could lead to remote code execution. Unfortunately, no fix is available at the moment. And a fix will be implemented as soon as it is feasible.
 - **Code Pattern: [Insecure dependencies detection (minor severity)](#)**
   1. **Issue**
      - **Location in Git:** [`Backend/rasa_bot/requirements.txt#L121`](#)
-     - **Justification:** The sentry-sdk version 1.14.0 is flagged for a known vulnerability (CVE-2024-40647). We plan to upgrade to version 2.8.0, which addresses this vulnerability, after verifying compatibility with other parts of the application.
-
-- **Code Pattern: [Others (medium severity)](#)**
-  1. **Issue**
-     - **Location in Git:** [`Frontend/app/src/androidTest/java/com/example/cpen321project/Nonfunctional_clicks_test.kt#L56`](#)
-     - **Justification:** This is one of the test case for testing the non functional requirement of usability. It is long because we do all three test of managing journal (delete, create, edit) in the same test case. Since It is not a part of the implementation, we could aorry less about it.
+     - **Justification:** The sentry-sdk at version 1.14.0 is affected by CVE-2024-40647, a known vulnerability. While version 2.8.0 contains a patch, it is incompatible with RASA 3.6.21, which restricts sentry-sdk to versions <1.15.0. Therefore, we are currently unable to upgrade until RASA updates its compatibility range. A fix will be applied as soon as the framework allows it.
