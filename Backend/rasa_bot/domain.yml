@@ -12,13 +12,18 @@ intents:
   - request_exercise
   - done
 
-entities: []
+entities:
+  - message
+
 
 slots:
   message:
     type: text
     mappings:
-      - type: from_text  
+      - type: from_entity
+        entity: message
+      - type: from_text
+
   post_journal_choice:
     type: text
     mappings:
@@ -136,7 +141,7 @@ responses:
         💖 Stay there for a moment  
 
         You just gave your nervous system a break 🧸
-        
+
     - text: |
         🌬️ Box Breathing (classic reset):
 

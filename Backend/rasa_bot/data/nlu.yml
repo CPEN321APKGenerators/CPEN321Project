@@ -300,6 +300,7 @@ nlu:
     - [meh](message)
     - [idk](message)
     - [today was](message)
+    - [today was good](message)
     - [it’s whatever](message)
     - [same as always](message)
     - [nothing special](message)
