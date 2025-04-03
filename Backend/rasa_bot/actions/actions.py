@@ -16,12 +16,17 @@ class ActionSaveMessage(Action):
         message = tracker.latest_message.get("text")
 
         logging.info(f"[SaveMessage] Retrieved -> date: {date}, userID: {userID}, token: {bool(google_token)}, message: {bool(message)}")
-
         if not all([date, userID, google_token, message]):
             dispatcher.utter_message(text="Apologies, something went wrong while saving your entry. Let's try again.")
             dispatcher.utter_message(response="utter_journaling_prompt")
             return []
 
+        if len(message.strip()) < 10:
+            dispatcher.utter_message(text="That felt a bit short 🤏 — want to expand on it a little?")
+            dispatcher.utter_message(response="utter_journaling_prompt")
+            return []
+
+        # API payload
         payload = {
             "date": date,
             "userID": userID,

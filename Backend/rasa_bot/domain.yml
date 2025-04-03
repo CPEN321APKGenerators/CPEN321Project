@@ -86,6 +86,13 @@ responses:
     - text: "🧡 Jot down 3 things you're grateful for. A little gratitude goes a long way!"
     - text: "🎧 Put on your favorite song and move a little. Let the good vibes in!"
     - text: "🌬️ Take 5 slow, deep breaths. Inhale calm, exhale stress."
+    - text: "📖 Write freely in your notes app — no filter, no rules. Just you and your thoughts."
+    - text: "🕯️ Light a candle, dim the lights, and chill for 10 minutes — no screen, no rush."
+    - text: "📵 Try going off your phone for 20 mins. Rest your mind, not scroll it."
+    - text: "🛁 If you can, take a hot shower and pretend it’s washing away the stress."
+    - text: "✨ Do one small thing just for you — tea, music, stretching, anything."
+    - text: "🐾 Watch a few cute animal videos — it actually helps. Science said so."
+
 
   utter_mental_health_resources:
     - text: |
@@ -93,7 +100,11 @@ responses:
 
         🔗 Crisis Text Line: [crisistextline.org](https://www.crisistextline.org)  
         🌍 WHO Mental Health Tools: [who.int](https://www.who.int/teams/mental-health-and-substance-use)  
-        💼 Find a therapist: [psychologytoday.com](https://www.psychologytoday.com)
+        💼 Find a therapist: [psychologytoday.com](https://www.psychologytoday.com)  
+        🇨🇦 Canada Talk Services: [wellnesstogether.ca](https://www.wellnesstogether.ca)  
+        📱 MindShift CBT App (free anxiety support): [anxietycanada.com](https://www.anxietycanada.com/resources/mindshift-cbt/)  
+        📘 Mental health blog & stories: [themighty.com](https://themighty.com/mental-health/)
+
 
   utter_guided_exercise:
     - text: |
@@ -105,6 +116,101 @@ responses:
         🔁 Repeat 3 times  
 
         Want to try a longer one next time? 🌈
+
+    - text: |
+        💡 Try this calming body scan:
+
+        👀 Close your eyes  
+        🧠 Focus on your forehead, your jaw, your shoulders...  
+        🦶 Slowly move down your body, one area at a time  
+        🔄 Breathe into the tension and let go  
+
+        Take your time. You’re safe here 💫
+
+    - text: |
+        🌊 Quick visualization reset:
+
+        🪑 Sit comfortably  
+        🧘 Imagine a soft light around your chest, expanding with every breath  
+        🌅 Let it spread to your shoulders, arms, and down to your feet  
+        💖 Stay there for a moment  
+
+        You just gave your nervous system a break 🧸
+        
+    - text: |
+        🌬️ Box Breathing (classic reset):
+
+        🟦 Inhale for 4 seconds  
+        🟨 Hold for 4 seconds  
+        🟥 Exhale for 4 seconds  
+        🟩 Hold for 4 seconds  
+
+        🔁 Repeat this box cycle 4 times.  
+        Let calm gently fill the space inside you.
+
+    - text: |
+        🪞 Mirror affirmation moment:
+
+        👁️ Find a mirror (or open your front cam)  
+        🗣️ Say one kind thing to yourself  
+        🌻 Bonus: Say it like you mean it  
+
+        It may feel weird, but trust me — it’s powerful.
+
+    - text: |
+        🧊 Cold tap reset:
+
+        🤲 Run your hands under cold water for 10 seconds  
+        💧 Notice the sensation  
+        🧠 Let your thoughts cool down with it  
+
+        This can interrupt spirals and bring you back to now.
+
+    - text: |
+        💫 5-4-3-2-1 Grounding:
+
+        👀 Name 5 things you can see  
+        ✋ Name 4 things you can feel  
+        👂 Name 3 things you can hear  
+        👃 Name 2 things you can smell  
+        👅 Name 1 thing you can taste  
+
+        You’re here. You’re safe. You’ve got this.
+
+    - text: |
+        🧠 Thought release (mini-mind dump):
+
+        📝 Imagine all your thoughts on sticky notes  
+        🧺 Now picture tossing them into a basket  
+        🧹 One by one — clear your mind  
+
+        There’s room to breathe again.
+
+    - text: |
+        🌙 Sleep prep wind-down:
+
+        🛏️ Lay down and tense your toes  
+        🧘 Then relax them. Now your calves… thighs… all the way up  
+        🕯️ Slowly scan your body and release  
+
+        Let yourself melt into rest.
+
+    - text: |
+        🎨 Visual grounding:
+
+        🎈 Picture a color that makes you feel calm  
+        🎨 Imagine it wrapping around you like a blanket  
+        🌀 Breathe that color in and out, slowly  
+
+        Let it carry the tension away.
+
+    - text: |
+        📦 Emotion check-in:
+
+        💭 Close your eyes  
+        📦 Imagine putting today’s emotions in a box  
+        🧷 You’re not throwing them away, just setting them aside  
+        🌤️ Let your body feel light without carrying it all
 
   utter_done:
     - text: "All done for now. Thanks for checking in. Take good care of yourself. 🌻"
