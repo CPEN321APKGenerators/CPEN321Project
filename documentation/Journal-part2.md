@@ -2,10 +2,10 @@
 
 #### 1. Contribution of each member
 **For M6:**
-Amod Ghimire (15 hours) - Implementation and testing of Frontend of the Application
-Kevin Li (10 hours) - Implementation and testing of Complex Algorithm 
-Nyi Nyi Oo (10 hours) - Implementation and Testing of Chatbot
-Christine Jiang (20 hours) - Implementation and Testing of Backend API and Frontend, Github Action configuration
+Amod Ghimire (15 hours) - Updated documentation, Project Presentation slides 3 & 6, Addressed issues from M5 grading, performed demo screen recording, Completed project video #2.
+Kevin Li (10 hours) - Updated documentation, Project Presentation slides 5 & 8, Completed project video #3.
+Nyi Nyi Oo (10 hours) - Updated documentation, Project Presentation slides 4 & 9, Fixed chatbot, Completed project video #4.
+Christine Jiang (20 hours) - Updated documentation, Project Presentation slides 5 & 8, Addressed issues from M5 grading, Completed project video #5, Edit video #1.
 
 
 #### 2. Github Repository Info
