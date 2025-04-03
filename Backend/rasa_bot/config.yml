@@ -26,7 +26,7 @@ pipeline:
   - name: ResponseSelector
     epochs: 100
   - name: FallbackClassifier
-    threshold: 0.4
+    threshold: 0.3
     ambiguity_threshold: 0.2
 assistant_id: "20250310-154626-absolute-chowpolicies"
 policies:
