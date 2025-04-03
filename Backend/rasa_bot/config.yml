@@ -11,7 +11,6 @@ pipeline:
     min_ngram: 1
     max_ngram: 3
     stop_words: "english"
-  - name: TextLengthFeaturizer  
   - name: RegexEntityExtractor
     use_lookup_tables: true
     use_regexes: true
@@ -22,7 +21,7 @@ pipeline:
     epochs: 200
     entity_recognition: true
     constrain_similarities: true
-    max_sequence_length: 512  
+    max_sequence_length: 512
   - name: EntitySynonymMapper
   - name: ResponseSelector
     epochs: 100
