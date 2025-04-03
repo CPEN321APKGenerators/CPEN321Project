@@ -32,38 +32,6 @@ nlu:
     - hey, how’s it going?
     - hi, nice to see you
 
-- intent: goodbye
-  examples: |
-    - bye
-    - byee
-    - byeee
-    - goodbye
-    - goodbyee
-    - see you later
-    - see you soon
-    - take care
-    - have a great day
-    - catch you later
-    - talk to you soon
-    - peace out
-    - later
-    - bye for now
-    - have a good one
-    - until next time
-    - I’m heading out
-    - see ya
-    - ciao
-    - I'm off
-    - gotta go
-    - logging off
-    - adios
-    - see you tomorrow
-    - time to go
-    - thanks, bye!
-    - alright, later!
-    - it was nice talking to you
-    - see ya 
-
 - intent: start
   examples: |
     - start 
@@ -224,6 +192,39 @@ nlu:
     - all done
     - that's all for today
     - done
+
+- intent: goodbye
+  examples: |
+    - bye
+    - byee
+    - byeee
+    - goodbye
+    - goodbyee
+    - see you later
+    - see you soon
+    - take care
+    - have a great day
+    - catch you later
+    - talk to you soon
+    - peace out
+    - later
+    - bye for now
+    - have a good one
+    - until next time
+    - I’m heading out
+    - see ya
+    - ciao
+    - I'm off
+    - gotta go
+    - logging off
+    - adios
+    - see you tomorrow
+    - time to go
+    - thanks, bye!
+    - alright, later!
+    - it was nice talking to you
+    - see ya 
+
 
 - regex: date
   examples: |
