@@ -112,6 +112,8 @@ All data operations require Google token validation. This adds a strong layer of
 - FCM Token Encryption
 Users' FCM tokens (for notifications) are encrypted using a server-stored secret before saving to the database. This protects against misuse of tokens and safeguards users from spam notification attacks.
 
+- Being able to highlight the date in the main view: This is able to let the user know the dates, they have completed and are yet to complete through the highlight. This is also good because the user can always know if they successfully saved the journal.
+
 While we acknowledge the limitation in our salt design (use of a static serverSecret), we’ve laid a strong foundation for integrating per-user dynamic salts or key derivation enhancements in future work.
 
 
