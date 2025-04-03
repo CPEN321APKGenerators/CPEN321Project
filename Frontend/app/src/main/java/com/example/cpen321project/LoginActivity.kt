@@ -140,9 +140,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun callCreateUser(userID: String, googleToken: String) {
         Log.d(TAG, "creating user ${userID}")
-//        val userID = "12345" // Get this dynamically (e.g., after user login)
         val url = "$BASE_URL/api/profile"
-//        val url = "http://10.0.2.2:3001/api/profile/fcmtoken"
         val json = JSONObject()
         json.put("userID", userID)
         json.put("googleToken", googleToken)
