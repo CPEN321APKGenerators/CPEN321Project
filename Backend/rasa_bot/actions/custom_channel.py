@@ -5,6 +5,7 @@ from sanic.request import Request
 from sanic.response import HTTPResponse
 from typing import Text, Callable, Awaitable
 
+
 from rasa.core.channels.channel import (
     InputChannel,
     CollectingOutputChannel,

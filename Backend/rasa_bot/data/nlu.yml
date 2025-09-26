@@ -6,29 +6,68 @@ nlu:
   examples: |
     - hello
     - hi
+    - hii
+    - hiii
     - hey
     - hi there
-    - hello bot
     - greetings
+    - yo
+    - what's up
+    - good morning
+    - good afternoon
+    - good evening
+    - hey there!
+    - howdy
+    - sup
+    - hey hey
+    - hi again
+    - heyy
+    - hello again
+    - heyyy
+    - hii
+    - helloo
+    - what’s good
+    - wassup
+    - yo 
+    - hey, how’s it going?
+    - hi, nice to see you
 
-- intent: goodbye
+- intent: start
   examples: |
-    - bye
-    - goodbye
-    - see you later
-    - see you soon
-    - take care
-    - have a great day
+    - start 
+    - journal
 
 - intent: affirm
   examples: |
     - yea
     - yes
+    - yess
+    - yesss
     - yeah
     - sure
     - absolutely
     - of course
     - definitely
+    - yup
+    - totally
+    - for sure
+    - indeed
+    - that's right
+    - you bet
+    - sure thing
+    - why not
+    - sounds good
+    - ok
+    - okk
+    - okay
+    - mmhmm
+    - yep
+    - 100%
+    - correct
+    - you got it
+    - true
+    - no doubt
+    - keep going 
 
 - intent: deny
   examples: |
@@ -37,22 +76,259 @@ nlu:
     - not really
     - I don’t think so
     - no thanks
-    
+    - nah
+    - never
+    - not at all
+    - I’m good
+    - I’d rather not
+    - don’t think so
+    - no way
+    - I don’t want to
+    - that’s not right
+    - not today
+    - I’d say no
+    - hard pass
+    - not now
+    - I’m gonna pass
+    - nope, not today
+    - pass
+
 - intent: journal_provided
   examples: |
-<<<<<<< HEAD
-    - My journal entry is [Today was great](message)
-    - I want to write [Today Was Good](message)
-    - Log journal for [2025-03-04](date)
-    - My ID is [amodghimera2345@gmail.com](userID)
-    - Here is my token: [eyJhbGciOiJSUzI1Ni...](google_token)
-=======
+    - [All of a sudden, everything feels overwhelming](message)
+    - [Been feeling really disconnected lately](message)
+    - [Can’t shake this anxious feeling](message)
+    - [Did something outside my comfort zone today](message)
+    - [Everything worked out better than I thought](message)
+    - [Feeling lost but trying to stay hopeful](message)
+    - [Grateful for the little things today](message)
+    - [Had a long talk with a friend—it helped](message)
+    - [I’m proud of the small steps I took today](message)
+    - [Just wanted to get this off my chest](message)
+    - [Kept busy so I wouldn’t overthink](message)
+    - [Laughed a lot today, which felt nice](message)
+    - [Made progress on my goals today](message)
+    - [Nothing feels right, but I’m still trying](message)
+    - [Overwhelmed but managing somehow](message)
+    - [Pushed through my fear and spoke up](message)
+    - [Questioning a lot of things lately](message)
+    - [Really proud of myself for getting through this week](message)
+    - [Still figuring it all out](message)
+    - [Tired, but I made it through](message)
+    - [Used today to rest and reset](message)
+    - [Very emotional day, but healing slowly](message)
+    - [Woke up feeling a little lighter today](message)
+    - [X-rayed my thoughts all day—super reflective mood](message)
+    - [Yesterday felt like a blur](message)
+    - [Zoned out for most of the day, just floating](message)
     - [Today was great](message)
     - [Had a rough day, but I managed](message)
     - [Feeling happy and motivated](message)
     - [It was a long but productive day](message)
     - [I am not doing good](message)
->>>>>>> nyi-rasa
+    - [Woke up anxious and stayed that way all day](message)
+    - [Had a full day and now I'm just exhausted](message)
+    - [Everything went wrong today, honestly](message)
+    - [Had a win at work today that boosted my mood](message)
+    - [Spent some quiet time with myself and it helped](message)
+    - [I'm emotionally drained but trying to stay afloat](message)
+    - [The weather was nice and that helped me feel better](message)
+    - [Social battery is completely empty](message)
+    - [Had a peaceful day and took care of myself](message)
+    - [Overthinking kicked in hard today](message)
+    - [Just feeling kind of meh—nothing special happened](message)
+    - [Had a great talk with someone I care about](message)
+    - [There’s a lot on my mind I’m not ready to share](message)
+    - [I feel like I'm moving forward, slowly but surely](message)
+    - [Today was full of distractions but I did my best](message)
+    - [Just needed to write something so I don’t keep it in my head](message)
+    - [I feel hopeful for once, and it feels weird but good](message)
+    - [Today was chaotic but had some golden moments](message)
+    - [I finally got some rest, and wow it made a difference](message)
+    - [Felt like I was just going through the motions today](message)
+    - [There were moments of peace, but overall it was rough](message)
+    - [It’s been a weird mix of emotions—hard to explain](message)
+    - [I finally said something I’ve been holding in for a long time](message)
+    - [My mind has been racing all day](message)
+    - [Just feeling kind of hollow right now](message)
+    - [Not sure how to put it into words, but today was heavy](message)
+    - [I made someone laugh today and it made me feel good](message)
+    - [Trying to stay positive, even though things are messy](message)
+    - [It’s been a rollercoaster emotionally](message)
+    - [Had some creative energy today which felt great](message)
+    - [The little things got to me more than usual](message)
+    - [Wish I could pause everything and just breathe](message)
+    - [I was productive today and it lifted my mood](message)
+    - [I’ve been stuck in my head all day](message)
+    - [Felt more like myself today, which was nice](message)
+    - [I didn’t do much but I needed the break](message)
+    - [Everything feels kind of pointless lately](message)
+    - [Today was manageable. Not amazing, not terrible](message)
+    - [I’ve been feeling more grounded lately](message)
+    - [I talked to someone I haven’t heard from in a while](message)
+    - [My energy is low, but I’m showing up](message)
+    - [There’s a lot I didn’t get done today, and that’s okay](message)
+    - [I cried, and I think I needed it](message)
+    - [I’m starting to understand myself more](message)
+    - [Not sure what I’m feeling, just needed to write](message)
+    - [The silence today was loud](message)
+    - [Got some things off my chest today](message)
+    - [I actually laughed today—a real laugh](message)
+    - [Still processing a lot from this week](message)
+    - [It’s been an emotionally cloudy day](message)
+    - [Feeling distant from myself and others](message)
+    - [Had a peaceful moment watching the sunset](message)
+    - [I’m not okay, but I’m trying](message)
+    - [Sometimes I just need to be heard](message)
+    - [There’s hope somewhere in all this mess](message)
+    - [I did something for myself today and it felt powerful](message)
+    - [I don’t want to pretend anymore](message)
+    - [This entry might not make sense but I had to let it out](message)
+    - [I felt safe today, even if just for a little while](message)
+    - [Trying to trust that things will be okay eventually](message)
+    - [It’s hard to be kind to myself right now](message)
+    - [Today gave me space to breathe and reflect](message)
+    - [I’m scared but I’m still moving forward](message)
+    - [The noise in my head was too loud today](message)
+    - [I’m proud of the small wins, even if they’re invisible to others](message)
+    - [I wrote something today that helped me process a lot](message)
+    - [Wishing things were different, but accepting what is](message)
+    - [Today reminded me that healing isn’t linear](message)
+    - [Trying to be gentle with myself as I figure things out](message)
+    - [I went for a walk and it helped clear my mind](message)
+    - [Played some guitar today and it made me feel lighter](message)
+    - [I talked to my sister for an hour, it was much needed](message)
+    - [Went to the gym even though I didn’t feel like it](message)
+    - [I cooked a proper meal today for the first time in a while](message)
+    - [Played video games to distract myself](message)
+    - [Went outside and sat in the sun—it felt healing](message)
+    - [I danced around my room like no one was watching](message)
+    - [Chatted with a friend I hadn’t heard from in months](message)
+    - [I journaled by hand and it felt more personal](message)
+    - [Watched a movie and cried way more than I expected](message)
+    - [Worked on my goals today and felt a spark of motivation](message)
+    - [Listened to a podcast that hit home for me](message)
+    - [Went on a mini road trip and let the music take over](message)
+    - [Took a nap and didn’t feel guilty about it](message)
+    - [I cleaned my room and it made my brain feel lighter](message)
+    - [Went grocery shopping and bumped into someone from the past](message)
+    - [I read a book that really stuck with me](message)
+    - [Finally did some laundry and actually folded it lol](message)
+    - [Had a long shower and it felt like a reset button](message)
+    - [Went on a coffee run and took the long way home](message)
+    - [Called my mom just to hear her voice](message)
+    - [I worked on a creative project that made me feel alive](message)
+    - [Got out of bed even though I really didn’t want to](message)
+    - [I stayed in and rested—my body needed it](message)
+    - [Tried something new and didn’t hate it](message)
+    - [I decluttered a corner of my room and felt accomplished](message)
+    - [Watched the sunset from the roof and thought a lot](message)
+    - [Went to the park and people-watched—it was oddly comforting](message)
+    - [I took a break from social media and felt more present](message)
+    - [Made a playlist that matches how I’ve been feeling](message)
+    - [Talked to someone about something I’ve been avoiding](message)
+    - [Helped someone out today and it lifted my mood](message)
+    - [I studied for a bit but couldn’t focus fully](message)
+    - [Went to class but mentally I wasn’t there](message)
+    - [I drew something for the first time in ages](message)
+    - [Baked cookies and ate way too many lol](message)
+    - [I journaled and actually surprised myself with what I wrote](message)
+    - [Ran some errands and kept it lowkey](message)
+    - [I had a long call with someone I trust](message)
+    - [Played basketball and felt like a kid again](message)
+    - [I got through the day and that’s enough](message)
+    - [I hung out with friends and it really boosted my mood](message)
+    - [Had a weird argument with someone and now I feel off](message)
+    - [Spent time alone and honestly needed the space](message)
+    - [Talked to my mentor today and got some clarity](message)
+    - [I reconnected with someone I thought I lost](message)
+    - [So many thoughts today I can't even untangle them](message)
+    - [I kept replaying that moment over and over](message)
+    - [There’s so much I want to say but I don’t know how](message)
+    - [Overthinking everything again. Classic me](message)
+    - [I spiraled today but at least I caught myself this time](message)
+    - [I did some journaling and felt more grounded after](message)
+    - [Practiced gratitude and it shifted something in me](message)
+    - [Reminded myself that I’m doing better than I think](message)
+    - [Today I felt more present than usual](message)
+    - [Slowed down and noticed small joys around me](message)
+    - [I feel like a mess and I needed to write this out](message)
+    - [Today really sucked, not even gonna lie](message)
+    - [I’m holding back tears while typing this](message)
+    - [I felt invisible today and it hurt](message)
+    - [Nothing major happened but I’m not okay](message)
+    - [brain is soup. that’s all.](message)
+    - [idk what to write but I feel off](message)
+    - [just vibing and journaling for no reason lol](message)
+    - [mood = blank](message)
+    - [spilled coffee twice today so that sums it up](message)
+    - [idk i just feel weird today](message)
+    - [lowkey want to disappear for a bit](message)
+    - [today was just... ugh](message)
+    - [it was fine i guess???](message)
+    - [literally no thoughts just vibes](message)
+    - [felt like doing nothing and that’s exactly what i did](message)
+    - [not a terrible day but not great either](message)
+    - [brain = static](message)
+    - [don’t even ask lmao](message)
+    - [meh](message)
+    - [i’m here i guess](message)
+    - [i don’t even know where to start](message)
+    - [it’s giving emotional fatigue](message)
+    - [i wrote like 3 things and deleted them lol](message)
+    - [was doing okay and then randomly got sad](message)
+    - [this day dragged](message)
+    - [i feel off but i don’t know why](message)
+    - [absolutely no productivity, just vibes](message)
+    - [kept scrolling all day, kinda hate that](message)
+    - [mood: neutral with a hint of exhausted](message)
+    - [didn’t journal yesterday but whatever](message)
+    - [i survived the day, that’s enough](message)
+    - [could be worse](message)
+    - [same stuff, different day](message)
+    - [nothing new tbh](message)
+    - [just tired and existing](message)
+    - [woke up late and it threw off my whole vibe](message)
+    - [i ate snacks and watched netflix all day](message)
+    - [tbh i forgot what happened today already](message)
+    - [i just wanted to check in and log something](message)
+    - [kinda numb today](message)
+    - [literally zoned out for most of it](message)
+    - [emotionally offline today](message)
+    - [everything is loud and i hate it](message)
+    - [just gonna write something so i don’t break the streak](message)
+    - [meh](message)
+    - [idk](message)
+    - [today was](message)
+    - [today was good](message)
+    - [it’s whatever](message)
+    - [same as always](message)
+    - [nothing special](message)
+    - [blah](message)
+    - [not much](message)
+    - [just logging something](message)
+    - [i'm here](message)
+    - [i exist](message)
+    - [don’t want to talk about it](message)
+    - [this is fine](message)
+    - [not sure what to say](message)
+    - [could be worse](message)
+    - [brain = fog](message)
+    - [just vibes](message)
+    - [ugh](message)
+    - [eh](message)
+    - [lol nothing](message)
+    - [i’m tired](message)
+    - [not great not terrible](message)
+    - [another day](message)
+    - [this counts right?](message)
+    - [whatever](message)
+    - [here’s my entry i guess](message)
+    - [shrug emoji energy](message)
+    - [blank](message)
+    - [mentally unplugged](message)
+    - [journal entry: existing](message)
+    - [i showed up, barely](message)
 
 - intent: inform
   examples: |
@@ -70,11 +346,81 @@ nlu:
     - thanks a lot
     - many thanks
 
-- intent: start
-  examples: |
-    - start 
-    - journal
   
+- intent: request_selfcare
+  examples: |
+    - can I get a self-care tip?
+    - I need a self-care suggestion
+    - give me something uplifting
+    - any self-care ideas?
+    - suggest a self-care activity
+    - do you have a self-care tip for me?
+    - what can I do to feel better?
+    - help me calm down
+    - show me something relaxing
+    - self care
+    - selfcare
+
+- intent: request_resources
+  examples: |
+    - I need mental health support
+    - give me a mental health resource
+    - can I talk to someone?
+    - any websites for help?
+    - I’m struggling, what can I do?
+    - mental health hotline?
+    - where can I get help?
+    - do you have any crisis resources?
+    - resources
+
+- intent: request_exercise
+  examples: |
+    - give me an exercise
+    - I want to try a calming activity
+    - do you have a breathing exercise?
+    - help me reset my mind
+    - I’d like a mindfulness exercise
+    - show me a grounding technique
+    - guide me through a breathing session
+    - something short to help me relax
+    - exercise
+
+- intent: done
+  examples: |
+    - I’m good for now
+    - that’s it
+    - no thanks, I’m done
+    - I don’t need anything else
+    - I'm finished
+    - all done
+    - that's all for today
+    - done
+
+- intent: goodbye
+  examples: |
+    - bye
+    - byee
+    - byeee
+    - goodbye
+    - goodbyee
+    - have a great day
+    - catch you later
+    - peace out
+    - later
+    - bye for now
+    - have a good one
+    - until next time
+    - I’m heading out
+    - ciao
+    - I'm off
+    - gotta go
+    - logging off
+    - adios
+    - see you tomorrow
+    - thanks, bye!
+    - alright, later!
+    - it was nice talking to you
+
 
 - regex: date
   examples: |

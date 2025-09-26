@@ -10,19 +10,32 @@ stories:
   - intent: start
   - action: utter_journaling_prompt
   - intent: journal_provided
-<<<<<<< HEAD
-  - slot_was_set:
-      - date
-      - userID
-      - google_token
-      - message
-=======
->>>>>>> nyi-rasa
   - action: action_save_message
-  - action: utter_journal_confirmation
-  - action: utter_journal_follow_up
-  - intent: affirm
-  - action: utter_out_of_scope
+
+- story: User requests self-care tip
+  steps:
+  - intent: request_selfcare
+  - action: utter_selfcare_suggestion
   - action: utter_ask_continue
-  - intent: deny
+
+- story: User requests mental health resources
+  steps:
+  - intent: request_resources
+  - action: utter_mental_health_resources
+  - action: utter_ask_continue
+
+- story: User requests guided exercise
+  steps:
+  - intent: request_exercise
+  - action: utter_guided_exercise
+  - action: utter_ask_continue
+
+- story: User is done after journaling
+  steps:
+  - intent: done
+  - action: utter_done
+
+- story: User says no to continue
+  steps:
+  - intent: goodbye
   - action: utter_goodbye

@@ -7,70 +7,227 @@ intents:
   - deny
   - journal_provided
   - start
-
-entities: []
-
-slots:
-
-  message:
-    type: text
-    mappings:
-      - type: from_text  
+  - request_selfcare
+  - request_resources
+  - request_exercise
+  - done
 
 entities:
-  - date
-  - userID
-  - google_token
   - message
 
-responses:
-  utter_greet:
-    - text: "Hi!"
-  utter_ask_journal:
-    - text: "Please type start to begin journaling."
-  utter_goodbye:
-    - text: "See you tomorrow. Bye!"
-  utter_journal_confirmation:
-    - text: "Congrats on being consistent, your entry is saved and processed."
-  utter_journaling_prompt:
-    - text: "Feel free to write down your thoughts. What's on your mind today?"
-  utter_journal_follow_up:
-    - text: "Is there anything else I can do for you today?"
-  utter_ask_continue:
-    - text: "Is there anything else I can do for you today?"
-  utter_out_of_scope:
-    - text: "This feature isn't available as of now, thank you."
 
-<<<<<<< HEAD
 slots:
-  date:
-    type: text
-    mappings:
-      - type: from_entity
-        entity: date
-      - type: from_text
-  userID:
-    type: text
-    mappings:
-      - type: from_entity
-        entity: userID
-      - type: from_text
-  google_token:
-    type: text
-    mappings:
-      - type: from_entity
-        entity: google_token
-      - type: from_text
   message:
     type: text
     mappings:
       - type: from_entity
         entity: message
       - type: from_text
-=======
+
+  post_journal_choice:
+    type: text
+    mappings:
+      - type: from_text
+
+responses:
+  utter_greet:
+    - text: "Hi there! 👋"
+    - text: "Hey hey! 😄"
+    - text: "Good to see you again! 🌟"
+    - text: "Welcome back! 💫"
+
+  utter_ask_journal:
+    - text: "Ready to reflect? ✍️ Just type 'start' to begin journaling."
+    - text: "Whenever you're set, type 'start' and let’s get those thoughts flowing 💭"
+    - text: "Type 'start' when you're ready to get into it 🧠"
+    - text: "Let’s do this 💡 Type 'start' to begin your check-in."
+
+  utter_journaling_prompt:
+    - text: "Feel free to write down your thoughts 💬 What’s on your mind today?"
+    - text: "Hey, how are you feeling today? 🌤️"
+    - text: "What’s been sitting on your heart lately? 💖"
+    - text: "Let it all out. How was your day? 📝"
+    - text: "Ready when you are — what’s weighing on you or lifting you up today? ⚖️"
+    - text: "Take your time 🕊️ What would you like to share today?"
+
+
+  utter_journal_confirmation:
+    - text: "Nice work 🌟 Your entry’s saved and processed!"
+    - text: "Consistent journaling? You're crushing it 💥 Entry saved!"
+    - text: "Thanks for sharing. I’ve saved your reflection 💾"
+    - text: "Boom! 💣 Your thoughts are locked in. Keep it going!"
+
+  utter_journal_follow_up:
+    - text: "Want to do anything else while you're here? 😊"
+    - text: "Would you like a little more support before we wrap up? 🌈"
+    - text: "Anything else I can offer you today? I’m here 💬"
+    - text: "Happy to help with anything else 💛 Just let me know!"
+
+  utter_ask_continue:
+    - text: "Want to keep going or are we all done for now? 🔁"
+    - text: "Anything else you'd like to explore today? 🌻"
+    - text: "Still here if you need me 👀"
+    - text: "You can always keep going or come back later ✨"
+
+  utter_out_of_scope:
+    - text: "Oops! I can't help with that yet 😅"
+    - text: "Hmm, I’m not sure how to respond to that 🤔"
+    - text: "That’s outside my toolkit for now 🧰 But I’m learning!"
+    - text: "Not supported just yet 🛠️ But I appreciate you asking!"
+
+  utter_post_journal_options:
+    - text: |
+        Thanks for sharing 🧡 What would you like to do next?
+
+        1️⃣ 💆 Get a self-care tip  
+        2️⃣ 🧠 See mental health resources  
+        3️⃣ 🧘 Try a calming exercise  
+        4️⃣ ❌ Finish for now  
+
+        Just type your choice (like “self-care”, “mental health”, “exercise”, or “done”) 💌
+
+  utter_selfcare_suggestion:
+    - text: "🌿 Step outside for a 5-minute walk — nature works wonders!"
+    - text: "🧡 Jot down 3 things you're grateful for. A little gratitude goes a long way!"
+    - text: "🎧 Put on your favorite song and move a little. Let the good vibes in!"
+    - text: "🌬️ Take 5 slow, deep breaths. Inhale calm, exhale stress."
+    - text: "📖 Write freely in your notes app — no filter, no rules. Just you and your thoughts."
+    - text: "🕯️ Light a candle, dim the lights, and chill for 10 minutes — no screen, no rush."
+    - text: "📵 Try going off your phone for 20 mins. Rest your mind, not scroll it."
+    - text: "🛁 If you can, take a hot shower and pretend it’s washing away the stress."
+    - text: "✨ Do one small thing just for you — tea, music, stretching, anything."
+    - text: "🐾 Watch a few cute animal videos — it actually helps. Science said so."
+
+
+  utter_mental_health_resources:
+    - text: |
+        🧠 Here are some helpful mental health resources:
+
+        🔗 Crisis Text Line: [crisistextline.org](https://www.crisistextline.org)  
+        🌍 WHO Mental Health Tools: [who.int](https://www.who.int/teams/mental-health-and-substance-use)  
+        💼 Find a therapist: [psychologytoday.com](https://www.psychologytoday.com)  
+        🇨🇦 Canada Talk Services: [wellnesstogether.ca](https://www.wellnesstogether.ca)  
+        📱 MindShift CBT App (free anxiety support): [anxietycanada.com](https://www.anxietycanada.com/resources/mindshift-cbt/)  
+        📘 Mental health blog & stories: [themighty.com](https://themighty.com/mental-health/)
+
+
+  utter_guided_exercise:
+    - text: |
+        🧘 Let’s try a quick grounding exercise:
+
+        1️⃣ Inhale for 4 seconds  
+        2️⃣ Hold for 4 seconds  
+        3️⃣ Exhale for 4 seconds  
+        🔁 Repeat 3 times  
+
+        Want to try a longer one next time? 🌈
+
+    - text: |
+        💡 Try this calming body scan:
+
+        👀 Close your eyes  
+        🧠 Focus on your forehead, your jaw, your shoulders...  
+        🦶 Slowly move down your body, one area at a time  
+        🔄 Breathe into the tension and let go  
+
+        Take your time. You’re safe here 💫
+
+    - text: |
+        🌊 Quick visualization reset:
+
+        🪑 Sit comfortably  
+        🧘 Imagine a soft light around your chest, expanding with every breath  
+        🌅 Let it spread to your shoulders, arms, and down to your feet  
+        💖 Stay there for a moment  
+
+        You just gave your nervous system a break 🧸
+
+    - text: |
+        🌬️ Box Breathing (classic reset):
+
+        🟦 Inhale for 4 seconds  
+        🟨 Hold for 4 seconds  
+        🟥 Exhale for 4 seconds  
+        🟩 Hold for 4 seconds  
+
+        🔁 Repeat this box cycle 4 times.  
+        Let calm gently fill the space inside you.
+
+    - text: |
+        🪞 Mirror affirmation moment:
+
+        👁️ Find a mirror (or open your front cam)  
+        🗣️ Say one kind thing to yourself  
+        🌻 Bonus: Say it like you mean it  
+
+        It may feel weird, but trust me — it’s powerful.
+
+    - text: |
+        🧊 Cold tap reset:
+
+        🤲 Run your hands under cold water for 10 seconds  
+        💧 Notice the sensation  
+        🧠 Let your thoughts cool down with it  
+
+        This can interrupt spirals and bring you back to now.
+
+    - text: |
+        💫 5-4-3-2-1 Grounding:
+
+        👀 Name 5 things you can see  
+        ✋ Name 4 things you can feel  
+        👂 Name 3 things you can hear  
+        👃 Name 2 things you can smell  
+        👅 Name 1 thing you can taste  
+
+        You’re here. You’re safe. You’ve got this.
+
+    - text: |
+        🧠 Thought release (mini-mind dump):
+
+        📝 Imagine all your thoughts on sticky notes  
+        🧺 Now picture tossing them into a basket  
+        🧹 One by one — clear your mind  
+
+        There’s room to breathe again.
+
+    - text: |
+        🌙 Sleep prep wind-down:
+
+        🛏️ Lay down and tense your toes  
+        🧘 Then relax them. Now your calves… thighs… all the way up  
+        🕯️ Slowly scan your body and release  
+
+        Let yourself melt into rest.
+
+    - text: |
+        🎨 Visual grounding:
+
+        🎈 Picture a color that makes you feel calm  
+        🎨 Imagine it wrapping around you like a blanket  
+        🌀 Breathe that color in and out, slowly  
+
+        Let it carry the tension away.
+
+    - text: |
+        📦 Emotion check-in:
+
+        💭 Close your eyes  
+        📦 Imagine putting today’s emotions in a box  
+        🧷 You’re not throwing them away, just setting them aside  
+        🌤️ Let your body feel light without carrying it all
+
+  utter_done:
+    - text: "All done for now. Thanks for checking in. Take good care of yourself. 🌻"
+
+  utter_goodbye:
+    - text: "See you tomorrow 👋 Take care!"
+    - text: "You got this 💪 Until next time!"
+    - text: "Goodbye for now. Be kind to yourself 💛"
+    - text: "Logging off — sending good vibes your way ✨"
+
 actions:
   - action_save_message
->>>>>>> nyi-rasa
 
 session_config:
   session_expiration_time: 60
