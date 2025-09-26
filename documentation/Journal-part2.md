@@ -84,7 +84,7 @@ Our core complexity is implemented in the weekly trend analysis feature within t
 
         - Applies filtering logic to ignore minor fluctuations (defined dynamically based on average activity frequency).
 
-        - Matches emotion and activity trends chronologically, using a sliding time window to infer correlations.
+        - Matches emotion and activity trends chronologically, using a sliding time window to infer correlations
 
         - Categorizes these as trend patterns like ++, --, +-, -+.
 
